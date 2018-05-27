@@ -11,6 +11,7 @@ setup(
     install_requires=[
         'dnspython',
         'flask',
+        'PyYAML',
     ],
     classifiers=(
         "Programming Language :: Python :: 3",
