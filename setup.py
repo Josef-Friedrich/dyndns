@@ -1,15 +1,17 @@
-from setuptools import setup
+from setuptools import setup, find_packages
 
 setup(
-    name="jfddns,
+    name="jfddns",
     version="0.0.1",
     author="Josef Friedrich",
-    author_email="author@example.com",
-    description="A small example package",
-    long_description=long_description,
-    long_description_content_type="text/markdown",
-    url="https://github.com/pypa/example-project",
-    packages=setuptools.find_packages(),
+    author_email="josef@friedrich.rocks",
+    description="Simple dynamic ddns update tool using HTTP",
+    url="https://github.com/Josef-Friedrich/jfddns",
+    packages=find_packages(),
+    install_requires=[
+        'dnspython',
+        'flask',
+    ],
     classifiers=(
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: MIT License",
