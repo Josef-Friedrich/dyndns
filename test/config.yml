@@ -1,0 +1,6 @@
+---
+secret: 12345
+nameserver: 127.0.0.1
+zones:
+  - zone: example.com
+    key: 1234

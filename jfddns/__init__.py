@@ -1,61 +1,45 @@
-import dns.name
-import dns.query
-import dns.update
-import dns.tsigkeyring
 
+import yaml
+from flask import abort
 from flask import Flask
 from flask import request
-from flask import abort
 from flask import Response
 from functools import wraps
+import dns.name
+import dns.query
+import dns.tsigkeyring
+import dns.update
 
+def load_config(path):
+    stream = open(path, 'r')
+    config = yaml.load(stream)
+    stream.close()
+    return config
 
-DOMAIN = 'dyn.example.org'
-DNSHOST = 'dns.example.org'
+DOMAIN = 'jf-dyndns.cf'
 
 KEYRING = dns.tsigkeyring.from_text({
-    'updatekey.': 'reallyrandomsecretdatathatyoucanthavereally'
+    'updatekey.': '+Vzj6Uu4JeW6EnWqrm2OlT3uBx7weGK5upD+qB+MuiavbXmqitSOXImAOp+ddSODFwzyK7VD6NU5iIgRrc48hg=='
 })
 
 app = Flask(__name__)
 
-
-def check_auth(username, password):
-    """This function is called to check if a username /
-    password combination is valid.
-    """
-    return username == 'username' and password == 'password'
+def usage():
+    return 'Usage: secret=<secret>&zone=<zone>&record=<record>&ipv6=<ipv6>&ipv4=<ipv4>'
 
 
-def authenticate():
-    """Sends a 401 response that enables basic auth"""
-    return Response(
-        'Could not verify your access level for that URL.\n'
-        'You have to login with proper credentials', 401,
-        {'WWW-Authenticate': 'Basic realm="Login Required"'})
 
-
-def requires_auth(f):
-    @wraps(f)
-    def decorated(*args, **kwargs):
-        auth = request.authorization
-        if not auth or not check_auth(auth.username, auth.password):
-            return authenticate()
-        return f(*args, **kwargs)
-    return decorated
-
-
-@app.route("/nic/update")
-@requires_auth
+@app.route("/")
 def update():
-    if 'hostname' not in request.args:
+    if 'record' not in request.args:
+        return usage()
+    if 'ipv4' not in request.args:
         abort(400)
-    if 'myip' not in request.args:
-        abort(400)
-    hostname = dns.name.from_text(request.args['hostname'])
+    record = dns.name.from_text(request.args['record'])
+    print(record)
     domain = dns.name.from_text(DOMAIN)
-    particle = hostname.relativize(domain)
-    if not hostname.is_subdomain(domain):
+    particle = record.relativize(domain)
+    if not record.is_subdomain(domain):
         return 'nohost'
     update = dns.update.Update(DOMAIN, keyring=KEYRING)
     update.delete(str(particle))
