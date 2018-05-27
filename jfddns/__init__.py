@@ -18,15 +18,27 @@ def load_config(path):
 
 DOMAIN = 'jf-dyndns.cf'
 
-KEYRING = dns.tsigkeyring.from_text({
-    'updatekey.': '+Vzj6Uu4JeW6EnWqrm2OlT3uBx7weGK5upD+qB+MuiavbXmqitSOXImAOp+ddSODFwzyK7VD6NU5iIgRrc48hg=='
-})
+
 
 app = Flask(__name__)
 
+class DnsUpdate(object):
+
+    def __init__(self, nameserver, zone, key):
+        self.keyring = dns.tsigkeyring.from_text({
+            'updatekey.': key
+        })
+        self.dns_update = dns.update.Update(zone, keyring=self.keyring)
+        self.nameserver = nameserver
+
+    def set_record(self, record, ip):
+        self.dns_update.delete(record)
+        self.dns_update.add(record, 300, 'A', ip)
+        dns.query.tcp(self.dns_update, self.nameserver)
+
+
 def usage():
     return 'Usage: secret=<secret>&zone=<zone>&record=<record>&ipv6=<ipv6>&ipv4=<ipv4>'
-
 
 
 @app.route("/")
@@ -41,14 +53,12 @@ def update():
     particle = record.relativize(domain)
     if not record.is_subdomain(domain):
         return 'nohost'
-    update = dns.update.Update(DOMAIN, keyring=KEYRING)
-    update.delete(str(particle))
-    update.add(str(particle), 600, 'a', str(request.args['myip']))
-    response = dns.query.tcp(update, DNSHOST)
+
     if response.rcode() == 0:
         return "good "+str(request.args['myip'])
     else:
         return "dnserr"
+
 
 if __name__ == "__main__":
     app.run(debug=True)
