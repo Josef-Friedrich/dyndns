@@ -13,33 +13,36 @@ class TestConfig(unittest.TestCase):
 
 class TestValidate(unittest.TestCase):
 
+    def setUp(self):
+        self.v = Validate()
+
     def test_ipv4_valid(self):
-        self.assertEqual(str(Validate.ipv4('192.168.2.3')), '192.168.2.3')
+        self.assertEqual(str(self.v.ipv4('192.168.2.3')), '192.168.2.3')
 
     def test_ipv4_invalid_string(self):
         with self.assertRaises(ValueError):
-            Validate.ipv4('lol')
+            self.v.ipv4('lol')
 
     def test_ipv4_invalid_ipv6(self):
         with self.assertRaises(ValueError):
-            Validate.ipv4('1::2')
+            self.v.ipv4('1::2')
 
     def test_ipv6_valid(self):
-        self.assertEqual(str(Validate.ipv6('1::2')), '1::2')
+        self.assertEqual(str(self.v.ipv6('1::2')), '1::2')
 
     def test_ipv6_invalid_string(self):
         with self.assertRaises(ValueError):
-            Validate.ipv6('lol')
+            self.v.ipv6('lol')
 
     def test_ipv6_invalid_ipv6(self):
         with self.assertRaises(ValueError):
-            Validate.ipv6('1.2.3.4')
+            self.v.ipv6('1.2.3.4')
 
     def test_zone_valid(self):
-        self.assertEqual(str(Validate.zone('github.com')), 'github.com.')
+        self.assertEqual(self.v.zone('github.com'), 'github.com')
 
     def test_record_valid(self):
-        self.assertEqual(str(Validate.record('sub')), 'sub.')
+        self.assertEqual(self.v.record('sub'), 'sub')
 
 
 if __name__ == '__main__':

@@ -1,38 +1,24 @@
-
-import yaml
-from flask import abort
-from flask import Flask
-from flask import request
 import dns.name
 import dns.query
 import dns.tsigkeyring
 import dns.update
+import flask
 import ipaddress
+import re
+import yaml
 
-
+app = flask.Flask(__name__)
 config_path = '/etc/jfddns.yml'
-
 usage_text = 'Usage: ?secret=<secret>&zone=<zone>&record=<record>&' + \
              'ipv6=<ipv6>&ipv4=<ipv4>'
-
-def load_config(path):
-    stream = open(path, 'r')
-    config = yaml.load(stream)
-    stream.close()
-    return config
-
-
-DOMAIN = 'jf-dyndns.cf'
-
-app = Flask(__name__)
 
 
 class DnsUpdate(object):
 
     def __init__(self, nameserver, zone, key):
-        self.keyring = dns.tsigkeyring.from_text({
-            'updatekey.': key
-        })
+        keyring = {}
+        keyring[str(dns.name.from_text(zone))] = key
+        self.keyring = dns.tsigkeyring.from_text(keyring)
         self.dns_update = dns.update.Update(zone, keyring=self.keyring)
         self.nameserver = nameserver
 
@@ -68,12 +54,40 @@ class Validate(object):
             raise ValueError('Not a valid ipv6 address.')
 
     @staticmethod
-    def zone(zone_name):
-        return dns.name.from_text(zone_name)
+    def _hostname(hostname):
+        if hostname[-1] == ".":
+            # strip exactly one dot from the right, if present
+            hostname = hostname[:-1]
+        if len(hostname) > 253:
+            return False
 
-    @staticmethod
-    def record(record_name):
-        return dns.name.from_text(record_name)
+        labels = hostname.split(".")
+
+        # the TLD must be not all-numeric
+        if re.match(r"[0-9]+$", labels[-1]):
+            return False
+
+        allowed = re.compile(r"(?!-)[a-z0-9-]{1,63}(?<!-)$", re.IGNORECASE)
+        return all(allowed.match(label) for label in labels)
+
+    def zone(self, zone_name):
+        if self._hostname(zone_name):
+            return zone_name
+        else:
+            raise ValueError('invalid zone_name')
+
+    def record(self, record_name):
+        if self._hostname(record_name):
+            return record_name
+        else:
+            raise ValueError('invalid record_name')
+
+
+def load_config(path):
+    stream = open(path, 'r')
+    config = yaml.load(stream)
+    stream.close()
+    return config
 
 
 def get_zone_tsig(zone_name, config):
@@ -87,21 +101,21 @@ def get_zone_tsig(zone_name, config):
 def validate_args(args, config):
     if 'record' not in args and 'zone' not in args and 'secret' not in args:
         raise ValueError(usage_text)
-    if 'ipv4' not in args or 'ipv6' not in args:
+    if 'ipv4' not in args and 'ipv6' not in args:
         raise ValueError(usage_text)
 
-    if args['secret'] != config['secret']:
+    if args['secret'] != str(config['secret']):
         raise ValueError('Wrong secret')
 
     v = Validate()
 
     if 'ipv4' in args:
-        ipv4 = v.ipv4(args['ipv4'])
+        ipv4 = str(v.ipv4(args['ipv4']))
     else:
         ipv4 = None
 
     if 'ipv6' in args:
-        ipv6 = v.ipv6(args['ipv6'])
+        ipv6 = str(v.ipv6(args['ipv6']))
     else:
         ipv6 = None
 
@@ -113,16 +127,11 @@ def validate_args(args, config):
     }
 
 
-def usage():
-    return 'Usage: secret=<secret>&zone=<zone>&record=<record>&' + \
-           'ipv6=<ipv6>&ipv4=<ipv4>'
-
-
 @app.route("/")
 def update():
 
     config = load_config(config_path)
-    input_args = validate_args(request.args, config)
+    input_args = validate_args(flask.request.args, config)
 
     dns_update = DnsUpdate(
         config['nameserver'],
@@ -130,23 +139,13 @@ def update():
         get_zone_tsig(input_args['zone'], config),
     )
 
-    if input['ipv4']:
+    if input_args['ipv4']:
         dns_update.set_record(input_args['record'], input_args['ipv4'], 4)
 
-    if input['ipv6']:
+    if input_args['ipv6']:
         dns_update.set_record(input_args['record'], input_args['ipv6'], 6)
 
-    # record = dns.name.from_text(request.args['record'])
-    # print(record)
-    # domain = dns.name.from_text(DOMAIN)
-    # particle = record.relativize(domain)
-    # if not record.is_subdomain(domain):
-    #     return 'nohost'
-    #
-    # if response.rcode() == 0:
-    #     return "good "+str(request.args['myip'])
-    # else:
-    #     return "dnserr"
+    return 'ok'
 
 
 if __name__ == "__main__":
