@@ -38,9 +38,6 @@ class TestValidate(unittest.TestCase):
     def test_zone_valid(self):
         self.assertEqual(str(Validate.zone('github.com')), 'github.com.')
 
-    def test_zone_invalid_whitespace(self):
-        self.assertEqual(str(Validate.zone('git hub com')), 'github.com.')
-
     def test_record_valid(self):
         self.assertEqual(str(Validate.record('sub')), 'sub.')
 
