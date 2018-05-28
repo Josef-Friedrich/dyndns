@@ -3,12 +3,12 @@ import yaml
 from flask import abort
 from flask import Flask
 from flask import request
-from flask import Response
-from functools import wraps
 import dns.name
 import dns.query
 import dns.tsigkeyring
 import dns.update
+import ipaddress
+
 
 def load_config(path):
     stream = open(path, 'r')
@@ -16,11 +16,11 @@ def load_config(path):
     stream.close()
     return config
 
+
 DOMAIN = 'jf-dyndns.cf'
 
-
-
 app = Flask(__name__)
+
 
 class DnsUpdate(object):
 
@@ -37,8 +37,36 @@ class DnsUpdate(object):
         dns.query.tcp(self.dns_update, self.nameserver)
 
 
+class Validate(object):
+
+    @staticmethod
+    def ipv4(address):
+        address = ipaddress.ip_address(address)
+        if address.version == 4:
+            return address
+        else:
+            raise ValueError('Not a valid ipv4 address.')
+
+    @staticmethod
+    def ipv6(address):
+        address = ipaddress.ip_address(address)
+        if address.version == 6:
+            return address
+        else:
+            raise ValueError('Not a valid ipv6 address.')
+
+    @staticmethod
+    def zone(zone_name):
+        return dns.name.from_text(zone_name)
+
+    @staticmethod
+    def record(record_name):
+        return dns.name.from_text(record_name)
+
+
 def usage():
-    return 'Usage: secret=<secret>&zone=<zone>&record=<record>&ipv6=<ipv6>&ipv4=<ipv4>'
+    return 'Usage: secret=<secret>&zone=<zone>&record=<record>&' + \
+           'ipv6=<ipv6>&ipv4=<ipv4>'
 
 
 @app.route("/")
