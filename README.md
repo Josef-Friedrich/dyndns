@@ -1,6 +1,5 @@
-ddns
-====
+jfddns
+======
 
-Simple dynamic DNS service for python/flask with a dyndns compatible API.
-
-This is really basic with hardcoded values, using RFC 2136 DDNS to update the DNS data.
+Simple dynamic DNS update HTTP based API using python and the flask
+web framework. 
