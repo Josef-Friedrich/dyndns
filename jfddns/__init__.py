@@ -1,4 +1,3 @@
-import argparse
 import dns.name
 import dns.query
 import dns.tsigkeyring
@@ -149,25 +148,8 @@ def update():
     return 'ok'
 
 
-def parse_args():
-    parser = argparse.ArgumentParser(
-        description='Simple dynamic DNS update HTTP based API using python '
-        'and the flask web framework.'
-    )
-
-    parser.add_argument(
-        '-p',
-        '--port',
-        type=int,
-        default=5000,
-    )
-
-    return parser
-
-
 def main():
-    args = parse_args().parse_args()
-    app.run(port=args.port, debug=False)
+    app.run(debug=False)
 
 
 if __name__ == "__main__":
