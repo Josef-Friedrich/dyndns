@@ -98,14 +98,19 @@ def get_zone_tsig(zone_name, config):
     raise ValueError('Zone key couldn’t be found.')
 
 
+def message(text):
+    return {'message': text}
+
+
 def validate_args(args, config):
     if 'record' not in args and 'zone' not in args and 'secret' not in args:
-        raise ValueError(usage_text)
+        return message('The arguments “record”, “zone” and “secret” are ' +
+                       'required.')
     if 'ipv4' not in args and 'ipv6' not in args:
-        raise ValueError(usage_text)
-
+        return message('The argument “ipv4” or the argument “ipv6” is '
+                       'required.')
     if args['secret'] != str(config['secret']):
-        raise ValueError('Wrong secret')
+        return message('You specified a wrong secret key.')
 
     v = Validate()
 

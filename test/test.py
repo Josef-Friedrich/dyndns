@@ -1,5 +1,5 @@
 import unittest
-from jfddns import load_config, Validate
+from jfddns import load_config, Validate, validate_args
 import os
 
 
@@ -43,6 +43,32 @@ class TestValidate(unittest.TestCase):
 
     def test_record_valid(self):
         self.assertEqual(self.v.record('sub'), 'sub')
+
+
+class TestFunctionValidateArgs(unittest.TestCase):
+
+    def test_empty_dict(self):
+        self.assertEqual(
+            validate_args({}, {}),
+            {'message': 'The arguments “record”, “zone” and “secret” are '
+                        'required.'}
+        )
+
+    def test_no_ip(self):
+        self.assertEqual(
+            validate_args({'record': '1', 'zone': '2', 'secret': '3'}, {}),
+            {'message': 'The argument “ipv4” or the argument “ipv6” is '
+                        'required.'}
+
+        )
+
+    def test_wrong_secret(self):
+        self.assertEqual(
+            validate_args(
+                {'record': '1', 'zone': '2', 'secret': '3', 'ipv6': '1::2'},
+                {'secret': '4'}),
+            {'message': 'You specified a wrong secret key.'}
+        )
 
 
 if __name__ == '__main__':
