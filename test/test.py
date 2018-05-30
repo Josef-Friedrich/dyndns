@@ -20,23 +20,19 @@ class TestValidate(unittest.TestCase):
         self.assertEqual(str(self.v.ipv4('192.168.2.3')), '192.168.2.3')
 
     def test_ipv4_invalid_string(self):
-        with self.assertRaises(ValueError):
-            self.v.ipv4('lol')
+        self.assertFalse(self.v.ipv4('lol'))
 
     def test_ipv4_invalid_ipv6(self):
-        with self.assertRaises(ValueError):
-            self.v.ipv4('1::2')
+        self.assertFalse(self.v.ipv4('1::2'))
 
     def test_ipv6_valid(self):
         self.assertEqual(str(self.v.ipv6('1::2')), '1::2')
 
     def test_ipv6_invalid_string(self):
-        with self.assertRaises(ValueError):
-            self.v.ipv6('lol')
+        self.assertFalse(self.v.ipv6('lol'))
 
     def test_ipv6_invalid_ipv6(self):
-        with self.assertRaises(ValueError):
-            self.v.ipv6('1.2.3.4')
+        self.assertFalse(self.v.ipv6('1.2.3.4'))
 
     def test_zone_valid(self):
         self.assertEqual(self.v.zone('github.com'), 'github.com')

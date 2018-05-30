@@ -39,19 +39,25 @@ class Validate(object):
 
     @staticmethod
     def ipv4(address):
-        address = ipaddress.ip_address(address)
-        if address.version == 4:
-            return address
-        else:
-            raise ValueError('Not a valid ipv4 address.')
+        try:
+            address = ipaddress.ip_address(address)
+            if address.version == 4:
+                return address
+            else:
+                return False
+        except ValueError:
+            return False
 
     @staticmethod
     def ipv6(address):
-        address = ipaddress.ip_address(address)
-        if address.version == 6:
-            return address
-        else:
-            raise ValueError('Not a valid ipv6 address.')
+        try:
+            address = ipaddress.ip_address(address)
+            if address.version == 6:
+                return address
+            else:
+                return False
+        except ValueError:
+            return False
 
     @staticmethod
     def _hostname(hostname):
@@ -74,13 +80,13 @@ class Validate(object):
         if self._hostname(zone_name):
             return zone_name
         else:
-            raise ValueError('invalid zone_name')
+            return False
 
     def record(self, record_name):
         if self._hostname(record_name):
             return record_name
         else:
-            raise ValueError('invalid record_name')
+            return False
 
 
 def load_config(path):
