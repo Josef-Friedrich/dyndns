@@ -66,6 +66,22 @@ class TestFunctionValidateArgs(unittest.TestCase):
             {'message': 'You specified a wrong secret key.'}
         )
 
+    def test_invalid_ipv4(self):
+        self.assertEqual(
+            validate_args(
+                {'record': 'a', 'zone': 'b', 'secret': '3', 'ipv4': '1::2'},
+                {'secret': '3'}),
+            {'message': 'Invalid ipv4 address.'}
+        )
+
+    def test_invalid_ipv6(self):
+        self.assertEqual(
+            validate_args(
+                {'record': 'a', 'zone': 'b', 'secret': '3', 'ipv6': 'xxx'},
+                {'secret': '3'}),
+            {'message': 'Invalid ipv6 address.'}
+        )
+
 
 if __name__ == '__main__':
     unittest.main()

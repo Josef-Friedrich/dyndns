@@ -121,12 +121,20 @@ def validate_args(args, config):
     v = Validate()
 
     if 'ipv4' in args:
-        ipv4 = str(v.ipv4(args['ipv4']))
+        ipv4 = v.ipv4(args['ipv4'])
+        if not ipv4:
+            return message('Invalid ipv4 address.')
+        else:
+            ipv4 = str(ipv4)
     else:
         ipv4 = None
 
     if 'ipv6' in args:
-        ipv6 = str(v.ipv6(args['ipv6']))
+        ipv6 = v.ipv6(args['ipv6'])
+        if not ipv6:
+            return message('Invalid ipv6 address.')
+        else:
+            ipv6 = str(ipv6)
     else:
         ipv6 = None
 
