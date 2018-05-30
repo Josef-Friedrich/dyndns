@@ -1,5 +1,5 @@
 import unittest
-from jfddns import load_config, Validate, validate_args
+from jfddns import load_config, Validate, validate_args, DnsUpdate
 import os
 
 
@@ -105,6 +105,16 @@ class TestFunctionValidateArgs(unittest.TestCase):
                 {'secret': '3'}),
             {'ipv4': None, 'ipv6': '1::2', 'record': 'a', 'zone': 'b'}
         )
+
+
+class TestClassDnsUpdate(unittest.TestCase):
+
+    def test_resolver(self):
+        dns = DnsUpdate('185.11.138.33', 'friedrich.rocks.',
+                        '+Vzj6Uu4JeW6EnWqrm2OlT3uBx7weGK5upD+qB+MuiavbXmqit'
+                        'SOXImAOp+ddSODFwzyK7VD6NU5iIgRrc48hg==')
+        ip = dns._resolve('josef', 4)
+        self.assertEqual(str(ip[0]), '185.11.138.33')
 
 
 if __name__ == '__main__':

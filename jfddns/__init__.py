@@ -2,6 +2,7 @@ import dns.name
 import dns.query
 import dns.tsigkeyring
 import dns.update
+import dns.resolver
 import flask
 import ipaddress
 import re
@@ -16,23 +17,38 @@ usage_text = 'Usage: ?secret=<secret>&zone=<zone>&record=<record>&' + \
 class DnsUpdate(object):
 
     def __init__(self, nameserver, zone, key):
+        self.nameserver = nameserver
+        self.zone = zone
         keyring = {}
         keyring[str(dns.name.from_text(zone))] = key
         self.keyring = dns.tsigkeyring.from_text(keyring)
         self.dns_update = dns.update.Update(zone, keyring=self.keyring)
-        self.nameserver = nameserver
 
-    def set_record(self, record, ip, ip_version=4):
-        self.dns_update.delete(record)
+    @staticmethod
+    def _convert_record_type(ip_version=4):
         if ip_version == 4:
-            record_type = 'a'
+            return 'a'
         elif ip_version == 6:
-            record_type = 'aaaa'
+            return 'aaaa'
         else:
             raise ValueError('“ip_version” must be 4 or 6')
 
-        self.dns_update.add(record, 300, record_type, ip)
-        dns.query.tcp(self.dns_update, self.nameserver)
+    def _resolve(self, record_name, ip_version=4):
+        resolver = dns.resolver.Resolver()
+        resolver.nameservers = [self.nameserver]
+        return resolver.query(record_name + '.' + self.zone,
+                              self._convert_record_type(ip_version))
+
+    def set_record(self, record_name, ip, ip_version=4):
+        old_ip = self._resolve(record_name, ip_version)
+        if ip != old_ip:
+            self.dns_update.delete(record_name)
+            self.dns_update.add(record_name, 300,
+                                self._convert_record_type(ip_version), ip)
+            dns.query.tcp(self.dns_update, self.nameserver)
+            return True
+        else:
+            return False
 
 
 class Validate(object):
