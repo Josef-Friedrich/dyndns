@@ -82,6 +82,30 @@ class TestFunctionValidateArgs(unittest.TestCase):
             {'message': 'Invalid ipv6 address.'}
         )
 
+    def test_invalid_zone(self):
+        self.assertEqual(
+            validate_args(
+                {'record': 'a', 'zone': 'b b ', 'secret': '3', 'ipv6': '1::2'},
+                {'secret': '3'}),
+            {'message': 'Invalid zone string.'}
+        )
+
+    def test_invalid_record(self):
+        self.assertEqual(
+            validate_args(
+                {'record': 'a a', 'zone': 'b', 'secret': '3', 'ipv6': '1::2'},
+                {'secret': '3'}),
+            {'message': 'Invalid record string.'}
+        )
+
+    def test_valid(self):
+        self.assertEqual(
+            validate_args(
+                {'record': 'a', 'zone': 'b', 'secret': '3', 'ipv6': '1::2'},
+                {'secret': '3'}),
+            {'ipv4': None, 'ipv6': '1::2', 'record': 'a', 'zone': 'b'}
+        )
+
 
 if __name__ == '__main__':
     unittest.main()

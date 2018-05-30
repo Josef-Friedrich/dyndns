@@ -118,10 +118,10 @@ def validate_args(args, config):
     if args['secret'] != str(config['secret']):
         return message('You specified a wrong secret key.')
 
-    v = Validate()
+    validate = Validate()
 
     if 'ipv4' in args:
-        ipv4 = v.ipv4(args['ipv4'])
+        ipv4 = validate.ipv4(args['ipv4'])
         if not ipv4:
             return message('Invalid ipv4 address.')
         else:
@@ -130,7 +130,7 @@ def validate_args(args, config):
         ipv4 = None
 
     if 'ipv6' in args:
-        ipv6 = v.ipv6(args['ipv6'])
+        ipv6 = validate.ipv6(args['ipv6'])
         if not ipv6:
             return message('Invalid ipv6 address.')
         else:
@@ -138,9 +138,17 @@ def validate_args(args, config):
     else:
         ipv6 = None
 
+    zone = validate.zone(args['zone'])
+    if not zone:
+        return message('Invalid zone string.')
+
+    record = validate.zone(args['record'])
+    if not record:
+        return message('Invalid record string.')
+
     return {
-        'zone': v.zone(args['zone']),
-        'record': v.record(args['record']),
+        'zone': zone,
+        'record': record,
         'ipv4': ipv4,
         'ipv6': ipv6,
     }
@@ -151,6 +159,9 @@ def update():
 
     config = load_config(config_path)
     input_args = validate_args(flask.request.args, config)
+
+    if 'message' in input_args:
+        return input_args['message']
 
     dns_update = DnsUpdate(
         config['nameserver'],
