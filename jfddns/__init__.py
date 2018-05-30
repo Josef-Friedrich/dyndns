@@ -101,8 +101,6 @@ def get_zone_tsig(zone_name, config):
         if zone['zone'] == zone_name:
             return zone['key']
 
-    raise ValueError('Zone key couldn’t be found.')
-
 
 def message(text):
     return {'message': text}
@@ -163,10 +161,14 @@ def update():
     if 'message' in input_args:
         return input_args['message']
 
+    key = get_zone_tsig(input_args['zone'], config)
+    if not key:
+        return 'Zone key couldn’t be found.'
+
     dns_update = DnsUpdate(
         config['nameserver'],
         input_args['zone'],
-        get_zone_tsig(input_args['zone'], config),
+        key,
     )
 
     if input_args['ipv4']:
