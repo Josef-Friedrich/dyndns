@@ -18,11 +18,14 @@ class DnsUpdate(object):
 
     def __init__(self, nameserver, zone, key):
         self.nameserver = nameserver
-        self.zone = zone
+        self.zone = dns.name.from_text(zone)
         keyring = {}
-        keyring[str(dns.name.from_text(zone))] = key
+        keyring[str(self.zone)] = key
         self.keyring = dns.tsigkeyring.from_text(keyring)
-        self.dns_update = dns.update.Update(zone, keyring=self.keyring)
+        self.dns_update = dns.update.Update(self.zone, keyring=self.keyring)
+
+    def _concatenate(self, record_name):
+        return dns.name.from_text('{}.{}'.format(record_name, self.zone))
 
     @staticmethod
     def _convert_record_type(ip_version=4):
@@ -36,19 +39,30 @@ class DnsUpdate(object):
     def _resolve(self, record_name, ip_version=4):
         resolver = dns.resolver.Resolver()
         resolver.nameservers = [self.nameserver]
-        return resolver.query(record_name + '.' + self.zone,
-                              self._convert_record_type(ip_version))
+        return str(resolver.query(self._concatenate(record_name),
+                                  self._convert_record_type(ip_version))[0])
 
-    def set_record(self, record_name, ip, ip_version=4):
+    def set_record(self, record_name, new_ip, ip_version=4):
+        out = {}
         old_ip = self._resolve(record_name, ip_version)
-        if ip != old_ip:
+        if new_ip == old_ip:
+            out['message'] = 'The ip is already up to date.'
+        else:
             self.dns_update.delete(record_name)
             self.dns_update.add(record_name, 300,
-                                self._convert_record_type(ip_version), ip)
+                                self._convert_record_type(ip_version), new_ip)
             dns.query.tcp(self.dns_update, self.nameserver)
-            return True
-        else:
-            return False
+            checked_ip = self._resolve(record_name, ip_version)
+
+            if new_ip != checked_ip:
+                out['message'] = 'The DNS record couldn’t be updated.'
+            else:
+                out['message'] = 'The DNS record has been successfully ' \
+                                 'updated.'
+
+        out['old_ip'] = old_ip
+        out['new_ip'] = new_ip
+        return out
 
 
 class Validate(object):

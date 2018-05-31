@@ -1,6 +1,7 @@
-import unittest
 from jfddns import load_config, Validate, validate_args, DnsUpdate
+import ipaddress
 import os
+import unittest
 
 
 class TestConfig(unittest.TestCase):
@@ -109,12 +110,18 @@ class TestFunctionValidateArgs(unittest.TestCase):
 
 class TestClassDnsUpdate(unittest.TestCase):
 
+    def test_method_convert_record_type(self):
+        self.assertEqual(DnsUpdate._convert_record_type(4), 'a')
+        self.assertEqual(DnsUpdate._convert_record_type(6), 'aaaa')
+
+    def test_method_concatenate(self):
+        dns = DnsUpdate('ns.example.com', 'example.com', 'tPyvZA==')
+        self.assertEqual(str(dns._concatenate('lol')), 'lol.example.com.')
+
     def test_resolver(self):
-        dns = DnsUpdate('185.11.138.33', 'friedrich.rocks.',
-                        '+Vzj6Uu4JeW6EnWqrm2OlT3uBx7weGK5upD+qB+MuiavbXmqit'
-                        'SOXImAOp+ddSODFwzyK7VD6NU5iIgRrc48hg==')
-        ip = dns._resolve('josef', 4)
-        self.assertEqual(str(ip[0]), '185.11.138.33')
+        dns = DnsUpdate('8.8.8.8', 'google.com.', 'tPyvZA==')
+        ip = dns._resolve('www', 4)
+        ipaddress.ip_address(ip)
 
 
 if __name__ == '__main__':
