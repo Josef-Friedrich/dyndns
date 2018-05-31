@@ -6,6 +6,7 @@ import dns.tsigkeyring
 import dns.update
 import flask
 import ipaddress
+import logging
 import os
 import re
 import yaml
@@ -14,6 +15,14 @@ app = flask.Flask(__name__)
 config_file = '/etc/jfddns.yml'
 usage_text = 'Usage: ?secret=<secret>&zone=<zone>&record=<record>&' + \
              'ipv6=<ipv6>&ipv4=<ipv4>'
+
+
+logger = logging.getLogger('jfddns')
+handler = logging.FileHandler('/var/log/jfddns.log')
+formatter = logging.Formatter('%(asctime)s %(message)s')
+handler.setFormatter(formatter)
+logger.addHandler(handler)
+logger.setLevel(logging.INFO)
 
 
 class DnsUpdate(object):
@@ -135,6 +144,11 @@ def message(text):
     return {'message': text}
 
 
+def msg(text):
+    logger.info(text)
+    return text
+
+
 def update_message(update_result):
     if 'message' in update_result:
         return update_result['message']
@@ -198,19 +212,19 @@ def validate_args(args, config):
 def update():
 
     if not os.path.exists(config_file):
-        return 'The configuration file {} could not be found.'.format(
+        return msg('The configuration file {} could not be found.'.format(
             config_file
-        )
+        ))
 
     config = load_config(config_file)
     input_args = validate_args(flask.request.args, config)
 
     if 'message' in input_args:
-        return input_args['message']
+        return msg(input_args['message'])
 
     key = get_zone_tsig(input_args['zone'], config)
     if not key:
-        return 'Zone key couldn’t be found.'
+        return msg('Zone key couldn’t be found.')
 
     dns_update = DnsUpdate(
         config['nameserver'],
@@ -229,7 +243,7 @@ def update():
                                             input_args['ipv6'], 6)
         out.append('ipv6: ' + update_message(result_ipv6))
 
-    return ' '.join(out)
+    return msg(' '.join(out))
 
 
 def get_argparser():
