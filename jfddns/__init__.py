@@ -11,6 +11,10 @@ import os
 import re
 import yaml
 
+from ._version import get_versions
+__version__ = get_versions()['version']
+del get_versions
+
 app = flask.Flask(__name__)
 config_file = '/etc/jfddns.yml'
 usage_text = 'Usage: ?secret=<secret>&zone=<zone>&record=<record>&' + \
@@ -281,7 +285,3 @@ def debug():
 
 if __name__ == "__main__":
     app.run(debug=True)
-
-from ._version import get_versions
-__version__ = get_versions()['version']
-del get_versions
