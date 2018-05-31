@@ -4,7 +4,6 @@ import versioneer
 
 setup(
     name="jfddns",
-    version="0.0.1",
     author="Josef Friedrich",
     author_email="josef@friedrich.rocks",
     version=versioneer.get_version(),
