@@ -1,10 +1,14 @@
 from setuptools import setup, find_packages
+import versioneer
+
 
 setup(
     name="jfddns",
     version="0.0.1",
     author="Josef Friedrich",
     author_email="josef@friedrich.rocks",
+    version=versioneer.get_version(),
+    cmdclass=versioneer.get_cmdclass(),
     description="Simple dynamic ddns update tool using HTTP",
     url="https://github.com/Josef-Friedrich/jfddns",
     packages=find_packages(),
