@@ -1,15 +1,17 @@
+import argparse
 import dns.name
 import dns.query
+import dns.resolver
 import dns.tsigkeyring
 import dns.update
-import dns.resolver
 import flask
 import ipaddress
+import os
 import re
 import yaml
 
 app = flask.Flask(__name__)
-config_path = '/etc/jfddns.yml'
+config_file = '/etc/jfddns.yml'
 usage_text = 'Usage: ?secret=<secret>&zone=<zone>&record=<record>&' + \
              'ipv6=<ipv6>&ipv4=<ipv4>'
 
@@ -195,7 +197,12 @@ def validate_args(args, config):
 @app.route("/")
 def update():
 
-    config = load_config(config_path)
+    if not os.path.exists(config_file):
+        return 'The configuration file {} could not be found.'.format(
+            config_file
+        )
+
+    config = load_config(config_file)
     input_args = validate_args(flask.request.args, config)
 
     if 'message' in input_args:
@@ -225,8 +232,20 @@ def update():
     return ' '.join(out)
 
 
-def main():
-    app.run(debug=False)
+def get_argparser():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-p', '--port', type=int, default=54321)
+    parser.add_argument('-c', '--config-file')
+
+    return parser
+
+
+def debug():
+    args = get_argparser().parse_args()
+    if hasattr(args, 'config_file'):
+        global config_file
+        config_file = args.config_file
+    app.run(debug=True, port=args.port)
 
 
 if __name__ == "__main__":

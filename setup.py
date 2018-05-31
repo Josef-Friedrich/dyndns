@@ -20,7 +20,7 @@ setup(
     ),
     entry_points = {
         'console_scripts': [
-            'jfddns = jfddns:main',
+            'jfddns-debug = jfddns:debug',
         ],
     },
 )
