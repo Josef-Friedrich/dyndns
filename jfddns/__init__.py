@@ -46,7 +46,7 @@ class DnsUpdate(object):
         out = {}
         old_ip = self._resolve(record_name, ip_version)
         if new_ip == old_ip:
-            out['message'] = 'The ip is already up to date.'
+            out['old_ip'] = old_ip
         else:
             self.dns_update.delete(record_name)
             self.dns_update.add(record_name, 300,
@@ -57,11 +57,8 @@ class DnsUpdate(object):
             if new_ip != checked_ip:
                 out['message'] = 'The DNS record couldn’t be updated.'
             else:
-                out['message'] = 'The DNS record has been successfully ' \
-                                 'updated.'
+                out['new_ip'] = new_ip
 
-        out['old_ip'] = old_ip
-        out['new_ip'] = new_ip
         return out
 
 
@@ -136,6 +133,19 @@ def message(text):
     return {'message': text}
 
 
+def update_message(update_result):
+    if 'message' in update_result:
+        return update_result['message']
+    elif 'old_ip' in update_result:
+        return 'The ip address {} did not change.'.format(
+            update_result['old_ip']
+        )
+    elif 'new_ip' in update_result:
+        return 'The new ip address {} have been updated successfully.'.format(
+            update_result['new_ip']
+        )
+
+
 def validate_args(args, config):
     if 'record' not in args and 'zone' not in args and 'secret' not in args:
         return message('The arguments “record”, “zone” and “secret” are ' +
@@ -201,13 +211,18 @@ def update():
         key,
     )
 
+    out = []
     if input_args['ipv4']:
-        dns_update.set_record(input_args['record'], input_args['ipv4'], 4)
+        result_ipv4 = dns_update.set_record(input_args['record'],
+                                            input_args['ipv4'], 4)
+        out.append('ipv4: ' + update_message(result_ipv4))
 
     if input_args['ipv6']:
-        dns_update.set_record(input_args['record'], input_args['ipv6'], 6)
+        result_ipv6 = dns_update.set_record(input_args['record'],
+                                            input_args['ipv6'], 6)
+        out.append('ipv6: ' + update_message(result_ipv6))
 
-    return 'ok'
+    return ' '.join(out)
 
 
 def main():

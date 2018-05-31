@@ -2,6 +2,25 @@ from jfddns import load_config, Validate, validate_args, DnsUpdate
 import ipaddress
 import os
 import unittest
+import socket
+
+
+def check_internet_connectifity(host="8.8.8.8", port=53, timeout=3):
+    """
+    https://stackoverflow.com/a/33117579
+    Host: 8.8.8.8 (google-public-dns-a.google.com)
+    OpenPort: 53/tcp
+    Service: domain (DNS/TCP)
+    """
+    try:
+        socket.setdefaulttimeout(timeout)
+        socket.socket(socket.AF_INET, socket.SOCK_STREAM).connect((host, port))
+        return True
+    except Exception:
+        return False
+
+
+NO_INTERNET_CONNECTIFITY = not check_internet_connectifity()
 
 
 class TestConfig(unittest.TestCase):
@@ -118,6 +137,7 @@ class TestClassDnsUpdate(unittest.TestCase):
         dns = DnsUpdate('ns.example.com', 'example.com', 'tPyvZA==')
         self.assertEqual(str(dns._concatenate('lol')), 'lol.example.com.')
 
+    @unittest.skipIf(NO_INTERNET_CONNECTIFITY, 'No uplink')
     def test_resolver(self):
         dns = DnsUpdate('8.8.8.8', 'google.com.', 'tPyvZA==')
         ip = dns._resolve('www', 4)
