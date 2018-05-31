@@ -1,4 +1,5 @@
-from jfddns import load_config, Validate, validate_args, DnsUpdate
+from jfddns import load_config, Validate, validate_args, DnsUpdate, \
+                   split_hostname
 import ipaddress
 import os
 import unittest
@@ -142,6 +143,26 @@ class TestClassDnsUpdate(unittest.TestCase):
         dns = DnsUpdate('8.8.8.8', 'google.com.', 'tPyvZA==')
         ip = dns._resolve('www', 4)
         ipaddress.ip_address(ip)
+
+
+class TestFunctionSplitHostname(unittest.TestCase):
+
+    zones = [
+        {'zone': 'example.com.'},
+        {'zone': 'example.org'},
+    ]
+
+    def test_with_dot(self):
+        result = split_hostname('www.example.com', self.zones)
+        self.assertEqual(result, ('www.', 'example.com.'))
+
+    def test_with_org(self):
+        result = split_hostname('www.example.org', self.zones)
+        self.assertEqual(result, ('www.', 'example.org.'))
+
+    def test_unkown_zone(self):
+        result = split_hostname('www.xx.org', self.zones)
+        self.assertEqual(result, None)
 
 
 if __name__ == '__main__':

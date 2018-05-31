@@ -25,6 +25,23 @@ logger.addHandler(handler)
 logger.setLevel(logging.INFO)
 
 
+def normalize_dns_name(name):
+    return str(dns.name.from_text(name))
+
+
+def split_hostname(hostname, zones):
+    """Split hostname into record_name and zone_name
+    for example: www.example.com -> www. example.com.
+    """
+    hostname = normalize_dns_name(hostname)
+    for zone in zones:
+        zone_name = zone['zone']
+        zone_name = normalize_dns_name(zone_name)
+        record_name = hostname.replace(zone_name, '')
+        if len(record_name) > 0 and len(record_name) < len(hostname):
+            return (record_name, zone_name)
+
+
 class DnsUpdate(object):
 
     def __init__(self, nameserver, zone, key):
