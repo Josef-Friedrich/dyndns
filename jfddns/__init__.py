@@ -229,6 +229,13 @@ def validate_args(args, config):
     }
 
 
+@app.route('/<secret>/<fqdn>')
+@app.route('/<secret>/<fqdn>/<ip_1>')
+@app.route('/<secret>/<fqdn>/<ip_1>/<ip_2>')
+def update_by_path(secret, fqdn, ip_1=None, ip_2=None):
+    pass
+
+
 @app.route("/")
 def update():
 
