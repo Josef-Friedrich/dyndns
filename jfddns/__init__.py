@@ -22,7 +22,7 @@ usage_text = 'Usage: ?secret=<secret>&zone=<zone>&record=<record>&' + \
 
 
 logger = logging.getLogger('jfddns')
-handler = logging.FileHandler('/var/log/jfddns.log')
+handler = logging.FileHandler('jfddns.log')
 formatter = logging.Formatter('%(asctime)s %(message)s')
 handler.setFormatter(formatter)
 logger.addHandler(handler)
