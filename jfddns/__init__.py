@@ -239,8 +239,8 @@ def update_dns_record(secret=None, fqdn=None, zone_name=None, record_name=None,
             return msg('The configuration file {} could not be found.'.format(
                 config_file
             ))
-
-    pass
+        except yaml.error.YAMLError:
+            return msg('The configuration file is in a invalid YAML format.')
 
 
 @app.route('/update/<secret>/<fqdn>')

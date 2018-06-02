@@ -1,9 +1,16 @@
-from jfddns import load_config, Validate, validate_args, DnsUpdate, \
-                   split_hostname
+from jfddns import \
+    DnsUpdate, \
+    load_config, \
+    split_hostname, \
+    update_dns_record, \
+    validate_args, \
+    Validate
 import ipaddress
 import os
 import unittest
 import socket
+from unittest import mock
+import _helper
 
 
 def check_internet_connectifity(host="8.8.8.8", port=53, timeout=3):
@@ -163,6 +170,20 @@ class TestFunctionSplitHostname(unittest.TestCase):
     def test_unkown_zone(self):
         result = split_hostname('www.xx.org', self.zones)
         self.assertEqual(result, None)
+
+
+class TestFunctionUpdateDnsRecord(unittest.TestCase):
+
+    @mock.patch('jfddns.config_file', '/tmp/jfddns-xxx.yml')
+    def test_no_config_file(self):
+        self.assertEqual(update_dns_record(), 'The configuration file '
+                         '/tmp/jfddns-xxx.yml could not be found.')
+
+    @mock.patch('jfddns.config_file', os.path.join(_helper.files_dir,
+                'invalid-yaml.yml'))
+    def test_config_invalid_yaml_format(self):
+        self.assertEqual(update_dns_record(), 'The configuration file is in '
+                         'a invalid YAML format.')
 
 
 if __name__ == '__main__':
