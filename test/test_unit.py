@@ -44,6 +44,15 @@ class TestValidate(unittest.TestCase):
     def setUp(self):
         self.v = Validate()
 
+    def test_secret_valid(self):
+        self.assertEqual(self.v.secret('abcd1234'), 'abcd1234')
+
+    def test_secret_invalid_to_short(self):
+        self.assertEqual(self.v.secret('1234567'), False)
+
+    def test_secret_invalid_non_alpanumeric(self):
+        self.assertEqual(self.v.secret('12345äüö'), False)
+
     def test_ipv4_valid(self):
         self.assertEqual(str(self.v.ipv4('192.168.2.3')), '192.168.2.3')
 
@@ -184,6 +193,30 @@ class TestFunctionUpdateDnsRecord(unittest.TestCase):
     def test_config_invalid_yaml_format(self):
         self.assertEqual(update_dns_record(), 'The configuration file is in '
                          'a invalid YAML format.')
+
+    @mock.patch('jfddns.config_file', _helper.config_file)
+    def test_no_secret(self):
+        self.assertEqual(
+            update_dns_record(config={'lol': 'lol'}),
+            'Your configuration must have a "secret" key, for example: '
+            '"secret: VDEdxeTKH"'
+        )
+
+    @mock.patch('jfddns.config_file', _helper.config_file)
+    def test_invalid_secret(self):
+        self.assertEqual(
+            update_dns_record(config={'secret': 'ä'}),
+            'The secret must be at least 8 characters long and may not '
+            'contain any non-alpha-numeric characters.'
+        )
+
+    @mock.patch('jfddns.config_file', _helper.config_file)
+    def test_config_no_nameserver(self):
+        self.assertEqual(
+            update_dns_record(config={'secret': '12345678'}),
+            'Your configuration must have a "nameserver" key, '
+            'for example: "nameserver: 127.0.0.1"'
+        )
 
 
 if __name__ == '__main__':

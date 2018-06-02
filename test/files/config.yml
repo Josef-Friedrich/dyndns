@@ -2,5 +2,5 @@
 secret: 12345
 nameserver: 127.0.0.1
 zones:
-  - zone: example.com
-    key: tPyvZA==
+  - name: example.com
+    tsig_key: tPyvZA==

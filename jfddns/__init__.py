@@ -97,6 +97,13 @@ class DnsUpdate(object):
 class Validate(object):
 
     @staticmethod
+    def secret(secret):
+        if re.match('^[a-zA-Z0-9]+$', secret) and len(secret) >= 8:
+            return secret
+        else:
+            return False
+
+    @staticmethod
     def ipv4(address):
         try:
             address = ipaddress.ip_address(address)
@@ -232,6 +239,8 @@ def validate_args(args, config):
 def update_dns_record(secret=None, fqdn=None, zone_name=None, record_name=None,
                       ip_1=None, ip_2=None, config=None):
 
+    validate = Validate()
+
     if not config:
         try:
             config = load_config(config_file)
@@ -241,6 +250,18 @@ def update_dns_record(secret=None, fqdn=None, zone_name=None, record_name=None,
             ))
         except yaml.error.YAMLError:
             return msg('The configuration file is in a invalid YAML format.')
+
+    if 'secret' not in config:
+        return msg('Your configuration must have a "secret" key, for example: '
+                   '"secret: VDEdxeTKH"')
+
+    if not validate.secret(config['secret']):
+        return msg('The secret must be at least 8 characters long and may not '
+                   'contain any non-alpha-numeric characters.')
+
+    if 'nameserver' not in config:
+        return msg('Your configuration must have a "nameserver" key, '
+                   'for example: "nameserver: 127.0.0.1"')
 
 
 @app.route('/update/<secret>/<fqdn>')
