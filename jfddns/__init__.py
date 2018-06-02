@@ -98,6 +98,7 @@ class Validate(object):
 
     @staticmethod
     def secret(secret):
+        secret = str(secret)
         if re.match('^[a-zA-Z0-9]+$', secret) and len(secret) >= 8:
             return secret
         else:
@@ -262,6 +263,16 @@ def update_dns_record(secret=None, fqdn=None, zone_name=None, record_name=None,
     if 'nameserver' not in config:
         return msg('Your configuration must have a "nameserver" key, '
                    'for example: "nameserver: 127.0.0.1"')
+
+    if not ('zones' in config and
+       len(config['zones']) >= 1 and
+       'name' in config['zones'][0] and
+       'tsig_key' in config['zones'][0]):
+        return msg('You must have at least one zone configured, for example:'
+                   '"- name: example.com" and "twig_key: tPyvZA=="')
+
+    if str(secret) != str(config['secret']):
+        return msg('You specified a wrong secret key.')
 
 
 @app.route('/update/<secret>/<fqdn>')

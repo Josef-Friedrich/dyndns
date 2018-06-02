@@ -1,5 +1,5 @@
 ---
-secret: 12345
+secret: 12345678
 nameserver: 127.0.0.1
 zones:
   - name: example.com

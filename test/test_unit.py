@@ -36,7 +36,7 @@ class TestConfig(unittest.TestCase):
     def test_config(self):
         config = load_config(os.path.join(os.path.dirname(__file__), 'files',
                              'config.yml'))
-        self.assertEqual(config['secret'], 12345)
+        self.assertEqual(config['secret'], 12345678)
 
 
 class TestValidate(unittest.TestCase):
@@ -216,6 +216,22 @@ class TestFunctionUpdateDnsRecord(unittest.TestCase):
             update_dns_record(config={'secret': '12345678'}),
             'Your configuration must have a "nameserver" key, '
             'for example: "nameserver: 127.0.0.1"'
+        )
+
+    @mock.patch('jfddns.config_file', _helper.config_file)
+    def test_config_no_zones(self):
+        self.assertEqual(
+            update_dns_record(config={'secret': '12345678',
+                                      'nameserver': '127.0.0.1'}),
+            'You must have at least one zone configured, for example:'
+            '"- name: example.com" and "twig_key: tPyvZA=="'
+        )
+
+    @mock.patch('jfddns.config_file', _helper.config_file)
+    def test_secret_not_matches(self):
+        self.assertEqual(
+            update_dns_record(secret='lol'),
+            'You specified a wrong secret key.'
         )
 
 
