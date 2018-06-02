@@ -229,11 +229,16 @@ def validate_args(args, config):
     }
 
 
-@app.route('/<secret>/<fqdn>')
-@app.route('/<secret>/<fqdn>/<ip_1>')
-@app.route('/<secret>/<fqdn>/<ip_1>/<ip_2>')
-def update_by_path(secret, fqdn, ip_1=None, ip_2=None):
+def update_dns_record(secret=None, fqdn=None, zone_name=None, record_name=None,
+                      ip_1=None, ip_2=None, config=None):
     pass
+
+@app.route('/update/<secret>/<fqdn>')
+@app.route('/update/<secret>/<fqdn>/<ip_1>')
+@app.route('/update/<secret>/<fqdn>/<ip_1>/<ip_2>')
+def update_by_path(secret, fqdn, ip_1=None, ip_2=None):
+    update_dns_record(secret=secret, fqdn=fqdn, ip_1=ip_1, ip_2=ip_2)
+    return 'ok'
 
 
 @app.route("/")
