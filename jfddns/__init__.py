@@ -231,6 +231,15 @@ def validate_args(args, config):
 
 def update_dns_record(secret=None, fqdn=None, zone_name=None, record_name=None,
                       ip_1=None, ip_2=None, config=None):
+
+    if not config:
+        try:
+            config = load_config(config_file)
+        except IOError:
+            return msg('The configuration file {} could not be found.'.format(
+                config_file
+            ))
+
     pass
 
 

@@ -27,7 +27,7 @@ NO_INTERNET_CONNECTIFITY = not check_internet_connectifity()
 class TestConfig(unittest.TestCase):
 
     def test_config(self):
-        config = load_config(os.path.join(os.path.dirname(__file__),
+        config = load_config(os.path.join(os.path.dirname(__file__), 'files',
                              'config.yml'))
         self.assertEqual(config['secret'], 12345)
 
