@@ -3,8 +3,7 @@ from jfddns import \
     load_config, \
     split_hostname, \
     update_dns_record, \
-    validate_args, \
-    Validate
+    validate_args
 import ipaddress
 import os
 import unittest
@@ -37,45 +36,6 @@ class TestConfig(unittest.TestCase):
         config = load_config(os.path.join(os.path.dirname(__file__), 'files',
                              'config.yml'))
         self.assertEqual(config['secret'], 12345678)
-
-
-class TestValidate(unittest.TestCase):
-
-    def setUp(self):
-        self.v = Validate()
-
-    def test_secret_valid(self):
-        self.assertEqual(self.v.secret('abcd1234'), 'abcd1234')
-
-    def test_secret_invalid_to_short(self):
-        self.assertEqual(self.v.secret('1234567'), False)
-
-    def test_secret_invalid_non_alpanumeric(self):
-        self.assertEqual(self.v.secret('12345äüö'), False)
-
-    def test_ipv4_valid(self):
-        self.assertEqual(str(self.v.ipv4('192.168.2.3')), '192.168.2.3')
-
-    def test_ipv4_invalid_string(self):
-        self.assertFalse(self.v.ipv4('lol'))
-
-    def test_ipv4_invalid_ipv6(self):
-        self.assertFalse(self.v.ipv4('1::2'))
-
-    def test_ipv6_valid(self):
-        self.assertEqual(str(self.v.ipv6('1::2')), '1::2')
-
-    def test_ipv6_invalid_string(self):
-        self.assertFalse(self.v.ipv6('lol'))
-
-    def test_ipv6_invalid_ipv6(self):
-        self.assertFalse(self.v.ipv6('1.2.3.4'))
-
-    def test_zone_valid(self):
-        self.assertEqual(self.v.zone('github.com'), 'github.com')
-
-    def test_record_valid(self):
-        self.assertEqual(self.v.record('sub'), 'sub')
 
 
 class TestFunctionValidateArgs(unittest.TestCase):

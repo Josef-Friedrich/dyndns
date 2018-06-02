@@ -1,3 +1,4 @@
+from jfddns import validate
 import argparse
 import dns.name
 import dns.query
@@ -5,10 +6,8 @@ import dns.resolver
 import dns.tsigkeyring
 import dns.update
 import flask
-import ipaddress
 import logging
 import os
-import re
 import yaml
 
 from ._version import get_versions
@@ -94,68 +93,6 @@ class DnsUpdate(object):
         return out
 
 
-class Validate(object):
-
-    @staticmethod
-    def secret(secret):
-        secret = str(secret)
-        if re.match('^[a-zA-Z0-9]+$', secret) and len(secret) >= 8:
-            return secret
-        else:
-            return False
-
-    @staticmethod
-    def ipv4(address):
-        try:
-            address = ipaddress.ip_address(address)
-            if address.version == 4:
-                return address
-            else:
-                return False
-        except ValueError:
-            return False
-
-    @staticmethod
-    def ipv6(address):
-        try:
-            address = ipaddress.ip_address(address)
-            if address.version == 6:
-                return address
-            else:
-                return False
-        except ValueError:
-            return False
-
-    @staticmethod
-    def _hostname(hostname):
-        if hostname[-1] == ".":
-            # strip exactly one dot from the right, if present
-            hostname = hostname[:-1]
-        if len(hostname) > 253:
-            return False
-
-        labels = hostname.split(".")
-
-        # the TLD must be not all-numeric
-        if re.match(r"[0-9]+$", labels[-1]):
-            return False
-
-        allowed = re.compile(r"(?!-)[a-z0-9-]{1,63}(?<!-)$", re.IGNORECASE)
-        return all(allowed.match(label) for label in labels)
-
-    def zone(self, zone_name):
-        if self._hostname(zone_name):
-            return zone_name
-        else:
-            return False
-
-    def record(self, record_name):
-        if self._hostname(record_name):
-            return record_name
-        else:
-            return False
-
-
 def load_config(path):
     stream = open(path, 'r')
     config = yaml.load(stream)
@@ -201,8 +138,6 @@ def validate_args(args, config):
     if args['secret'] != str(config['secret']):
         return message('You specified a wrong secret key.')
 
-    validate = Validate()
-
     if 'ipv4' in args:
         ipv4 = validate.ipv4(args['ipv4'])
         if not ipv4:
@@ -239,8 +174,6 @@ def validate_args(args, config):
 
 def update_dns_record(secret=None, fqdn=None, zone_name=None, record_name=None,
                       ip_1=None, ip_2=None, config=None):
-
-    validate = Validate()
 
     if not config:
         try:
