@@ -13,7 +13,6 @@ matrix:
           env: TOXENV=flake8
 
 install:
-    - sudo touch /var/log/jfddns.log
     - pip install tox
 
 script: tox
