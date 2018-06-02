@@ -207,6 +207,13 @@ def update_dns_record(secret=None, fqdn=None, zone_name=None, record_name=None,
         return msg('You must have at least one zone configured, for example:'
                    '"- name: example.com" and "twig_key: tPyvZA=="')
 
+    for _zone in config['zones']:
+        if 'name' not in _zone:
+            return msg('Your zone dictionary must contain a key "name"')
+
+        if 'tsig_key' not in _zone:
+            return msg('Your zone dictionary must contain a key "tsig_key"')
+
     if str(secret) != str(config['secret']):
         return msg('You specified a wrong secret key.')
 

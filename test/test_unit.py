@@ -147,6 +147,24 @@ class TestFunctionUpdateDnsRecord(unittest.TestCase):
         )
 
     @mock.patch('jfddns.config_file', _helper.config_file)
+    def test_config_zone_no_name(self):
+        self.assertEqual(
+            update_dns_record(config={'secret': '12345678',
+                                      'nameserver': '127.0.0.1',
+                                      'zones': [{'lol', '-'}]}),
+            'Your zone dictionary must contain a key "name"'
+        )
+
+    @mock.patch('jfddns.config_file', _helper.config_file)
+    def test_config_zone_no_tsig_key(self):
+        self.assertEqual(
+            update_dns_record(config={'secret': '12345678',
+                                      'nameserver': '127.0.0.1',
+                                      'zones': [{'name', '-'}]}),
+            'Your zone dictionary must contain a key "tsig_key"'
+        )
+
+    @mock.patch('jfddns.config_file', _helper.config_file)
     def test_secret_not_matches(self):
         self.assertEqual(
             update_dns_record(secret='lol'),
