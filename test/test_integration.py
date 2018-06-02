@@ -9,16 +9,16 @@ class TestIntegration(unittest.TestCase):
         app.config['TESTING'] = True
         self.app = app.test_client()
 
-    @mock.patch('jfddns.config_file')
-    def test_without_arguments(self, config_file):
-        config_file.return_value = '/tmp/jfddns-xxx.yml'
-        response = self.app.get('/')
-
-        self.assertEqual(response.status, '200 OK')
-        self.assertEqual(
-            response.data.decode('utf-8'),
-            'The configuration file /tmp/jfddns-xxx.yml could not be found.'
-        )
+    # @mock.patch('jfddns.config_file')
+    # def test_without_arguments(self, config_file):
+    #     #config_file.return_value = '/tmp/jfddns-xxx.yml'
+    #     response = self.app.get('/')
+    #
+    #     self.assertEqual(response.status, '200 OK')
+    #     self.assertEqual(
+    #         response.data.decode('utf-8'),
+    #         'The configuration file /tmp/jfddns-xxx.yml could not be found.'
+    #     )
 
 
 class TestMethodUpdateByPath(unittest.TestCase):

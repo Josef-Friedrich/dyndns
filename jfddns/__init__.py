@@ -233,6 +233,7 @@ def update_dns_record(secret=None, fqdn=None, zone_name=None, record_name=None,
                       ip_1=None, ip_2=None, config=None):
     pass
 
+
 @app.route('/update/<secret>/<fqdn>')
 @app.route('/update/<secret>/<fqdn>/<ip_1>')
 @app.route('/update/<secret>/<fqdn>/<ip_1>/<ip_2>')
