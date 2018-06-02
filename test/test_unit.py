@@ -124,6 +124,24 @@ class TestFunctionUpdateDnsRecord(unittest.TestCase):
         self.assertEqual(
             update_dns_record(config={'secret': '12345678',
                                       'nameserver': '127.0.0.1'}),
+            'Your configuration must have a "zones" key.'
+        )
+
+    @mock.patch('jfddns.config_file', _helper.config_file)
+    def test_config_zones_string(self):
+        self.assertEqual(
+            update_dns_record(config={'secret': '12345678',
+                                      'nameserver': '127.0.0.1',
+                                      'zones': 'lol'}),
+            'Your "zones" key must contain a list of zones.'
+        )
+
+    @mock.patch('jfddns.config_file', _helper.config_file)
+    def test_config_zones_empty_list(self):
+        self.assertEqual(
+            update_dns_record(config={'secret': '12345678',
+                                      'nameserver': '127.0.0.1',
+                                      'zones': []}),
             'You must have at least one zone configured, for example:'
             '"- name: example.com" and "twig_key: tPyvZA=="'
         )

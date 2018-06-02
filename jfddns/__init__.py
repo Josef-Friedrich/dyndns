@@ -197,10 +197,13 @@ def update_dns_record(secret=None, fqdn=None, zone_name=None, record_name=None,
         return msg('Your configuration must have a "nameserver" key, '
                    'for example: "nameserver: 127.0.0.1"')
 
-    if not ('zones' in config and
-       len(config['zones']) >= 1 and
-       'name' in config['zones'][0] and
-       'tsig_key' in config['zones'][0]):
+    if 'zones' not in config:
+        return msg('Your configuration must have a "zones" key.')
+
+    if not isinstance(config['zones'], (list,)):
+        return msg('Your "zones" key must contain a list of zones.')
+
+    if len(config['zones']) < 1:
         return msg('You must have at least one zone configured, for example:'
                    '"- name: example.com" and "twig_key: tPyvZA=="')
 
