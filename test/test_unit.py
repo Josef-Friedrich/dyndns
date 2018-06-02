@@ -1,33 +1,11 @@
 from jfddns import \
-    DnsUpdate, \
     load_config, \
-    split_hostname, \
     update_dns_record, \
     validate_args
-import ipaddress
 import os
 import unittest
-import socket
 from unittest import mock
 import _helper
-
-
-def check_internet_connectifity(host="8.8.8.8", port=53, timeout=3):
-    """
-    https://stackoverflow.com/a/33117579
-    Host: 8.8.8.8 (google-public-dns-a.google.com)
-    OpenPort: 53/tcp
-    Service: domain (DNS/TCP)
-    """
-    try:
-        socket.setdefaulttimeout(timeout)
-        socket.socket(socket.AF_INET, socket.SOCK_STREAM).connect((host, port))
-        return True
-    except Exception:
-        return False
-
-
-NO_INTERNET_CONNECTIFITY = not check_internet_connectifity()
 
 
 class TestConfig(unittest.TestCase):
@@ -102,43 +80,6 @@ class TestFunctionValidateArgs(unittest.TestCase):
                 {'secret': '3'}),
             {'ipv4': None, 'ipv6': '1::2', 'record': 'a', 'zone': 'b'}
         )
-
-
-class TestClassDnsUpdate(unittest.TestCase):
-
-    def test_method_convert_record_type(self):
-        self.assertEqual(DnsUpdate._convert_record_type(4), 'a')
-        self.assertEqual(DnsUpdate._convert_record_type(6), 'aaaa')
-
-    def test_method_concatenate(self):
-        dns = DnsUpdate('ns.example.com', 'example.com', 'tPyvZA==')
-        self.assertEqual(str(dns._concatenate('lol')), 'lol.example.com.')
-
-    @unittest.skipIf(NO_INTERNET_CONNECTIFITY, 'No uplink')
-    def test_resolver(self):
-        dns = DnsUpdate('8.8.8.8', 'google.com.', 'tPyvZA==')
-        ip = dns._resolve('www', 4)
-        ipaddress.ip_address(ip)
-
-
-class TestFunctionSplitHostname(unittest.TestCase):
-
-    zones = [
-        {'zone': 'example.com.'},
-        {'zone': 'example.org'},
-    ]
-
-    def test_with_dot(self):
-        result = split_hostname('www.example.com', self.zones)
-        self.assertEqual(result, ('www.', 'example.com.'))
-
-    def test_with_org(self):
-        result = split_hostname('www.example.org', self.zones)
-        self.assertEqual(result, ('www.', 'example.org.'))
-
-    def test_unkown_zone(self):
-        result = split_hostname('www.xx.org', self.zones)
-        self.assertEqual(result, None)
 
 
 class TestFunctionUpdateDnsRecord(unittest.TestCase):
