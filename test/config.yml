@@ -1,7 +1,6 @@
 ---
 secret: 12345
 nameserver: 127.0.0.1
-logging: no
 zones:
   - zone: example.com
     key: tPyvZA==
