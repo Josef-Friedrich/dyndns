@@ -151,8 +151,17 @@ class TestFunctionUpdateDnsRecord(unittest.TestCase):
         self.assertEqual(
             update_dns_record(config={'secret': '12345678',
                                       'nameserver': '127.0.0.1',
-                                      'zones': [{'lol', '-'}]}),
+                                      'zones': [{'lol': '-'}]}),
             'Your zone dictionary must contain a key "name"'
+        )
+
+    @mock.patch('jfddns.config_file', _helper.config_file)
+    def test_config_zone_invalid_zone_name(self):
+        config = {'secret': '12345678', 'nameserver': '127.0.0.1',
+                  'zones': [{'name': 'l o l'}]}
+        self.assertEqual(
+            update_dns_record(config=config),
+            'Invalid zone name: l o l',
         )
 
     @mock.patch('jfddns.config_file', _helper.config_file)
@@ -160,8 +169,17 @@ class TestFunctionUpdateDnsRecord(unittest.TestCase):
         self.assertEqual(
             update_dns_record(config={'secret': '12345678',
                                       'nameserver': '127.0.0.1',
-                                      'zones': [{'name', '-'}]}),
+                                      'zones': [{'name': 'a'}]}),
             'Your zone dictionary must contain a key "tsig_key"'
+        )
+
+    @mock.patch('jfddns.config_file', _helper.config_file)
+    def test_config_zone_invalid_tsig_key(self):
+        config = {'secret': '12345678', 'nameserver': '127.0.0.1',
+                  'zones': [{'name': 'a', 'tsig_key': 'xxx'}]}
+        self.assertEqual(
+            update_dns_record(config=config),
+            'Invalid tsig key: xxx',
         )
 
     @mock.patch('jfddns.config_file', _helper.config_file)

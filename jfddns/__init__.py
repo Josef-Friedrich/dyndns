@@ -211,8 +211,14 @@ def update_dns_record(secret=None, fqdn=None, zone_name=None, record_name=None,
         if 'name' not in _zone:
             return msg('Your zone dictionary must contain a key "name"')
 
+        if not validate.zone(_zone['name']):
+            return msg('Invalid zone name: {}'.format(_zone['name']))
+
         if 'tsig_key' not in _zone:
             return msg('Your zone dictionary must contain a key "tsig_key"')
+
+        if not validate.tsig_key(_zone['tsig_key']):
+            return msg('Invalid tsig key: {}'.format(_zone['tsig_key']))
 
     if str(secret) != str(config['secret']):
         return msg('You specified a wrong secret key.')
