@@ -3,6 +3,7 @@ import dns.query
 import dns.resolver
 import dns.tsigkeyring
 import dns.update
+import re
 
 
 def normalize_dns_name(name):
@@ -75,7 +76,9 @@ class DnsUpdate(object):
         return dns.tsigkeyring.from_text(keyring)
 
     def _build_fqdn(self, record_name):
-        return dns.name.from_text('{}.{}'.format(record_name, self._zone))
+        fqdn = '{}.{}'.format(record_name, self._zone)
+        fqdn = re.sub('\.+', '.', fqdn)
+        return dns.name.from_text(fqdn)
 
     @staticmethod
     def _convert_record_type(ip_version=4):

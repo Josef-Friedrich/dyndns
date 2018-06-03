@@ -56,6 +56,7 @@ class TestClassDnsUpdate(unittest.TestCase):
     def test_method_build_fqdn(self):
         dns = DnsUpdate('127.0.0.1', 'example.com', 'tPyvZA==')
         self.assertEqual(str(dns._build_fqdn('lol')), 'lol.example.com.')
+        self.assertEqual(str(dns._build_fqdn('lol.')), 'lol.example.com.')
 
     @unittest.skipIf(NO_INTERNET_CONNECTIFITY, 'No uplink')
     def test_method_resolve_unpatched(self):
