@@ -46,13 +46,19 @@ class Zones(object):
 
 class DnsUpdate(object):
 
-    def __init__(self, nameserver, zone, key):
+    def __init__(self, nameserver, zone, tsig_key):
         self.nameserver = nameserver
         self.zone = dns.name.from_text(zone)
         keyring = {}
-        keyring[str(self.zone)] = key
+        keyring[str(self.zone)] = tsig_key
         self.keyring = dns.tsigkeyring.from_text(keyring)
         self.dns_update = dns.update.Update(self.zone, keyring=self.keyring)
+
+    @staticmethod
+    def _tsigkeyring(zone_name, tsig_key):
+        keyring = {}
+        keyring[str(zone_name)] = tsig_key
+        return dns.tsigkeyring.from_text(keyring)
 
     def _concatenate(self, record_name):
         return dns.name.from_text('{}.{}'.format(record_name, self.zone))
