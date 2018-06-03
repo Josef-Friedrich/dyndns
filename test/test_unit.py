@@ -189,6 +189,14 @@ class TestFunctionUpdateDnsRecord(unittest.TestCase):
             'You specified a wrong secret key.'
         )
 
+    @mock.patch('jfddns.config_file', _helper.config_file)
+    def test_not_all_three_fqdn_etc(self):
+        self.assertEqual(
+            update_dns_record(secret='12345678', fqdn='a', zone_name='b',
+                              record_name='c'),
+            'Specify “fqdn” or "zone_name" and "record_name".'
+        )
+
 
 if __name__ == '__main__':
     unittest.main()

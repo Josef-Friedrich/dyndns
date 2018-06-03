@@ -1,4 +1,5 @@
 from jfddns import validate
+import jfddns.dns as jf_dns
 import argparse
 import dns.name
 import dns.query
@@ -175,6 +176,10 @@ def validate_args(args, config):
 def update_dns_record(secret=None, fqdn=None, zone_name=None, record_name=None,
                       ip_1=None, ip_2=None, config=None):
 
+    ##
+    # config
+    ##
+
     if not config:
         try:
             config = load_config(config_file)
@@ -196,6 +201,8 @@ def update_dns_record(secret=None, fqdn=None, zone_name=None, record_name=None,
     if 'nameserver' not in config:
         return msg('Your configuration must have a "nameserver" key, '
                    'for example: "nameserver: 127.0.0.1"')
+
+    # zones
 
     if 'zones' not in config:
         return msg('Your configuration must have a "zones" key.')
@@ -220,8 +227,30 @@ def update_dns_record(secret=None, fqdn=None, zone_name=None, record_name=None,
         if not validate.tsig_key(_zone['tsig_key']):
             return msg('Invalid tsig key: {}'.format(_zone['tsig_key']))
 
+    ##
+    # secret
+    ##
+
     if str(secret) != str(config['secret']):
         return msg('You specified a wrong secret key.')
+
+    ##
+    # fqdn zone_name record_name
+    ##
+
+    if fqdn and zone_name and record_name:
+        return msg('Specify “fqdn” or "zone_name" and "record_name".')
+
+    zones = jf_dns.Zones(config['zones'])
+
+    if fqdn:
+        record_name, zone_name = zones.split_fqdn(fqdn)
+
+    jf_dns.DnsUpdate(
+        nameserver=config['nameserver'],
+        zone_name=zone_name,
+        tsig_key='lol'
+    )
 
 
 @app.route('/update/<secret>/<fqdn>')

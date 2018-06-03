@@ -10,9 +10,14 @@ NO_INTERNET_CONNECTIFITY = not _helper.check_internet_connectifity()
 
 class TestClassZones(unittest.TestCase):
 
+    def setUp(self):
+        self.zones = Zones([{'name': 'example.org', 'tsig_key': 'tPyvZA=='}])
+
     def test_init(self):
-        zones = Zones([{'name': 'example.org', 'tsig_key': 'tPyvZA=='}])
-        self.assertEqual(zones.zones[0]['example.org.'], 'tPyvZA==')
+        self.assertEqual(self.zones.zones['example.org.'], 'tPyvZA==')
+
+    def test_method_get_tsig_key(self):
+        self.assertEqual(self.zones.get_tsig_key('example.org'), 'tPyvZA==')
 
 
 class TestClassZonesMethodSplitFqdn(unittest.TestCase):
