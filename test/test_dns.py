@@ -68,14 +68,51 @@ class TestClassDnsUpdate(unittest.TestCase):
         self.assertEqual(ip, '1.2.3.4')
 
     @mock.patch('dns.query.tcp')
+    @mock.patch('dns.update.Update')
     @mock.patch('dns.resolver.Resolver')
-    def test_method_set_record(self, Resolver, tcp):
+    def test_method_set_record_new_ip(self, Resolver, Update, tcp):
         resolver = Resolver.return_value
-        resolver.query.return_value = ['1.2.3.4']
+        resolver.query.side_effect = [['1.2.3.4'], ['1.2.3.5']]
+        update = Update.return_value
+
         dns = DnsUpdate('127.0.0.1', 'example.com', 'tPyvZA==')
         dns.record_name = 'www'
-        dns._set_record('1.2.3.5', 4)
-        args, kwargs = tcp.call_args
-        messages, nameserver = args
-        self.assertEqual(str(messages.question[0]), 'example.com. IN SOA')
-        self.assertEqual(nameserver, '127.0.0.1')
+        result = dns._set_record('1.2.3.5', 4)
+
+        update.delete.assert_called_with('www')
+        update.add.assert_called_with('www', 300, 'a', '1.2.3.5')
+        self.assertEqual(tcp.call_args[0][1], '127.0.0.1')
+        Update.assert_called()
+
+        self.assertEqual(result, {'new_ip': '1.2.3.5'})
+
+    @mock.patch('dns.query.tcp')
+    @mock.patch('dns.update.Update')
+    @mock.patch('dns.resolver.Resolver')
+    def test_method_set_record_old_ip(self, Resolver, Update, tcp):
+        resolver = Resolver.return_value
+        resolver.query.return_value = ['1.2.3.4']
+        update = Update.return_value
+
+        dns = DnsUpdate('127.0.0.1', 'example.com', 'tPyvZA==')
+        dns.record_name = 'www'
+        result = dns._set_record('1.2.3.4', 4)
+
+        update.delete.assert_not_called()
+        update.add.assert_not_called()
+
+        self.assertEqual(result, {'old_ip': '1.2.3.4'})
+
+    @mock.patch('dns.query.tcp')
+    @mock.patch('dns.update.Update')
+    @mock.patch('dns.resolver.Resolver')
+    def test_method_set_record_set_message(self, Resolver, Update, tcp):
+        resolver = Resolver.return_value
+        resolver.query.return_value = ['1.2.3.4']
+
+        dns = DnsUpdate('127.0.0.1', 'example.com', 'tPyvZA==')
+        dns.record_name = 'www'
+        result = dns._set_record('1.2.3.5', 4)
+
+        self.assertEqual(result, {'message':
+                         'The DNS record couldn’t be updated.'})
