@@ -47,32 +47,36 @@ class Zones(object):
 class DnsUpdate(object):
     """
     Update the DNS server
-
     """
 
-    def __init__(self, nameserver, zone, tsig_key):
+    def __init__(self, nameserver, zone_name, tsig_key,
+                 record_name=None, ipv4=None, ipv6=None):
 
-        self.ipv4 = None  #: The ipv4 address
-        self.ipv6 = None  #: The ipv6 address
+        self.ipv4 = ipv4  #: The ipv4 address
+        self.ipv6 = ipv6  #: The ipv6 address
         self.nameserver = nameserver   #: The nameserver
-        self.zone_name = None  #: The zone name
-        self.record_name = None  #: The record name
-        self.tsig_key = None  #: The tsig key
+        self.record_name = record_name  #: The record name
+        self.tsig_key = tsig_key  #: The tsig key
+        self.zone_name = zone_name  #: The zone name
 
-        self.zone = dns.name.from_text(zone)
-        keyring = {}
-        keyring[str(self.zone)] = tsig_key
-        self.keyring = dns.tsigkeyring.from_text(keyring)
-        self.dns_update = dns.update.Update(self.zone, keyring=self.keyring)
+        self._zone = dns.name.from_text(zone_name)
+        self._tsigkeyring = self._build_tsigkeyring(self._zone, self.tsig_key)
+        self._dns_update = dns.update.Update(self._zone,
+                                             keyring=self._tsigkeyring)
 
     @staticmethod
-    def _tsigkeyring(zone_name, tsig_key):
+    def _build_tsigkeyring(zone, tsig_key):
+        """
+        :param zone: A zone name object
+        :type dns.name.Name: A instance of a dns.name.Name class
+        :param str tsig_key: A TSIG key
+        """
         keyring = {}
-        keyring[str(zone_name)] = tsig_key
+        keyring[str(zone)] = tsig_key
         return dns.tsigkeyring.from_text(keyring)
 
-    def _concatenate(self, record_name):
-        return dns.name.from_text('{}.{}'.format(record_name, self.zone))
+    def _build_fqdn(self, record_name):
+        return dns.name.from_text('{}.{}'.format(record_name, self._zone))
 
     @staticmethod
     def _convert_record_type(ip_version=4):
@@ -86,20 +90,20 @@ class DnsUpdate(object):
     def _resolve(self, record_name, ip_version=4):
         resolver = dns.resolver.Resolver()
         resolver.nameservers = [self.nameserver]
-        return str(resolver.query(self._concatenate(record_name),
+        return str(resolver.query(self._build_fqdn(record_name),
                                   self._convert_record_type(ip_version))[0])
 
-    def set_record(self, record_name, new_ip, ip_version=4):
+    def _set_record(self, new_ip, ip_version=4):
         out = {}
-        old_ip = self._resolve(record_name, ip_version)
+        old_ip = self._resolve(self.record_name, ip_version)
         if new_ip == old_ip:
             out['old_ip'] = old_ip
         else:
-            self.dns_update.delete(record_name)
-            self.dns_update.add(record_name, 300,
-                                self._convert_record_type(ip_version), new_ip)
-            dns.query.tcp(self.dns_update, self.nameserver)
-            checked_ip = self._resolve(record_name, ip_version)
+            self._dns_update.delete(self.record_name)
+            self._dns_update.add(self.record_name, 300,
+                                 self._convert_record_type(ip_version), new_ip)
+            dns.query.tcp(self._dns_update, self.nameserver)
+            checked_ip = self._resolve(self.record_name, ip_version)
 
             if new_ip != checked_ip:
                 out['message'] = 'The DNS record couldn’t be updated.'
@@ -107,3 +111,10 @@ class DnsUpdate(object):
                 out['new_ip'] = new_ip
 
         return out
+
+    def update(self):
+        results = []
+        if self.ipv4:
+            results.append(self._set_record(new_ip=self.ipv4, ip_version=4))
+        if self.ipv6:
+            results.append(self._set_record(new_ip=self.ipv6, ip_version=6))

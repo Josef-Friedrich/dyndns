@@ -19,6 +19,7 @@ jfddns.dns module
     :members:
     :undoc-members:
     :show-inheritance:
+    :private-members:
 
 jfddns.validate module
 ^^^^^^^^^^^^^^^^^^^^^^
