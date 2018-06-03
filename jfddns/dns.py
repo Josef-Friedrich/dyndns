@@ -22,6 +22,28 @@ def split_fqdn(fqdn, zones):
             return (record_name, zone_name)
 
 
+class Zones(object):
+
+    def __init__(self, zones):
+        self.zones = []
+        for zone in zones:
+            _zone = {}
+            zone_name = normalize_dns_name(zone['name'])
+            _zone[zone_name] = zone['tsig_key']
+            self.zones.append(_zone)
+
+    def split_fqdn(self, fqdn):
+        """Split hostname into record_name and zone_name
+        for example: www.example.com -> www. example.com.
+        """
+        fqdn = normalize_dns_name(fqdn)
+        for zone in self.zones:
+            for zone_name, tsig_key in zone.items():
+                record_name = fqdn.replace(zone_name, '')
+                if len(record_name) > 0 and len(record_name) < len(fqdn):
+                    return (record_name, zone_name)
+
+
 class DnsUpdate(object):
 
     def __init__(self, nameserver, zone, key):
