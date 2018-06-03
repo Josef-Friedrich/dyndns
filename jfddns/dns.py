@@ -45,9 +45,20 @@ class Zones(object):
 
 
 class DnsUpdate(object):
+    """
+    Update the DNS server
+
+    """
 
     def __init__(self, nameserver, zone, tsig_key):
-        self.nameserver = nameserver
+
+        self.ipv4 = None  #: The ipv4 address
+        self.ipv6 = None  #: The ipv6 address
+        self.nameserver = nameserver   #: The nameserver
+        self.zone_name = None  #: The zone name
+        self.record_name = None  #: The record name
+        self.tsig_key = None  #: The tsig key
+
         self.zone = dns.name.from_text(zone)
         keyring = {}
         keyring[str(self.zone)] = tsig_key
