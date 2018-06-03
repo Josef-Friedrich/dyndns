@@ -66,3 +66,16 @@ class TestClassDnsUpdate(unittest.TestCase):
         ip = dns._resolve('www', 4)
         ipaddress.ip_address(ip)
         self.assertEqual(ip, '1.2.3.4')
+
+    @mock.patch('dns.query.tcp')
+    @mock.patch('dns.resolver.Resolver')
+    def test_method_set_record(self, Resolver, tcp):
+        resolver = Resolver.return_value
+        resolver.query.return_value = ['1.2.3.4']
+        dns = DnsUpdate('127.0.0.1', 'example.com', 'tPyvZA==')
+        dns.record_name = 'www'
+        dns._set_record('1.2.3.5', 4)
+        args, kwargs = tcp.call_args
+        messages, nameserver = args
+        self.assertEqual(str(messages.question[0]), 'example.com. IN SOA')
+        self.assertEqual(nameserver, '127.0.0.1')
