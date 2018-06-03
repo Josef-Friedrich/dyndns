@@ -246,11 +246,24 @@ def update_dns_record(secret=None, fqdn=None, zone_name=None, record_name=None,
     if fqdn:
         record_name, zone_name = zones.split_fqdn(fqdn)
 
-    jf_dns.DnsUpdate(
+    if not record_name:
+        return msg('Value "record_name" is required.')
+
+    if not zone_name:
+        return msg('Value "zone_name" is required.')
+
+    update = jf_dns.DnsUpdate(
         nameserver=config['nameserver'],
         zone_name=zone_name,
-        tsig_key='lol'
+        tsig_key=zones.get_tsig_key(zone_name),
+        record_name=record_name,
     )
+
+    update.ipv4 = ip_1
+
+    update.update()
+
+    return 'ok'
 
 
 @app.route('/update/<secret>/<fqdn>')

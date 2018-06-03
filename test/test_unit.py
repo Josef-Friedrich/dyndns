@@ -197,6 +197,22 @@ class TestFunctionUpdateDnsRecord(unittest.TestCase):
             'Specify “fqdn” or "zone_name" and "record_name".'
         )
 
+    @mock.patch('dns.query.tcp')
+    @mock.patch('dns.update.Update')
+    @mock.patch('dns.resolver.Resolver')
+    @mock.patch('jfddns.config_file', _helper.config_file)
+    def test_ipv4_update(self, Resolver, Update, tcp):
+        result = update_dns_record(secret='12345678', fqdn='www.example.com',
+                                   ip_1='1.2.3.5')
+
+        self.assertEqual(result, 'ok')
+
+        resolver = Resolver.return_value
+        resolver.query.side_effect = [['1.2.3.4'], ['1.2.3.5']]
+        update = Update.return_value
+        update.delete.assert_called_with('www')
+        update.add.assert_called_with('www', 300, 'a', '1.2.3.5')
+
 
 if __name__ == '__main__':
     unittest.main()
