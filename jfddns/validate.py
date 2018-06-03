@@ -1,5 +1,7 @@
-import re
+import binascii
+import dns.tsigkeyring
 import ipaddress
+import re
 
 
 def secret(secret):
@@ -29,6 +31,16 @@ def ipv6(address):
         else:
             return False
     except ValueError:
+        return False
+
+
+def tsig_key(tsig_key):
+    if not tsig_key:
+        return False
+    try:
+        dns.tsigkeyring.from_text({'tmp.org.': tsig_key})
+        return tsig_key
+    except binascii.Error:
         return False
 
 

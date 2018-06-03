@@ -38,6 +38,18 @@ class TestMethodIpv6(unittest.TestCase):
         self.assertFalse(validate.ipv6('1.2.3.4'))
 
 
+class TestMethodTsigKey(unittest.TestCase):
+
+    def test_valid(self):
+        self.assertEqual(validate.tsig_key('tPyvZA=='), 'tPyvZA==')
+
+    def test_invalid_empty(self):
+        self.assertEqual(validate.tsig_key(''), False)
+
+    def test_invalid_list(self):
+        self.assertEqual(validate.tsig_key('xxx'), False)
+
+
 class TestMethodZone(unittest.TestCase):
 
     def test_valid(self):
