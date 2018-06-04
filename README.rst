@@ -8,5 +8,16 @@
 jfddns
 ======
 
-Simple dynamic DNS update HTTP based API using python and the flask
+A simple dynamic DNS update HTTP based API using python and the flask
 web framework.
+
+``/etc/jfddns.yml``
+
+.. code-block:: yml
+
+    ---
+    secret: 12345678
+    nameserver: 127.0.0.1
+    zones:
+      - name: example.com
+        tsig_key: tPyvZA==
