@@ -17,7 +17,7 @@ class TestMethodSecret(unittest.TestCase):
 class TestMethodIpv4(unittest.TestCase):
 
     def test_valid(self):
-        self.assertEqual(str(validate.ipv4('192.168.2.3')), '192.168.2.3')
+        self.assertEqual(validate.ipv4('192.168.2.3'), '192.168.2.3')
 
     def test_invalid_string(self):
         self.assertFalse(validate.ipv4('lol'))
@@ -29,13 +29,25 @@ class TestMethodIpv4(unittest.TestCase):
 class TestMethodIpv6(unittest.TestCase):
 
     def test_valid(self):
-        self.assertEqual(str(validate.ipv6('1::2')), '1::2')
+        self.assertEqual(validate.ipv6('1::2'), '1::2')
 
     def test_invalid_string(self):
         self.assertFalse(validate.ipv6('lol'))
 
     def test_invalid_ipv6(self):
         self.assertFalse(validate.ipv6('1.2.3.4'))
+
+
+class TestMethodIp(unittest.TestCase):
+
+    def test_ipv4(self):
+        self.assertEqual(validate.ip('1.2.3.4'), ('1.2.3.4', 4))
+
+    def test_ipv6(self):
+        self.assertEqual(validate.ip('1::2'), ('1::2', 6))
+
+    def test_invalid(self):
+        self.assertFalse(validate.ip('lol'))
 
 
 class TestMethodTsigKey(unittest.TestCase):

@@ -16,7 +16,7 @@ def ipv4(address):
     try:
         address = ipaddress.ip_address(address)
         if address.version == 4:
-            return address
+            return str(address)
         else:
             return False
     except ValueError:
@@ -27,10 +27,19 @@ def ipv6(address):
     try:
         address = ipaddress.ip_address(address)
         if address.version == 6:
-            return address
+            return str(address)
         else:
             return False
     except ValueError:
+        return False
+
+
+def ip(address):
+    if ipv4(address):
+        return (address, 4)
+    if ipv6(address):
+        return (address, 6)
+    else:
         return False
 
 

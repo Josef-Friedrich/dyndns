@@ -13,7 +13,7 @@ web framework.
 
 ``/etc/jfddns.yml``
 
-.. code-block:: yml
+.. code-block:: yaml
 
     ---
     secret: 12345678
