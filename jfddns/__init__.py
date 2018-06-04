@@ -11,8 +11,6 @@ del get_versions
 
 app = flask.Flask(__name__)
 config_file = '/etc/jfddns.yml'
-usage_text = 'Usage: ?secret=<secret>&zone=<zone>&record=<record>&' + \
-             'ipv6=<ipv6>&ipv4=<ipv4>'
 
 
 logger = logging.getLogger('jfddns')
@@ -33,19 +31,6 @@ def load_config(path):
 def msg(text):
     logger.info(text)
     return text
-
-
-def update_message(update_result):
-    if 'message' in update_result:
-        return update_result['message']
-    elif 'old_ip' in update_result:
-        return 'The ip address {} did not change.'.format(
-            update_result['old_ip']
-        )
-    elif 'new_ip' in update_result:
-        return 'The new ip address {} have been updated successfully.'.format(
-            update_result['new_ip']
-        )
 
 
 def update_dns_record(secret=None, fqdn=None, zone_name=None, record_name=None,
