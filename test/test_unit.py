@@ -1,7 +1,6 @@
 from jfddns import \
     load_config, \
-    update_dns_record, \
-    validate_args
+    update_dns_record
 import os
 import unittest
 from unittest import mock
@@ -14,72 +13,6 @@ class TestConfig(unittest.TestCase):
         config = load_config(os.path.join(os.path.dirname(__file__), 'files',
                              'config.yml'))
         self.assertEqual(config['secret'], 12345678)
-
-
-class TestFunctionValidateArgs(unittest.TestCase):
-
-    def test_empty_dict(self):
-        self.assertEqual(
-            validate_args({}, {}),
-            {'message': 'The arguments “record”, “zone” and “secret” are '
-                        'required.'}
-        )
-
-    def test_no_ip(self):
-        self.assertEqual(
-            validate_args({'record': '1', 'zone': '2', 'secret': '3'}, {}),
-            {'message': 'The argument “ipv4” or the argument “ipv6” is '
-                        'required.'}
-
-        )
-
-    def test_wrong_secret(self):
-        self.assertEqual(
-            validate_args(
-                {'record': '1', 'zone': '2', 'secret': '3', 'ipv6': '1::2'},
-                {'secret': '4'}),
-            {'message': 'You specified a wrong secret key.'}
-        )
-
-    def test_invalid_ipv4(self):
-        self.assertEqual(
-            validate_args(
-                {'record': 'a', 'zone': 'b', 'secret': '3', 'ipv4': '1::2'},
-                {'secret': '3'}),
-            {'message': 'Invalid ipv4 address.'}
-        )
-
-    def test_invalid_ipv6(self):
-        self.assertEqual(
-            validate_args(
-                {'record': 'a', 'zone': 'b', 'secret': '3', 'ipv6': 'xxx'},
-                {'secret': '3'}),
-            {'message': 'Invalid ipv6 address.'}
-        )
-
-    def test_invalid_zone(self):
-        self.assertEqual(
-            validate_args(
-                {'record': 'a', 'zone': 'b b ', 'secret': '3', 'ipv6': '1::2'},
-                {'secret': '3'}),
-            {'message': 'Invalid zone string.'}
-        )
-
-    def test_invalid_record(self):
-        self.assertEqual(
-            validate_args(
-                {'record': 'a a', 'zone': 'b', 'secret': '3', 'ipv6': '1::2'},
-                {'secret': '3'}),
-            {'message': 'Invalid record string.'}
-        )
-
-    def test_valid(self):
-        self.assertEqual(
-            validate_args(
-                {'record': 'a', 'zone': 'b', 'secret': '3', 'ipv6': '1::2'},
-                {'secret': '3'}),
-            {'ipv4': None, 'ipv6': '1::2', 'record': 'a', 'zone': 'b'}
-        )
 
 
 class TestFunctionUpdateDnsRecord(unittest.TestCase):
