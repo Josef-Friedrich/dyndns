@@ -252,6 +252,27 @@ def update_dns_record(secret=None, fqdn=None, zone_name=None, record_name=None,
     if not zone_name:
         return msg('Value "zone_name" is required.')
 
+    ##
+    # ip
+    ##
+
+    if ip_1:
+        ip_1 = validate.ip(ip_1)
+        if not ip_1:
+            return msg('"ip_1" is not a valid IP address.')
+
+    if ip_2:
+        ip_2 = validate.ip(ip_2)
+        if not ip_2:
+            return msg('"ip_2" is not a valid IP address.')
+
+    if ip_1 and ip_2 and ip_1[1] == ip_2[1]:
+        return msg('"ip_1" and "ip_2" using the same ip version.')
+
+    ##
+    # dns update
+    ##
+
     update = jf_dns.DnsUpdate(
         nameserver=config['nameserver'],
         zone_name=zone_name,
@@ -259,7 +280,10 @@ def update_dns_record(secret=None, fqdn=None, zone_name=None, record_name=None,
         record_name=record_name,
     )
 
-    update.ipv4 = ip_1
+    if ip_1:
+        setattr(update, 'ipv{}'.format(ip_1[1]), ip_1[0])
+    if ip_2:
+        setattr(update, 'ipv{}'.format(ip_2[1]), ip_2[0])
 
     update.update()
 

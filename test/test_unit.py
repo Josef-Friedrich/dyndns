@@ -197,6 +197,30 @@ class TestFunctionUpdateDnsRecord(unittest.TestCase):
             'Specify “fqdn” or "zone_name" and "record_name".'
         )
 
+    @mock.patch('jfddns.config_file', _helper.config_file)
+    def test_ip_1_invalid(self):
+        self.assertEqual(
+            update_dns_record(secret='12345678', fqdn='www.example.com',
+                              ip_1='lol'),
+            '"ip_1" is not a valid IP address.',
+        )
+
+    @mock.patch('jfddns.config_file', _helper.config_file)
+    def test_ip_2_invalid(self):
+        self.assertEqual(
+            update_dns_record(secret='12345678', fqdn='www.example.com',
+                              ip_2='lol'),
+            '"ip_2" is not a valid IP address.',
+        )
+
+    @mock.patch('jfddns.config_file', _helper.config_file)
+    def test_both_ip_same_version(self):
+        self.assertEqual(
+            update_dns_record(secret='12345678', fqdn='www.example.com',
+                              ip_1='1.2.3.4', ip_2='1.2.3.4'),
+            '"ip_1" and "ip_2" using the same ip version.',
+        )
+
     @mock.patch('dns.query.tcp')
     @mock.patch('dns.update.Update')
     @mock.patch('dns.resolver.Resolver')
