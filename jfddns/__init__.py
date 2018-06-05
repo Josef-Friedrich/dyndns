@@ -1,8 +1,9 @@
 from jfddns import validate
-import jfddns.dns as jf_dns
 import argparse
 import flask
+import jfddns.dns as jf_dns
 import logging
+import os
 import yaml
 
 from ._version import get_versions
@@ -21,8 +22,24 @@ logger.addHandler(handler)
 logger.setLevel(logging.INFO)
 
 
-def load_config(path):
-    stream = open(path, 'r')
+def load_config():
+    config_files = []
+    if 'JFDDNS_CONFIG_FILE' in os.environ:
+        config_files.append(os.environ['JFDDNS_CONFIG_FILE'])
+    config_files.append(os.path.join(os.getcwd(), '.jfddns.yml'))
+    config_files.append('/etc/jfddns.yml')
+
+    config_file = False
+
+    for _config_file in config_files:
+        if os.path.exists(_config_file):
+            config_file = _config_file
+            break
+
+    if not config_file:
+        return False
+
+    stream = open(config_file, 'r')
     config = yaml.load(stream)
     stream.close()
     return config
@@ -42,13 +59,14 @@ def update_dns_record(secret=None, fqdn=None, zone_name=None, record_name=None,
 
     if not config:
         try:
-            config = load_config(config_file)
+            config = load_config()
         except IOError:
-            return msg('The configuration file {} could not be found.'.format(
-                config_file
-            ))
+            return msg('The configuration file could not be found.')
         except yaml.error.YAMLError:
             return msg('The configuration file is in a invalid YAML format.')
+
+    if not config:
+        return msg('The configuration file could not be found.')
 
     if 'secret' not in config:
         return msg('Your configuration must have a "secret" key, for example: '

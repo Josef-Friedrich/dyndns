@@ -10,25 +10,29 @@ import _helper
 class TestConfig(unittest.TestCase):
 
     def test_config(self):
-        config = load_config(os.path.join(os.path.dirname(__file__), 'files',
-                             'config.yml'))
+        os.environ['JFDDNS_CONFIG_FILE'] = _helper.config_file
+        config = load_config()
         self.assertEqual(config['secret'], 12345678)
 
 
 class TestFunctionUpdateDnsRecord(unittest.TestCase):
 
-    @mock.patch('jfddns.config_file', '/tmp/jfddns-xxx.yml')
-    def test_no_config_file(self):
-        self.assertEqual(update_dns_record(), 'The configuration file '
-                         '/tmp/jfddns-xxx.yml could not be found.')
+    def setUp(self):
+        os.environ['JFDDNS_CONFIG_FILE'] = _helper.config_file
 
-    @mock.patch('jfddns.config_file', os.path.join(_helper.files_dir,
-                'invalid-yaml.yml'))
+    @mock.patch('os.path.exists')
+    def test_no_config_file(self, exists):
+        exists.return_value = False
+        os.environ['JFDDNS_CONFIG_FILE'] = '/tmp/jfddns-xxx.yml'
+        self.assertEqual(update_dns_record(), 'The configuration file '
+                         'could not be found.')
+
     def test_config_invalid_yaml_format(self):
+        config_file = os.path.join(_helper.files_dir, 'invalid-yaml.yml')
+        os.environ['JFDDNS_CONFIG_FILE'] = config_file
         self.assertEqual(update_dns_record(), 'The configuration file is in '
                          'a invalid YAML format.')
 
-    @mock.patch('jfddns.config_file', _helper.config_file)
     def test_no_secret(self):
         self.assertEqual(
             update_dns_record(config={'lol': 'lol'}),
@@ -36,7 +40,6 @@ class TestFunctionUpdateDnsRecord(unittest.TestCase):
             '"secret: VDEdxeTKH"'
         )
 
-    @mock.patch('jfddns.config_file', _helper.config_file)
     def test_invalid_secret(self):
         self.assertEqual(
             update_dns_record(config={'secret': 'ä'}),
@@ -44,7 +47,6 @@ class TestFunctionUpdateDnsRecord(unittest.TestCase):
             'contain any non-alpha-numeric characters.'
         )
 
-    @mock.patch('jfddns.config_file', _helper.config_file)
     def test_config_no_nameserver(self):
         self.assertEqual(
             update_dns_record(config={'secret': '12345678'}),
@@ -52,7 +54,6 @@ class TestFunctionUpdateDnsRecord(unittest.TestCase):
             'for example: "nameserver: 127.0.0.1"'
         )
 
-    @mock.patch('jfddns.config_file', _helper.config_file)
     def test_config_no_zones(self):
         self.assertEqual(
             update_dns_record(config={'secret': '12345678',
@@ -60,7 +61,6 @@ class TestFunctionUpdateDnsRecord(unittest.TestCase):
             'Your configuration must have a "zones" key.'
         )
 
-    @mock.patch('jfddns.config_file', _helper.config_file)
     def test_config_zones_string(self):
         self.assertEqual(
             update_dns_record(config={'secret': '12345678',
@@ -69,7 +69,6 @@ class TestFunctionUpdateDnsRecord(unittest.TestCase):
             'Your "zones" key must contain a list of zones.'
         )
 
-    @mock.patch('jfddns.config_file', _helper.config_file)
     def test_config_zones_empty_list(self):
         self.assertEqual(
             update_dns_record(config={'secret': '12345678',
@@ -79,7 +78,6 @@ class TestFunctionUpdateDnsRecord(unittest.TestCase):
             '"- name: example.com" and "twig_key: tPyvZA=="'
         )
 
-    @mock.patch('jfddns.config_file', _helper.config_file)
     def test_config_zone_no_name(self):
         self.assertEqual(
             update_dns_record(config={'secret': '12345678',
@@ -88,7 +86,6 @@ class TestFunctionUpdateDnsRecord(unittest.TestCase):
             'Your zone dictionary must contain a key "name"'
         )
 
-    @mock.patch('jfddns.config_file', _helper.config_file)
     def test_config_zone_invalid_zone_name(self):
         config = {'secret': '12345678', 'nameserver': '127.0.0.1',
                   'zones': [{'name': 'l o l'}]}
@@ -97,7 +94,6 @@ class TestFunctionUpdateDnsRecord(unittest.TestCase):
             'Invalid zone name: l o l',
         )
 
-    @mock.patch('jfddns.config_file', _helper.config_file)
     def test_config_zone_no_tsig_key(self):
         self.assertEqual(
             update_dns_record(config={'secret': '12345678',
@@ -106,7 +102,6 @@ class TestFunctionUpdateDnsRecord(unittest.TestCase):
             'Your zone dictionary must contain a key "tsig_key"'
         )
 
-    @mock.patch('jfddns.config_file', _helper.config_file)
     def test_config_zone_invalid_tsig_key(self):
         config = {'secret': '12345678', 'nameserver': '127.0.0.1',
                   'zones': [{'name': 'a', 'tsig_key': 'xxx'}]}
@@ -115,14 +110,12 @@ class TestFunctionUpdateDnsRecord(unittest.TestCase):
             'Invalid tsig key: xxx',
         )
 
-    @mock.patch('jfddns.config_file', _helper.config_file)
     def test_secret_not_matches(self):
         self.assertEqual(
             update_dns_record(secret='lol'),
             'You specified a wrong secret key.'
         )
 
-    @mock.patch('jfddns.config_file', _helper.config_file)
     def test_not_all_three_fqdn_etc(self):
         self.assertEqual(
             update_dns_record(secret='12345678', fqdn='a', zone_name='b',
@@ -130,7 +123,6 @@ class TestFunctionUpdateDnsRecord(unittest.TestCase):
             'Specify “fqdn” or "zone_name" and "record_name".'
         )
 
-    @mock.patch('jfddns.config_file', _helper.config_file)
     def test_ip_1_invalid(self):
         self.assertEqual(
             update_dns_record(secret='12345678', fqdn='www.example.com',
@@ -138,7 +130,6 @@ class TestFunctionUpdateDnsRecord(unittest.TestCase):
             '"ip_1" is not a valid IP address.',
         )
 
-    @mock.patch('jfddns.config_file', _helper.config_file)
     def test_ip_2_invalid(self):
         self.assertEqual(
             update_dns_record(secret='12345678', fqdn='www.example.com',
@@ -146,7 +137,6 @@ class TestFunctionUpdateDnsRecord(unittest.TestCase):
             '"ip_2" is not a valid IP address.',
         )
 
-    @mock.patch('jfddns.config_file', _helper.config_file)
     def test_both_ip_same_version(self):
         self.assertEqual(
             update_dns_record(secret='12345678', fqdn='www.example.com',
@@ -157,7 +147,6 @@ class TestFunctionUpdateDnsRecord(unittest.TestCase):
     @mock.patch('dns.query.tcp')
     @mock.patch('dns.update.Update')
     @mock.patch('dns.resolver.Resolver')
-    @mock.patch('jfddns.config_file', _helper.config_file)
     def test_ipv4_update(self, Resolver, Update, tcp):
         result = update_dns_record(secret='12345678', fqdn='www.example.com',
                                    ip_1='1.2.3.5')
