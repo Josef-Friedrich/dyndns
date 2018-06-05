@@ -1,3 +1,4 @@
+import dns.exception
 import dns.name
 import dns.query
 import dns.resolver
@@ -98,7 +99,7 @@ class DnsUpdate(object):
                 self._convert_record_type(ip_version),
             )
             return str(ip[0])
-        except dns.resolver.NXDOMAIN:
+        except dns.exception.DNSException:
             return ''
 
     def _set_record(self, new_ip, ip_version=4):
