@@ -92,8 +92,14 @@ class DnsUpdate(object):
     def _resolve(self, record_name, ip_version=4):
         resolver = dns.resolver.Resolver()
         resolver.nameservers = [self.nameserver]
-        return str(resolver.query(self._build_fqdn(record_name),
-                                  self._convert_record_type(ip_version))[0])
+        try:
+            ip = resolver.query(
+                self._build_fqdn(record_name),
+                self._convert_record_type(ip_version),
+            )
+            return str(ip[0])
+        except dns.resolver.NXDOMAIN:
+            return ''
 
     def _set_record(self, new_ip, ip_version=4):
         out = {}
@@ -101,8 +107,9 @@ class DnsUpdate(object):
         if new_ip == old_ip:
             out['old_ip'] = old_ip
         else:
-            self._dns_update.delete(self.record_name)
-            self._dns_update.add(self.record_name, 300,
+            fqdn = str(self._build_fqdn(self.record_name))
+            self._dns_update.delete(fqdn)
+            self._dns_update.add(fqdn, 300,
                                  self._convert_record_type(ip_version), new_ip)
             dns.query.tcp(self._dns_update, self.nameserver)
             checked_ip = self._resolve(self.record_name, ip_version)
