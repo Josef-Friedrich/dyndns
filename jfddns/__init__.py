@@ -4,6 +4,7 @@ import flask
 import jfddns.dns as jf_dns
 import logging
 import os
+import re
 import yaml
 
 from ._version import get_versions
@@ -158,6 +159,10 @@ def update_dns_record(secret=None, fqdn=None, zone_name=None, record_name=None,
         record_name=record_name,
     )
 
+    if not fqdn:
+        fqdn = update._build_fqdn(update.record_name)
+        fqdn = re.sub('\.$', '', str(fqdn))
+
     if ip_1:
         setattr(update, 'ipv{}'.format(ip_1[1]), ip_1[0])
     if ip_2:
@@ -182,6 +187,17 @@ def update_dns_record(secret=None, fqdn=None, zone_name=None, record_name=None,
 @app.route('/update/<secret>/<fqdn>/<ip_1>/<ip_2>')
 def update_by_path(secret, fqdn, ip_1=None, ip_2=None):
     return update_dns_record(secret=secret, fqdn=fqdn, ip_1=ip_1, ip_2=ip_2)
+
+
+@app.route('/')
+def update_by_query_string():
+    args = flask.request.args
+    return update_dns_record(
+        secret=args['secret'],
+        zone_name=args['zone'],
+        record_name=args['record'],
+        ip_1=args['ipv4']
+    )
 
 
 def get_argparser():
