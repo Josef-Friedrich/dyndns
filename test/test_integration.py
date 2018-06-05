@@ -58,13 +58,24 @@ class TestUpdateByPath(unittest.TestCase):
     @mock.patch('dns.query.tcp')
     @mock.patch('dns.update.Update')
     @mock.patch('dns.resolver.Resolver')
-    def test_call_secret_fqdn(self, Resolver, Update, tcp):
+    def test_ipv4_update(self, Resolver, Update, tcp):
         resolver = Resolver.return_value
         resolver.query.return_value = [['1.2.3.4'], ['1.2.3.5']]
         self.app.get('/update/12345678/www.example.com/1.2.3.5')
         update = Update.return_value
         update.delete.assert_called_with('www.example.com.')
         update.add.assert_called_with('www.example.com.', 300, 'a', '1.2.3.5')
+
+    @mock.patch('dns.query.tcp')
+    @mock.patch('dns.update.Update')
+    @mock.patch('dns.resolver.Resolver')
+    def test_ipv6_update(self, Resolver, Update, tcp):
+        resolver = Resolver.return_value
+        resolver.query.return_value = [['1::2'], ['1::3']]
+        self.app.get('/update/12345678/www.example.com/1::3')
+        update = Update.return_value
+        update.delete.assert_called_with('www.example.com.')
+        update.add.assert_called_with('www.example.com.', 300, 'aaaa', '1::3')
 
 
 if __name__ == '__main__':
