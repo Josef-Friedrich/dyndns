@@ -156,7 +156,7 @@ class TestFunctionUpdateDnsRecord(unittest.TestCase):
         resolver = Resolver.return_value
         resolver.query.side_effect = [['1.2.3.4'], ['1.2.3.5']]
         update = Update.return_value
-        update.delete.assert_called_with('www.example.com.')
+        update.delete.assert_called_with('www.example.com.', 'a')
         update.add.assert_called_with('www.example.com.', 300, 'a', '1.2.3.5')
 
 

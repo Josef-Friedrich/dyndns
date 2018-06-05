@@ -63,7 +63,7 @@ class TestUpdateByPath(unittest.TestCase):
         resolver.query.return_value = [['1.2.3.4'], ['1.2.3.5']]
         self.app.get('/update/12345678/www.example.com/1.2.3.5')
         update = Update.return_value
-        update.delete.assert_called_with('www.example.com.')
+        update.delete.assert_called_with('www.example.com.', 'a')
         update.add.assert_called_with('www.example.com.', 300, 'a', '1.2.3.5')
 
     @mock.patch('dns.query.tcp')
@@ -74,7 +74,7 @@ class TestUpdateByPath(unittest.TestCase):
         resolver.query.return_value = [['1::2'], ['1::3']]
         self.app.get('/update/12345678/www.example.com/1::3')
         update = Update.return_value
-        update.delete.assert_called_with('www.example.com.')
+        update.delete.assert_called_with('www.example.com.', 'aaaa')
         update.add.assert_called_with('www.example.com.', 300, 'aaaa', '1::3')
 
 

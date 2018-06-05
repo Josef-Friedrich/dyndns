@@ -108,9 +108,9 @@ class DnsUpdate(object):
             out['old_ip'] = old_ip
         else:
             fqdn = str(self._build_fqdn(self.record_name))
-            self._dns_update.delete(fqdn)
-            self._dns_update.add(fqdn, 300,
-                                 self._convert_record_type(ip_version), new_ip)
+            rdtype = self._convert_record_type(ip_version)
+            self._dns_update.delete(fqdn, rdtype)
+            self._dns_update.add(fqdn, 300, rdtype, new_ip)
             dns.query.tcp(self._dns_update, self.nameserver)
             checked_ip = self._resolve(self.record_name, ip_version)
 
