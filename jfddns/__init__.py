@@ -163,17 +163,25 @@ def update_dns_record(secret=None, fqdn=None, zone_name=None, record_name=None,
     if ip_2:
         setattr(update, 'ipv{}'.format(ip_2[1]), ip_2[0])
 
-    update.update()
+    results = update.update()
 
-    return 'ok'
+    out = []
+    for result in results:
+        out.append('{} fqdn: {} old_ip: {} new_ip: {}'.format(
+            result['status'],
+            fqdn,
+            result['old_ip'],
+            result['new_ip'],
+        ))
+
+    return ' | '.join(out)
 
 
 @app.route('/update/<secret>/<fqdn>')
 @app.route('/update/<secret>/<fqdn>/<ip_1>')
 @app.route('/update/<secret>/<fqdn>/<ip_1>/<ip_2>')
 def update_by_path(secret, fqdn, ip_1=None, ip_2=None):
-    update_dns_record(secret=secret, fqdn=fqdn, ip_1=ip_1, ip_2=ip_2)
-    return 'ok'
+    return update_dns_record(secret=secret, fqdn=fqdn, ip_1=ip_1, ip_2=ip_2)
 
 
 def get_argparser():

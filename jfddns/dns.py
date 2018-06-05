@@ -105,20 +105,22 @@ class DnsUpdate(object):
     def _set_record(self, new_ip, ip_version=4):
         out = {}
         old_ip = self._resolve(self.record_name, ip_version)
-        if new_ip == old_ip:
-            out['old_ip'] = old_ip
-        else:
+        out['ip_version'] = ip_version
+        out['new_ip'] = new_ip
+        out['old_ip'] = old_ip
+        out['status'] = 'UNCHANGED'
+
+        if new_ip != old_ip:
             fqdn = str(self._build_fqdn(self.record_name))
             rdtype = self._convert_record_type(ip_version)
             self._dns_update.delete(fqdn, rdtype)
             self._dns_update.add(fqdn, 300, rdtype, new_ip)
             dns.query.tcp(self._dns_update, self.nameserver)
             checked_ip = self._resolve(self.record_name, ip_version)
+            out['status'] = 'UPDATED'
 
             if new_ip != checked_ip:
-                out['message'] = 'The DNS record couldn’t be updated.'
-            else:
-                out['new_ip'] = new_ip
+                out['status'] = 'ERROR'
 
         return out
 
@@ -128,3 +130,5 @@ class DnsUpdate(object):
             results.append(self._set_record(new_ip=self.ipv4, ip_version=4))
         if self.ipv6:
             results.append(self._set_record(new_ip=self.ipv6, ip_version=6))
+
+        return results

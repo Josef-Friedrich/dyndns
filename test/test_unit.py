@@ -148,14 +148,15 @@ class TestFunctionUpdateDnsRecord(unittest.TestCase):
     @mock.patch('dns.update.Update')
     @mock.patch('dns.resolver.Resolver')
     def test_ipv4_update(self, Resolver, Update, tcp):
-        result = update_dns_record(secret='12345678', fqdn='www.example.com',
-                                   ip_1='1.2.3.5')
-
-        self.assertEqual(result, 'ok')
-
         resolver = Resolver.return_value
         resolver.query.side_effect = [['1.2.3.4'], ['1.2.3.5']]
         update = Update.return_value
+        result = update_dns_record(secret='12345678', fqdn='www.example.com',
+                                   ip_1='1.2.3.5')
+        self.assertEqual(
+            result,
+            'UPDATED fqdn: www.example.com old_ip: 1.2.3.4 new_ip: 1.2.3.5',
+        )
         update.delete.assert_called_with('www.example.com.', 'a')
         update.add.assert_called_with('www.example.com.', 300, 'a', '1.2.3.5')
 
