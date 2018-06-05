@@ -113,5 +113,16 @@ class TestUpdateByQueryString(unittest.TestCase):
         )
 
 
+class TestStaticPages(unittest.TestCase):
+
+    def setUp(self):
+        app.config['TESTING'] = True
+        self.app = app.test_client()
+
+    def test_about(self):
+        response = self.app.get('/about')
+        self.assertIn('jfddns (version:', response.data.decode('utf-8'))
+
+
 if __name__ == '__main__':
     unittest.main()

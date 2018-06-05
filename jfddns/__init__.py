@@ -200,6 +200,11 @@ def update_by_query_string():
     )
 
 
+@app.route('/about')
+def about():
+    return 'jfddns (version: {})'.format(__version__)
+
+
 def get_argparser():
     parser = argparse.ArgumentParser()
     parser.add_argument('-p', '--port', type=int, default=54321)
