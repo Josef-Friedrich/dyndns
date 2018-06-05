@@ -179,7 +179,7 @@ def update_dns_record(secret=None, fqdn=None, zone_name=None, record_name=None,
             result['new_ip'],
         ))
 
-    return ' | '.join(out)
+    return msg(' | '.join(out))
 
 
 @app.route('/update/<secret>/<fqdn>')
