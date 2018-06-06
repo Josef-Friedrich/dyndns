@@ -12,7 +12,6 @@ __version__ = get_versions()['version']
 del get_versions
 
 app = flask.Flask(__name__)
-config_file = '/etc/jfddns.yml'
 
 
 logger = logging.getLogger('jfddns')
