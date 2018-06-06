@@ -96,6 +96,13 @@ class TestUpdateByQueryString(unittest.TestCase):
         app.config['TESTING'] = True
         self.app = app.test_client()
 
+    def test_unkown_argument(self):
+        response = self.app.get('/?lol=lol')
+        self.assertEqual(
+            response.data.decode('utf-8'),
+            'Unknown query string argument: "lol"',
+        )
+
     @mock.patch('dns.query.tcp')
     @mock.patch('dns.update.Update')
     @mock.patch('dns.resolver.Resolver')

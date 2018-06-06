@@ -1,6 +1,7 @@
 from jfddns import validate
 import argparse
 import flask
+import inspect
 import jfddns.dns as jf_dns
 import logging
 import os
@@ -51,7 +52,7 @@ def msg(text):
 
 
 def update_dns_record(secret=None, fqdn=None, zone_name=None, record_name=None,
-                      ip_1=None, ip_2=None, config=None):
+                      ip_1=None, ip_2=None, ipv4=None, ipv6=None, config=None):
 
     ##
     # config
@@ -191,6 +192,13 @@ def update_by_path(secret, fqdn, ip_1=None, ip_2=None):
 @app.route('/')
 def update_by_query_string():
     args = flask.request.args
+    kwargs = inspect.getfullargspec(update_dns_record).args
+
+    for key, arg in args.items():
+
+        if key not in kwargs:
+            return msg('Unknown query string argument: "{}"'.format(key))
+
     return update_dns_record(
         secret=args['secret'],
         zone_name=args['zone_name'],
