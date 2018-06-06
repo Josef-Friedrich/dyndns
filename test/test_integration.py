@@ -102,7 +102,8 @@ class TestUpdateByQueryString(unittest.TestCase):
     def test_ipv4_update(self, Resolver, Update, tcp):
         resolver = Resolver.return_value
         resolver.query.side_effect = [['1.2.3.4'], ['1.2.3.5']]
-        url = '/?secret=12345678&record=www&zone=example.com&ipv4=1.2.3.5'
+        url = '/?secret=12345678&record_name=www&zone_name=example.com&' \
+              'ipv4=1.2.3.5'
         response = self.app.get(url)
         update = Update.return_value
         update.delete.assert_called_with('www.example.com.', 'a')

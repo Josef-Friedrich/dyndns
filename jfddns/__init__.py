@@ -193,8 +193,8 @@ def update_by_query_string():
     args = flask.request.args
     return update_dns_record(
         secret=args['secret'],
-        zone_name=args['zone'],
-        record_name=args['record'],
+        zone_name=args['zone_name'],
+        record_name=args['record_name'],
         ip_1=args['ipv4']
     )
 
