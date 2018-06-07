@@ -8,6 +8,7 @@ record and zone names)
 from jfddns.validate import JfErr
 import binascii
 import dns.name
+import dns.tsigkeyring
 import re
 
 
@@ -42,11 +43,13 @@ def validate_hostname(hostname):
 
 
 def validate_tsig_key(tsig_key):
+    if not tsig_key:
+        raise JfErr('Invalid tsig key: "{}".'.format(tsig_key))
     try:
         dns.tsigkeyring.from_text({'tmp.org.': tsig_key})
         return tsig_key
     except binascii.Error:
-        raise JfErr('Invalid tsig key: "{}"'.format(tsig_key))
+        raise JfErr('Invalid tsig key: "{}".'.format(tsig_key))
 
 
 class Zone(object):
@@ -63,6 +66,8 @@ class Zone(object):
         record_name = fqdn.replace(self.zone_name, '')
         if len(record_name) > 0 and len(record_name) < len(fqdn):
             return (record_name, self.zone_name)
+        else:
+            raise JfErr('FQDN "{}" is not splitable by zone "{}".')
 
     def build_fqdn(self, record_name):
         record_name = validate_hostname(record_name)
@@ -80,6 +85,13 @@ class Zones(object):
             )
             self.zones[zone.zone_name] = zone
 
+    def get_zone_by_name(self, zone_name):
+        zone_name = validate_hostname(zone_name)
+        if zone_name in self.zones:
+            return self.zones[validate_hostname(zone_name)]
+        else:
+            raise JfErr('Unkown zone"{}'.format(zone_name))
+
     def split_fqdn(self, fqdn):
         """Split hostname into record_name and zone_name
         for example: www.example.com -> www. example.com.
@@ -90,13 +102,6 @@ class Zones(object):
             if len(record_name) > 0 and len(record_name) < len(fqdn):
                 return (record_name, zone.zone_name)
         return False
-
-    def get_zone_by_name(self, zone_name):
-        zone_name = validate_hostname(zone_name)
-        if zone_name in self.zones:
-            return self.zones[validate_hostname(zone_name)]
-        else:
-            raise JfErr('Unkown zone"{}'.format(zone_name))
 
 
 class Fqdn(object):
@@ -117,7 +122,7 @@ class Fqdn(object):
         self.zones = zones
 
         if fqdn:
-            self.fqdn = fqdn
+            self.fqdn = validate_hostname(fqdn)
             split = self.zones.split_fqdn(fqdn)
             if split:
                 self.record_name = split[0]
