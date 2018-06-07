@@ -4,6 +4,10 @@ import ipaddress
 import re
 
 
+class JfErr(Exception):
+    pass
+
+
 def secret(secret):
     secret = str(secret)
     if re.match('^[a-zA-Z0-9]+$', secret) and len(secret) >= 8:

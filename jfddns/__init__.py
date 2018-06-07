@@ -1,4 +1,5 @@
 from jfddns import validate
+from jfddns.validate import JfErr
 import argparse
 import flask
 import inspect
@@ -49,6 +50,61 @@ def load_config():
 def msg(text):
     logger.info(text)
     return text
+
+
+def _check_config(config=None):
+
+    ##
+    # config
+    ##
+
+    if not config:
+        try:
+            config = load_config()
+        except IOError:
+            raise JfErr('The configuration file could not be found.')
+        except yaml.error.YAMLError:
+            raise JfErr('The configuration file is in a invalid YAML format.')
+
+    if not config:
+        raise JfErr('The configuration file could not be found.')
+
+    if 'secret' not in config:
+        raise JfErr('Your configuration must have a "secret" key, '
+                    'for example: "secret: VDEdxeTKH"')
+
+    if not validate.secret(config['secret']):
+        raise JfErr('The secret must be at least 8 characters long and may '
+                    'not contain any non-alpha-numeric characters.')
+
+    if 'nameserver' not in config:
+        raise JfErr('Your configuration must have a "nameserver" key, '
+                    'for example: "nameserver: 127.0.0.1"')
+
+    if 'zones' not in config:
+        raise JfErr('Your configuration must have a "zones" key.')
+
+    if not isinstance(config['zones'], (list,)):
+        raise JfErr('Your "zones" key must contain a list of zones.')
+
+    if len(config['zones']) < 1:
+        raise JfErr('You must have at least one zone configured, for example:'
+                    '"- name: example.com" and "twig_key: tPyvZA=="')
+
+    for _zone in config['zones']:
+        if 'name' not in _zone:
+            raise JfErr('Your zone dictionary must contain a key "name"')
+
+        if not validate.zone(_zone['name']):
+            raise JfErr('Invalid zone name: {}'.format(_zone['name']))
+
+        if 'tsig_key' not in _zone:
+            raise JfErr('Your zone dictionary must contain a key "tsig_key"')
+
+        if not validate.tsig_key(_zone['tsig_key']):
+            raise JfErr('Invalid tsig key: {}'.format(_zone['tsig_key']))
+
+    return config
 
 
 def update_dns_record(secret=None, fqdn=None, zone_name=None, record_name=None,
