@@ -49,11 +49,11 @@ class IpAddresses(object):
         ip, ip_version = validate(address)
         old_ip = self._get_ip(ip_version)
         if old_ip:
-            msg = 'The attribute "{}" is already set and has the value "{}"' \
+            msg = 'The attribute "{}" is already set and has the value "{}".' \
                 .format(
                     format_attr(ip_version),
                     old_ip,
                 )
             raise JfErr(msg)
 
-        self._set_attr(ip_version, ip)
+        self._setattr(ip_version, ip)
