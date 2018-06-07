@@ -13,7 +13,8 @@ def secret(secret):
     if re.match('^[a-zA-Z0-9]+$', secret) and len(secret) >= 8:
         return secret
     else:
-        return False
+        raise JfErr('The secret must be at least 8 characters long and may '
+                    'not contain any non-alpha-numeric characters.')
 
 
 def ipv4(address):

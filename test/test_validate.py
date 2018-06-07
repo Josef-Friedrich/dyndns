@@ -1,4 +1,5 @@
 from jfddns import validate
+from jfddns.validate import JfErr
 import unittest
 
 
@@ -8,10 +9,12 @@ class TestMethodSecret(unittest.TestCase):
         self.assertEqual(validate.secret('abcd1234'), 'abcd1234')
 
     def test_invalid_to_short(self):
-        self.assertEqual(validate.secret('1234567'), False)
+        with self.assertRaises(JfErr):
+            validate.secret('1234567')
 
     def test_invalid_non_alpanumeric(self):
-        self.assertEqual(validate.secret('12345äüö'), False)
+        with self.assertRaises(JfErr):
+            validate.secret('12345äüö')
 
 
 class TestMethodIpv4(unittest.TestCase):

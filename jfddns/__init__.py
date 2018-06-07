@@ -73,9 +73,7 @@ def _check_config(config=None):
         raise JfErr('Your configuration must have a "secret" key, '
                     'for example: "secret: VDEdxeTKH"')
 
-    if not validate.secret(config['secret']):
-        raise JfErr('The secret must be at least 8 characters long and may '
-                    'not contain any non-alpha-numeric characters.')
+    config['secret'] = validate.secret(config['secret'])
 
     if 'nameserver' not in config:
         raise JfErr('Your configuration must have a "nameserver" key, '
