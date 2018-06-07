@@ -47,6 +47,15 @@ def ip(address):
         return False
 
 
+def ip_ng(address):
+    if ipv4(address):
+        return (address, 4)
+    if ipv6(address):
+        return (address, 6)
+    else:
+        raise JfErr('The string "{}" is not a valid IP address.')
+
+
 def tsig_key(tsig_key):
     if not tsig_key:
         return False
