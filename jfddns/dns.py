@@ -1,5 +1,3 @@
-from jfddns import validate
-from jfddns.validate import JfErr
 import dns.exception
 import dns.name
 import dns.query
@@ -45,46 +43,6 @@ class Zones(object):
             record_name = fqdn.replace(zone_name, '')
             if len(record_name) > 0 and len(record_name) < len(fqdn):
                 return (record_name, zone_name)
-
-
-class IpAdresses(object):
-
-    def __init(self, ip_1=None, ip_2=None, ipv4=None, ipv6=None):
-
-        self.ipv4 = ipv4  #: The ipv6 address to update DNS record with
-        self.ipv6 = ipv6  #: The ipv6 address to update DNS record with
-
-        if ip_1:
-            self._set_ip(ip_1)
-
-        if ip_2:
-            self._set_ip(ip_2)
-
-        if not self.ipv4 and not self.ipv6:
-            raise JfErr('No ip address set.')
-
-    @staticmethod
-    def _format_attr(ip_version):
-        return 'ipv{}'.format(ip_version)
-
-    def _get_ip(self, ip_version):
-        return getattr(self, self._format_attr(ip_version))
-
-    def _setattr(self, ip_version, value):
-        return setattr(self, self._format_attr(ip_version), value)
-
-    def _set_ip(self, address):
-        ip, ip_version = validate.ip_ng(address)
-        old_ip = self._get_ip(ip_version)
-        if old_ip:
-            msg = 'The attribute "{}" is already set and has the value "{}"' \
-                .format(
-                    self._format_attr(ip_version),
-                    old_ip,
-                )
-            raise JfErr(msg)
-
-        self._set_attr(ip_version, ip)
 
 
 class Fqdn(object):

@@ -21,6 +21,15 @@ jfddns.dns module
     :show-inheritance:
     :private-members:
 
+jfddns.ipaddresses module
+^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. automodule:: jfddns.ipaddresses
+    :members:
+    :undoc-members:
+    :show-inheritance:
+    :private-members:
+
 jfddns.validate module
 ^^^^^^^^^^^^^^^^^^^^^^
 
