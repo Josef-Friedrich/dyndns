@@ -8,7 +8,6 @@ class TestClassIpAddresses(unittest.TestCase):
     def assertRaisesMsg(self, kwargs, msg):
         with self.assertRaises(JfErr) as cm:
             IpAddresses(**kwargs)
-
         self.assertEqual(str(cm.exception), msg)
 
     def test_invalid_ipv4(self):

@@ -45,11 +45,6 @@ class Zones(object):
                 return (record_name, zone_name)
 
 
-class Fqdn(object):
-
-    pass
-
-
 class DnsUpdate(object):
     """
     Update the DNS server
