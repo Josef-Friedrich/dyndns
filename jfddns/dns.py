@@ -7,44 +7,6 @@ import dns.update
 import re
 
 
-def normalize_dns_name(name):
-    return str(dns.name.from_text(name))
-
-
-def split_fqdn(fqdn, zones):
-    """Split hostname into record_name and zone_name
-    for example: www.example.com -> www. example.com.
-    """
-    fqdn = normalize_dns_name(fqdn)
-    for zone in zones:
-        zone_name = zone['zone']
-        zone_name = normalize_dns_name(zone_name)
-        record_name = fqdn.replace(zone_name, '')
-        if len(record_name) > 0 and len(record_name) < len(fqdn):
-            return (record_name, zone_name)
-
-
-class Zones(object):
-
-    def __init__(self, zones):
-        self.zones = {}
-        for zone in zones:
-            self.zones[normalize_dns_name(zone['name'])] = zone['tsig_key']
-
-    def get_tsig_key(self, zone_name):
-        return self.zones[normalize_dns_name(zone_name)]
-
-    def split_fqdn(self, fqdn):
-        """Split hostname into record_name and zone_name
-        for example: www.example.com -> www. example.com.
-        """
-        fqdn = normalize_dns_name(fqdn)
-        for zone_name, tsig_key in self.zones.items():
-            record_name = fqdn.replace(zone_name, '')
-            if len(record_name) > 0 and len(record_name) < len(fqdn):
-                return (record_name, zone_name)
-
-
 class DnsUpdate(object):
     """
     Update the DNS server

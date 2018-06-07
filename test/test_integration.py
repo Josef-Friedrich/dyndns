@@ -70,7 +70,7 @@ class TestUpdateByPath(unittest.TestCase):
         update.add.assert_called_with('www.example.com.', 300, 'a', '1.2.3.5')
         self.assertEqual(
             response.data.decode('utf-8'),
-            'UPDATED fqdn: www.example.com old_ip: 1.2.3.4 new_ip: 1.2.3.5',
+            'UPDATED fqdn: www.example.com. old_ip: 1.2.3.4 new_ip: 1.2.3.5',
         )
 
     @mock.patch('dns.query.tcp')
@@ -85,7 +85,7 @@ class TestUpdateByPath(unittest.TestCase):
         update.add.assert_called_with('www.example.com.', 300, 'aaaa', '1::3')
         self.assertEqual(
             response.data.decode('utf-8'),
-            'UPDATED fqdn: www.example.com old_ip: 1::2 new_ip: 1::3',
+            'UPDATED fqdn: www.example.com. old_ip: 1::2 new_ip: 1::3',
         )
 
 
@@ -117,7 +117,7 @@ class TestUpdateByQueryString(unittest.TestCase):
         update.add.assert_called_with('www.example.com.', 300, 'a', '1.2.3.5')
         self.assertEqual(
             response.data.decode('utf-8'),
-            'UPDATED fqdn: www.example.com old_ip: 1.2.3.4 new_ip: 1.2.3.5',
+            'UPDATED fqdn: www.example.com. old_ip: 1.2.3.4 new_ip: 1.2.3.5',
         )
 
 

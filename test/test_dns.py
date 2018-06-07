@@ -1,4 +1,4 @@
-from jfddns.dns import DnsUpdate, Zones
+from jfddns.dns import DnsUpdate
 import _helper
 import unittest
 import ipaddress
@@ -6,38 +6,6 @@ from unittest import mock
 
 
 NO_INTERNET_CONNECTIFITY = not _helper.check_internet_connectifity()
-
-
-class TestClassZones(unittest.TestCase):
-
-    def setUp(self):
-        self.zones = Zones([{'name': 'example.org', 'tsig_key': 'tPyvZA=='}])
-
-    def test_init(self):
-        self.assertEqual(self.zones.zones['example.org.'], 'tPyvZA==')
-
-    def test_method_get_tsig_key(self):
-        self.assertEqual(self.zones.get_tsig_key('example.org'), 'tPyvZA==')
-
-
-class TestClassZonesMethodSplitFqdn(unittest.TestCase):
-
-    zones = Zones([
-        {'name': 'example.com.', 'tsig_key': 'tPyvZA=='},
-        {'name': 'example.org', 'tsig_key': 'tPyvZA=='},
-    ])
-
-    def test_with_dot(self):
-        result = self.zones.split_fqdn('www.example.com')
-        self.assertEqual(result, ('www.', 'example.com.'))
-
-    def test_with_org(self):
-        result = self.zones.split_fqdn('www.example.org')
-        self.assertEqual(result, ('www.', 'example.org.'))
-
-    def test_unkown_zone(self):
-        result = self.zones.split_fqdn('www.xx.org')
-        self.assertEqual(result, None)
 
 
 class TestClassDnsUpdate(unittest.TestCase):
