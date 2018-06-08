@@ -12,7 +12,7 @@ class Integration(unittest.TestCase):
         app.config['TESTING'] = True
         self.app = app.test_client()
 
-    def get(self, path, side_effect):
+    def get(self, path, side_effect=None):
         with mock.patch('dns.query.tcp') as tcp:
             with mock.patch('dns.update.Update') as Update:
                 with mock.patch('dns.resolver.Resolver') as Resolver:
@@ -20,7 +20,8 @@ class Integration(unittest.TestCase):
                     self.mock_Update = Update
                     self.mock_Resolver = Resolver
                     self.mock_resolver = self.mock_Resolver.return_value
-                    self.mock_resolver.query.side_effect = side_effect
+                    if side_effect:
+                        self.mock_resolver.query.side_effect = side_effect
                     self.response = self.app.get(path)
                     self.data = self.response.data.decode('utf-8')
                     self.mock_update = Update.return_value
@@ -80,34 +81,25 @@ class TestUpdateByPath(Integration):
         )
 
 
-class TestUpdateByQueryString(unittest.TestCase):
-
-    def setUp(self):
-        os.environ['JFDDNS_CONFIG_FILE'] = _helper.config_file
-        app.config['TESTING'] = True
-        self.app = app.test_client()
+class TestUpdateByQuery(Integration):
 
     def test_unkown_argument(self):
-        response = self.app.get('/update-by-query?lol=lol')
+        self.get('/update-by-query?lol=lol')
         self.assertEqual(
-            response.data.decode('utf-8'),
+            self.data,
             'Unknown query string argument: "lol"',
         )
 
-    @mock.patch('dns.query.tcp')
-    @mock.patch('dns.update.Update')
-    @mock.patch('dns.resolver.Resolver')
-    def test_ipv4_update(self, Resolver, Update, tcp):
-        resolver = Resolver.return_value
-        resolver.query.side_effect = [['1.2.3.4'], ['1.2.3.5']]
+    def test_ipv4_update(self):
+        side_effect = [['1.2.3.4'], ['1.2.3.5']]
         url = '/update-by-query?secret=12345678&record_name=www&zone_name=' \
               'example.com&ipv4=1.2.3.5'
-        response = self.app.get(url)
-        update = Update.return_value
-        update.delete.assert_called_with('www.example.com.', 'a')
-        update.add.assert_called_with('www.example.com.', 300, 'a', '1.2.3.5')
+        self.get(url, side_effect)
+        self.mock_update.delete.assert_called_with('www.example.com.', 'a')
+        self.mock_update.add.assert_called_with('www.example.com.', 300, 'a',
+                                                '1.2.3.5')
         self.assertEqual(
-            response.data.decode('utf-8'),
+            self.data,
             'UPDATED fqdn: www.example.com. old_ip: 1.2.3.4 new_ip: 1.2.3.5',
         )
 
