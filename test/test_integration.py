@@ -154,6 +154,15 @@ class TestUpdateByQuery(Integration):
             'UPDATED fqdn: www.example.com. old_ip: 1::2 new_ip: 1::3',
         )
 
+    def test_ip_1_ip_2_update(self):
+        side_effect = [['1.2.3.4'], ['1.2.3.5'], ['1::2'], ['1::3']]
+        self.get(self._url('ip_1=1.2.3.5&ip_2=1::3'), side_effect)
+        self.assertEqual(
+            self.data,
+            'UPDATED fqdn: www.example.com. old_ip: 1.2.3.4 new_ip: 1.2.3.5 | '
+            'UPDATED fqdn: www.example.com. old_ip: 1::2 new_ip: 1::3',
+        )
+
     def test_invalid_ipv4(self):
         self.get(self._url('ipv4=lol'))
         self.assertEqual(
