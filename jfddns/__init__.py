@@ -74,9 +74,9 @@ def update_dns_record(secret=None, fqdn=None, zone_name=None, record_name=None,
     return msg(' | '.join(out))
 
 
-@app.route('/update/<secret>/<fqdn>')
-@app.route('/update/<secret>/<fqdn>/<ip_1>')
-@app.route('/update/<secret>/<fqdn>/<ip_1>/<ip_2>')
+@app.route('/update-by-path/<secret>/<fqdn>')
+@app.route('/update-by-path/<secret>/<fqdn>/<ip_1>')
+@app.route('/update-by-path/<secret>/<fqdn>/<ip_1>/<ip_2>')
 def update_by_path(secret, fqdn, ip_1=None, ip_2=None):
     try:
         return update_dns_record(secret=secret, fqdn=fqdn, ip_1=ip_1,
@@ -85,7 +85,7 @@ def update_by_path(secret, fqdn, ip_1=None, ip_2=None):
         return msg('ERROR {}'.format(e))
 
 
-@app.route('/')
+@app.route('/update-by-query')
 def update_by_query_string():
     args = flask.request.args
     kwargs = inspect.getfullargspec(update_dns_record).args

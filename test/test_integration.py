@@ -32,21 +32,21 @@ class TestMethodUpdateByPath(unittest.TestCase):
     @mock.patch('jfddns.update_dns_record')
     def test_call_secret_fqdn(self, update):
         update.return_value = 'ok'
-        self.app.get('/update/secret/fqdn')
+        self.app.get('/update-by-path/secret/fqdn')
         update.assert_called_with(secret='secret', fqdn='fqdn', ip_1=None,
                                   ip_2=None)
 
     @mock.patch('jfddns.update_dns_record')
     def test_call_secret_fqdn_ip_1(self, update):
         update.return_value = 'ok'
-        self.app.get('/update/secret/fqdn/ip_1')
+        self.app.get('/update-by-path/secret/fqdn/ip_1')
         update.assert_called_with(secret='secret', fqdn='fqdn', ip_1='ip_1',
                                   ip_2=None)
 
     @mock.patch('jfddns.update_dns_record')
     def test_call_secret_fqdn_ip1_ip2(self, update):
         update.return_value = 'ok'
-        self.app.get('/update/secret/fqdn/ip_1/ip_2')
+        self.app.get('/update-by-path/secret/fqdn/ip_1/ip_2')
         update.assert_called_with(secret='secret', fqdn='fqdn', ip_1='ip_1',
                                   ip_2='ip_2')
 
@@ -64,7 +64,8 @@ class TestUpdateByPath(unittest.TestCase):
     def test_ipv4_update(self, Resolver, Update, tcp):
         resolver = Resolver.return_value
         resolver.query.side_effect = [['1.2.3.4'], ['1.2.3.5']]
-        response = self.app.get('/update/12345678/www.example.com/1.2.3.5')
+        path = '/update-by-path/12345678/www.example.com/1.2.3.5'
+        response = self.app.get(path)
         update = Update.return_value
         update.delete.assert_called_with('www.example.com.', 'a')
         update.add.assert_called_with('www.example.com.', 300, 'a', '1.2.3.5')
@@ -79,7 +80,8 @@ class TestUpdateByPath(unittest.TestCase):
     def test_ipv6_update(self, Resolver, Update, tcp):
         resolver = Resolver.return_value
         resolver.query.side_effect = [['1::2'], ['1::3']]
-        response = self.app.get('/update/12345678/www.example.com/1::3')
+        path = '/update-by-path/12345678/www.example.com/1::3'
+        response = self.app.get(path)
         update = Update.return_value
         update.delete.assert_called_with('www.example.com.', 'aaaa')
         update.add.assert_called_with('www.example.com.', 300, 'aaaa', '1::3')
@@ -97,7 +99,7 @@ class TestUpdateByQueryString(unittest.TestCase):
         self.app = app.test_client()
 
     def test_unkown_argument(self):
-        response = self.app.get('/?lol=lol')
+        response = self.app.get('/update-by-query?lol=lol')
         self.assertEqual(
             response.data.decode('utf-8'),
             'Unknown query string argument: "lol"',
@@ -109,8 +111,8 @@ class TestUpdateByQueryString(unittest.TestCase):
     def test_ipv4_update(self, Resolver, Update, tcp):
         resolver = Resolver.return_value
         resolver.query.side_effect = [['1.2.3.4'], ['1.2.3.5']]
-        url = '/?secret=12345678&record_name=www&zone_name=example.com&' \
-              'ipv4=1.2.3.5'
+        url = '/update-by-query?secret=12345678&record_name=www&zone_name=' \
+              'example.com&ipv4=1.2.3.5'
         response = self.app.get(url)
         update = Update.return_value
         update.delete.assert_called_with('www.example.com.', 'a')
