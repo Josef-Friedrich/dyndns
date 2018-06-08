@@ -88,20 +88,21 @@ def update_by_path(secret, fqdn, ip_1=None, ip_2=None):
 @app.route('/update-by-query')
 def update_by_query_string():
     args = flask.request.args
+    # Returns ImmutableMultiDict([('secret', '12345678'), ...])
+    # dict(args):
+    # {'secret': ['12345678'],
+
     kwargs = inspect.getfullargspec(update_dns_record).args
 
+    input_args = {}
     for key, arg in args.items():
+        input_args[key] = arg
 
         if key not in kwargs:
             return msg('Unknown query string argument: "{}"'.format(key))
 
     try:
-        return update_dns_record(
-            secret=args['secret'],
-            zone_name=args['zone_name'],
-            record_name=args['record_name'],
-            ip_1=args['ipv4']
-        )
+        return update_dns_record(**input_args)
     except JfErr as e:
         return msg('ERROR {}'.format(e))
 
