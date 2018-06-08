@@ -84,6 +84,30 @@ class TestUpdateByPath(Integration):
             'UPDATED fqdn: www.example.com. old_ip: 1::2 new_ip: 1::3',
         )
 
+    def test_ipv4_ipv6_update(self):
+        self.get(self._url('1.2.3.5/1::3'),
+                 [['1.2.3.4'], ['1.2.3.5'], ['1::2'], ['1::3']])
+        self.mock_update.delete.assert_called_with('www.example.com.', 'aaaa')
+        self.mock_update.add.assert_called_with('www.example.com.', 300,
+                                                'aaaa', '1::3')
+        self.assertEqual(
+            self.data,
+            'UPDATED fqdn: www.example.com. old_ip: 1.2.3.4 new_ip: 1.2.3.5 | '
+            'UPDATED fqdn: www.example.com. old_ip: 1::2 new_ip: 1::3',
+        )
+
+    def test_ipv6_ipv4_update(self):
+        self.get(self._url('1::3/1.2.3.5'),
+                 [['1.2.3.4'], ['1.2.3.5'], ['1::2'], ['1::3']])
+        self.mock_update.delete.assert_called_with('www.example.com.', 'aaaa')
+        self.mock_update.add.assert_called_with('www.example.com.', 300,
+                                                'aaaa', '1::3')
+        self.assertEqual(
+            self.data,
+            'UPDATED fqdn: www.example.com. old_ip: 1.2.3.4 new_ip: 1.2.3.5 | '
+            'UPDATED fqdn: www.example.com. old_ip: 1::2 new_ip: 1::3',
+        )
+
 
 class TestUpdateByQuery(Integration):
 
