@@ -57,8 +57,12 @@ class TestMethodUpdateByPath(unittest.TestCase):
 
 class TestUpdateByPath(Integration):
 
+    @staticmethod
+    def _url(path):
+        return '/update-by-path/12345678/www.example.com/{}'.format(path)
+
     def test_ipv4_update(self):
-        self.get('/update-by-path/12345678/www.example.com/1.2.3.5',
+        self.get(self._url('1.2.3.5'),
                  [['1.2.3.4'], ['1.2.3.5']])
 
         self.mock_update.delete.assert_called_with('www.example.com.', 'a')
@@ -70,7 +74,7 @@ class TestUpdateByPath(Integration):
         )
 
     def test_ipv6_update(self):
-        self.get('/update-by-path/12345678/www.example.com/1::3',
+        self.get(self._url('1::3'),
                  [['1::2'], ['1::3']])
         self.mock_update.delete.assert_called_with('www.example.com.', 'aaaa')
         self.mock_update.add.assert_called_with('www.example.com.', 300,
@@ -83,6 +87,11 @@ class TestUpdateByPath(Integration):
 
 class TestUpdateByQuery(Integration):
 
+    @staticmethod
+    def _url(query_string):
+        return '/update-by-query?secret=12345678&record_name=www&zone_name=' \
+               'example.com&{}'.format(query_string)
+
     def test_unkown_argument(self):
         self.get('/update-by-query?lol=lol')
         self.assertEqual(
@@ -92,9 +101,7 @@ class TestUpdateByQuery(Integration):
 
     def test_ipv4_update(self):
         side_effect = [['1.2.3.4'], ['1.2.3.5']]
-        url = '/update-by-query?secret=12345678&record_name=www&zone_name=' \
-              'example.com&ipv4=1.2.3.5'
-        self.get(url, side_effect)
+        self.get(self._url('ipv4=1.2.3.5'), side_effect)
         self.mock_update.delete.assert_called_with('www.example.com.', 'a')
         self.mock_update.add.assert_called_with('www.example.com.', 300, 'a',
                                                 '1.2.3.5')
@@ -105,9 +112,7 @@ class TestUpdateByQuery(Integration):
 
     def test_ipv6_update(self):
         side_effect = [['1::2'], ['1::3']]
-        url = '/update-by-query?secret=12345678&record_name=www&zone_name=' \
-              'example.com&ipv6=1::3'
-        self.get(url, side_effect)
+        self.get(self._url('ipv6=1::3'), side_effect)
         self.mock_update.delete.assert_called_with('www.example.com.', 'aaaa')
         self.mock_update.add.assert_called_with('www.example.com.', 300,
                                                 'aaaa', '1::3')
@@ -118,9 +123,7 @@ class TestUpdateByQuery(Integration):
 
     def test_ipv4_ipv6_update(self):
         side_effect = [['1.2.3.4'], ['1.2.3.5'], ['1::2'], ['1::3']]
-        url = '/update-by-query?secret=12345678&record_name=www&zone_name=' \
-              'example.com&ipv4=1.2.3.5&ipv6=1::3'
-        self.get(url, side_effect)
+        self.get(self._url('ipv4=1.2.3.5&ipv6=1::3'), side_effect)
         self.assertEqual(
             self.data,
             'UPDATED fqdn: www.example.com. old_ip: 1.2.3.4 new_ip: 1.2.3.5 | '
@@ -128,9 +131,7 @@ class TestUpdateByQuery(Integration):
         )
 
     def test_invalid_ipv4(self):
-        url = '/update-by-query?secret=12345678&record_name=www&zone_name=' \
-              'example.com&ipv4=lol'
-        self.get(url)
+        self.get(self._url('ipv4=lol'))
         self.assertEqual(
             self.data,
             'ERROR Invalid ip address "lol"',
