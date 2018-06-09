@@ -114,19 +114,19 @@ class TestClassZonesMethodSplitNames(unittest.TestCase):
 class TestClassNames(unittest.TestCase):
 
     def setUp(self):
-        self.fqdn = Names(zones=zones, fqdn='www.example.com')
+        self.names = Names(zones=zones, fqdn='www.example.com')
 
     def test_attribute_fqdn(self):
-        self.assertEqual(self.fqdn.fqdn, 'www.example.com.')
+        self.assertEqual(self.names.fqdn, 'www.example.com.')
 
     def test_attribute_zone_name(self):
-        self.assertEqual(self.fqdn.zone_name, 'example.com.')
+        self.assertEqual(self.names.zone_name, 'example.com.')
 
     def test_attribute_record_name(self):
-        self.assertEqual(self.fqdn.record_name, 'www.')
+        self.assertEqual(self.names.record_name, 'www.')
 
     def test_attribute_tsig_key(self):
-        self.assertEqual(self.fqdn.tsig_key, 'tPyvZA==')
+        self.assertEqual(self.names.tsig_key, 'tPyvZA==')
 
 
 # class TestClassNamesRaises(unittest.TestCase):

@@ -41,18 +41,18 @@ def update_dns_record(secret=None, fqdn=None, zone_name=None, record_name=None,
     if str(secret) != str(config['secret']):
         raise JfErr('You specified a wrong secret key.')
 
-    fqdn = Names(zones, fqdn=fqdn, zone_name=zone_name,
-                 record_name=record_name)
+    names = Names(zones, fqdn=fqdn, zone_name=zone_name,
+                  record_name=record_name)
 
-    zone = zones.get_zone_by_name(fqdn.zone_name)
+    zone = zones.get_zone_by_name(names.zone_name)
 
     ips = IpAddresses(ip_1=ip_1, ip_2=ip_2, ipv4=ipv4, ipv6=ipv6)
 
     update = jf_dns.DnsUpdate(
         nameserver=config['nameserver'],
-        zone_name=fqdn.zone_name,
+        zone_name=names.zone_name,
         tsig_key=zone.tsig_key,
-        record_name=fqdn.record_name,
+        record_name=names.record_name,
     )
 
     if ips.ipv4:
@@ -66,7 +66,7 @@ def update_dns_record(secret=None, fqdn=None, zone_name=None, record_name=None,
     for result in results:
         out.append('{} fqdn: {} old_ip: {} new_ip: {}'.format(
             result['status'],
-            fqdn.fqdn,
+            names.fqdn,
             result['old_ip'],
             result['new_ip'],
         ))
