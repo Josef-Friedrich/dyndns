@@ -52,7 +52,6 @@ class TestFunctionValidateTsigKey(unittest.TestCase):
     def assertRaisesMsg(self, tsig_key, msg):
         with self.assertRaises(JfErr) as cm:
             validate_tsig_key(tsig_key)
-        print(str(cm.exception))
         self.assertEqual(str(cm.exception), msg)
 
     def test_valid(self):
@@ -114,11 +113,31 @@ class TestClassZonesMethodSplitFqdn(unittest.TestCase):
 
 class TestClassFqdn(unittest.TestCase):
 
-    def test_init(self):
-        fqdn = Fqdn(zones=zones, fqdn='www.example.com')
-        self.assertEqual(fqdn.fqdn, 'www.example.com.')
-        self.assertEqual(fqdn.zone_name, 'example.com.')
-        self.assertEqual(fqdn.record_name, 'www.')
+    def setUp(self):
+        self.fqdn = Fqdn(zones=zones, fqdn='www.example.com')
+
+    def test_attribute_fqdn(self):
+        self.assertEqual(self.fqdn.fqdn, 'www.example.com.')
+
+    def test_attribute_zone_name(self):
+        self.assertEqual(self.fqdn.zone_name, 'example.com.')
+
+    def test_attribute_record_name(self):
+        self.assertEqual(self.fqdn.record_name, 'www.')
+
+    def test_attribute_tsig_key(self):
+        self.assertEqual(self.fqdn.tsig_key, 'tPyvZA==')
+
+
+# class TestClassFqdnRaises(unittest.TestCase):
+#
+#     def assertRaisesMsg(self, kwargs, msg):
+#         with self.assertRaises(JfErr) as cm:
+#             Fqdn(zones, **kwargs)
+#         self.assertEqual(str(cm.exception), msg)
+#
+#     def test_no_kwargs(self):
+#         self.assertRaisesMsg({'record_name', 'lol'}, '')
 
 
 if __name__ == '__main__':

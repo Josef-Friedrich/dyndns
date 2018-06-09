@@ -119,11 +119,11 @@ class Fqdn(object):
         if fqdn and zone_name and record_name:
             raise JfErr('Specify "fqdn" or "zone_name" and "record_name".')
 
-        self.zones = zones
+        self._zones = zones
 
         if fqdn:
             self.fqdn = validate_hostname(fqdn)
-            split = self.zones.split_fqdn(fqdn)
+            split = self._zones.split_fqdn(fqdn)
             if split:
                 self.record_name = split[0]
                 self.zone_name = split[1]
@@ -131,7 +131,7 @@ class Fqdn(object):
         if not fqdn and zone_name and record_name:
             self.record_name = validate_hostname(record_name)
             self.zone_name = validate_hostname(zone_name)
-            zone = self.zones.get_zone_by_name(self.zone_name)
+            zone = self._zones.get_zone_by_name(self.zone_name)
             self.fqdn = zone.build_fqdn(self.record_name)
 
         if not self.record_name:
@@ -139,3 +139,7 @@ class Fqdn(object):
 
         if not self.zone_name:
             return JfErr('Value "zone_name" is required.')
+
+        self._zone = self._zones.get_zone_by_name(self.zone_name)
+        self.tsig_key = self._zone.tsig_key
+        """The twig key (e. g. ``tPyvZA==``)"""
