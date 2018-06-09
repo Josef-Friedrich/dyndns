@@ -4,7 +4,6 @@ import dns.query
 import dns.resolver
 import dns.tsigkeyring
 import dns.update
-import re
 
 
 class DnsUpdate(object):
@@ -12,36 +11,28 @@ class DnsUpdate(object):
     Update the DNS server
     """
 
-    def __init__(self, nameserver, zone_name, tsig_key,
-                 record_name=None, ipv4=None, ipv6=None):
-
-        self.ipv4 = ipv4  #: The ipv4 address
-        self.ipv6 = ipv6  #: The ipv6 address
+    def __init__(self, nameserver, names, ipaddresses):
         self.nameserver = nameserver   #: The nameserver
-        self.record_name = record_name  #: The record name
-        self.tsig_key = tsig_key  #: The tsig key
-        self.zone_name = zone_name  #: The zone name
+        self.names = names
+        self.ipaddresses = ipaddresses
 
-        self._zone = dns.name.from_text(zone_name)
-        self._tsigkeyring = self._build_tsigkeyring(self._zone, self.tsig_key)
-        self._dns_update = dns.update.Update(self._zone,
+        self._tsigkeyring = self._build_tsigkeyring(
+            self.names.zone_name,
+            self.names.tsig_key,
+        )
+        self._dns_update = dns.update.Update(self.names.zone_name,
                                              keyring=self._tsigkeyring)
 
     @staticmethod
-    def _build_tsigkeyring(zone, tsig_key):
+    def _build_tsigkeyring(zone_name, tsig_key):
         """
         :param zone: A zone name object
         :type dns.name.Name: A instance of a dns.name.Name class
         :param str tsig_key: A TSIG key
         """
         keyring = {}
-        keyring[str(zone)] = tsig_key
+        keyring[zone_name] = tsig_key
         return dns.tsigkeyring.from_text(keyring)
-
-    def _build_fqdn(self, record_name):
-        fqdn = '{}.{}'.format(record_name, self._zone)
-        fqdn = re.sub('\.+', '.', fqdn)
-        return dns.name.from_text(fqdn)
 
     @staticmethod
     def _convert_record_type(ip_version=4):
@@ -57,7 +48,7 @@ class DnsUpdate(object):
         resolver.nameservers = [self.nameserver]
         try:
             ip = resolver.query(
-                self._build_fqdn(record_name),
+                self.names.fqdn,
                 self._convert_record_type(ip_version),
             )
             return str(ip[0])
@@ -66,19 +57,18 @@ class DnsUpdate(object):
 
     def _set_record(self, new_ip, ip_version=4):
         out = {}
-        old_ip = self._resolve(self.record_name, ip_version)
+        old_ip = self._resolve(self.names.record_name, ip_version)
         out['ip_version'] = ip_version
         out['new_ip'] = new_ip
         out['old_ip'] = old_ip
         out['status'] = 'UNCHANGED'
 
         if new_ip != old_ip:
-            fqdn = str(self._build_fqdn(self.record_name))
             rdtype = self._convert_record_type(ip_version)
-            self._dns_update.delete(fqdn, rdtype)
-            self._dns_update.add(fqdn, 300, rdtype, new_ip)
+            self._dns_update.delete(self.names.fqdn, rdtype)
+            self._dns_update.add(self.names.fqdn, 300, rdtype, new_ip)
             dns.query.tcp(self._dns_update, self.nameserver)
-            checked_ip = self._resolve(self.record_name, ip_version)
+            checked_ip = self._resolve(self.names.record_name, ip_version)
             out['status'] = 'UPDATED'
 
             if new_ip != checked_ip:
@@ -88,9 +78,11 @@ class DnsUpdate(object):
 
     def update(self):
         results = []
-        if self.ipv4:
-            results.append(self._set_record(new_ip=self.ipv4, ip_version=4))
-        if self.ipv6:
-            results.append(self._set_record(new_ip=self.ipv6, ip_version=6))
+        if self.ipaddresses.ipv4:
+            results.append(self._set_record(new_ip=self.ipaddresses.ipv4,
+                           ip_version=4))
+        if self.ipaddresses.ipv6:
+            results.append(self._set_record(new_ip=self.ipaddresses.ipv6,
+                           ip_version=6))
 
         return results

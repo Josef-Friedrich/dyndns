@@ -1,5 +1,6 @@
 import os
 import socket
+from jfddns.names import Zones
 
 
 def check_internet_connectifity(host="8.8.8.8", port=53, timeout=3):
@@ -19,3 +20,9 @@ def check_internet_connectifity(host="8.8.8.8", port=53, timeout=3):
 
 files_dir = os.path.join(os.path.dirname(__file__), 'files')
 config_file = os.path.join(files_dir, 'config.yml')
+
+
+zones = Zones([
+    {'name': 'example.com.', 'tsig_key': 'tPyvZA=='},
+    {'name': 'example.org', 'tsig_key': 'tPyvZA=='},
+])

@@ -44,22 +44,13 @@ def update_dns_record(secret=None, fqdn=None, zone_name=None, record_name=None,
     names = Names(zones, fqdn=fqdn, zone_name=zone_name,
                   record_name=record_name)
 
-    zone = zones.get_zone_by_name(names.zone_name)
-
-    ips = IpAddresses(ip_1=ip_1, ip_2=ip_2, ipv4=ipv4, ipv6=ipv6)
+    ipaddresses = IpAddresses(ip_1=ip_1, ip_2=ip_2, ipv4=ipv4, ipv6=ipv6)
 
     update = jf_dns.DnsUpdate(
         nameserver=config['nameserver'],
-        zone_name=names.zone_name,
-        tsig_key=zone.tsig_key,
-        record_name=names.record_name,
+        names=names,
+        ipaddresses=ipaddresses,
     )
-
-    if ips.ipv4:
-        update.ipv4 = ips.ipv4
-    if ips.ipv6:
-        update.ipv6 = ips.ipv6
-
     results = update.update()
 
     out = []

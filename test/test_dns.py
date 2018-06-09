@@ -3,7 +3,13 @@ import _helper
 import unittest
 import ipaddress
 from unittest import mock
+from jfddns.ipaddresses import IpAddresses
+from jfddns.names import Names
+import copy
 
+ipaddresses = IpAddresses(ipv4='1.2.3.4')
+zones = _helper.zones
+names = Names(zones, fqdn='www.example.com')
 
 NO_INTERNET_CONNECTIFITY = not _helper.check_internet_connectifity()
 
@@ -11,8 +17,8 @@ NO_INTERNET_CONNECTIFITY = not _helper.check_internet_connectifity()
 class TestClassDnsUpdate(unittest.TestCase):
 
     def test_method_build_tsigkeyring(self):
-        du = DnsUpdate('127.0.0.1', 'example.com', 'tPyvZA==')
-        result = du._build_tsigkeyring(du._zone, du.tsig_key)
+        du = DnsUpdate('127.0.0.1', names, ipaddresses)
+        result = du._build_tsigkeyring(du.names.zone_name, du.names.tsig_key)
         for zone, tsig_key in result.items():
             self.assertEqual(str(zone), 'example.com.')
             self.assertEqual(tsig_key, b'\xb4\xfc\xafd')
@@ -21,14 +27,11 @@ class TestClassDnsUpdate(unittest.TestCase):
         self.assertEqual(DnsUpdate._convert_record_type(4), 'a')
         self.assertEqual(DnsUpdate._convert_record_type(6), 'aaaa')
 
-    def test_method_build_fqdn(self):
-        dns = DnsUpdate('127.0.0.1', 'example.com', 'tPyvZA==')
-        self.assertEqual(str(dns._build_fqdn('lol')), 'lol.example.com.')
-        self.assertEqual(str(dns._build_fqdn('lol.')), 'lol.example.com.')
-
     @unittest.skipIf(NO_INTERNET_CONNECTIFITY, 'No uplink')
     def test_method_resolve_unpatched(self):
-        dns = DnsUpdate('8.8.8.8', 'google.com.', 'tPyvZA==')
+        _names = copy.deepcopy(names)
+        _names.zone_name = 'google.com.'
+        dns = DnsUpdate('8.8.8.8', _names, ipaddresses)
         ip = dns._resolve('www', 4)
         ipaddress.ip_address(ip)
 
@@ -36,7 +39,7 @@ class TestClassDnsUpdate(unittest.TestCase):
     def test_method_resolve_patched(self, Resolver):
         resolver = Resolver.return_value
         resolver.query.return_value = ['1.2.3.4']
-        dns = DnsUpdate('8.8.8.8', 'google.com.', 'tPyvZA==')
+        dns = DnsUpdate('8.8.8.8', names, ipaddresses)
         ip = dns._resolve('www', 4)
         ipaddress.ip_address(ip)
         self.assertEqual(ip, '1.2.3.4')
@@ -49,7 +52,7 @@ class TestClassDnsUpdate(unittest.TestCase):
         resolver.query.side_effect = [['1.2.3.4'], ['1.2.3.5']]
         update = Update.return_value
 
-        dns = DnsUpdate('127.0.0.1', 'example.com', 'tPyvZA==')
+        dns = DnsUpdate('127.0.0.1', names, ipaddresses)
         dns.record_name = 'www'
         result = dns._set_record('1.2.3.5', 4)
 
@@ -72,7 +75,7 @@ class TestClassDnsUpdate(unittest.TestCase):
         resolver.query.return_value = ['1.2.3.4']
         update = Update.return_value
 
-        dns = DnsUpdate('127.0.0.1', 'example.com', 'tPyvZA==')
+        dns = DnsUpdate('127.0.0.1', names, ipaddresses)
         dns.record_name = 'www'
         result = dns._set_record('1.2.3.4', 4)
 
@@ -92,7 +95,7 @@ class TestClassDnsUpdate(unittest.TestCase):
         resolver = Resolver.return_value
         resolver.query.return_value = ['1.2.3.4']
 
-        dns = DnsUpdate('127.0.0.1', 'example.com', 'tPyvZA==')
+        dns = DnsUpdate('127.0.0.1', names, ipaddresses)
         dns.record_name = 'www'
         result = dns._set_record('1.2.3.5', 4)
 
