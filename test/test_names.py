@@ -2,15 +2,10 @@ from jfddns.names import \
     Names, \
     validate_hostname, \
     validate_tsig_key, \
-    Zone, \
-    Zones
+    Zone
+from _helper import zones
 from jfddns.validate import JfErr
 import unittest
-
-zones = Zones([
-    {'name': 'example.com.', 'tsig_key': 'tPyvZA=='},
-    {'name': 'example.org', 'tsig_key': 'tPyvZA=='},
-])
 
 
 class TestFunctionValidateHostname(unittest.TestCase):
