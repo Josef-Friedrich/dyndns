@@ -1,5 +1,5 @@
 from jfddns import update_dns_record
-from jfddns.validate import JfErr
+from jfddns.exceptions import JfErr
 import os
 import unittest
 from unittest import mock

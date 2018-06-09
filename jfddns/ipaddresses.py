@@ -1,5 +1,5 @@
 import ipaddress
-from jfddns.validate import JfErr
+from jfddns.exceptions import JfErr
 
 
 def validate(address, ip_version=None):

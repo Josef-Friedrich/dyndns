@@ -30,10 +30,10 @@ jfddns.ipaddresses module
     :show-inheritance:
     :private-members:
 
-jfddns.validate module
-^^^^^^^^^^^^^^^^^^^^^^
+jfddns.exceptions module
+^^^^^^^^^^^^^^^^^^^^^^^^
 
-.. automodule:: jfddns.validate
+.. automodule:: jfddns.exceptions
     :members:
     :undoc-members:
     :show-inheritance:

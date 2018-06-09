@@ -1,5 +1,5 @@
 from jfddns.ipaddresses import IpAddresses
-from jfddns.validate import JfErr
+from jfddns.exceptions import JfErr
 import unittest
 
 

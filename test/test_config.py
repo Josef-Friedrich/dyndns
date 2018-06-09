@@ -1,5 +1,5 @@
 from jfddns.config import validate_config, load_config, validate_secret
-from jfddns.validate import JfErr
+from jfddns.exceptions import JfErr
 import os
 import unittest
 from unittest import mock

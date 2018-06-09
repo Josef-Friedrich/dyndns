@@ -4,7 +4,7 @@ from jfddns.names import \
     validate_tsig_key, \
     Zone
 from _helper import zones
-from jfddns.validate import JfErr
+from jfddns.exceptions import JfErr
 import unittest
 
 

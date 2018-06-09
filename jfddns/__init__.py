@@ -1,7 +1,7 @@
 from jfddns.config import load_config, validate_config
 from jfddns.ipaddresses import IpAddresses
 from jfddns.names import Names
-from jfddns.validate import JfErr
+from jfddns.exceptions import JfErr
 import argparse
 import flask
 import inspect

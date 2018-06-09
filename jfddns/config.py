@@ -1,5 +1,5 @@
 from jfddns.names import Zones
-from jfddns.validate import JfErr
+from jfddns.exceptions import JfErr
 import os
 import re
 import yaml
