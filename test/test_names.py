@@ -1,5 +1,5 @@
 from jfddns.names import \
-    Fqdn, \
+    Names, \
     validate_hostname, \
     validate_tsig_key, \
     Zone, \
@@ -96,7 +96,7 @@ class TestClassZones(unittest.TestCase):
         self.assertEqual(zone.tsig_key, 'tPyvZA==')
 
 
-class TestClassZonesMethodSplitFqdn(unittest.TestCase):
+class TestClassZonesMethodSplitNames(unittest.TestCase):
 
     def test_with_dot(self):
         result = zones.split_fqdn('www.example.com')
@@ -111,10 +111,10 @@ class TestClassZonesMethodSplitFqdn(unittest.TestCase):
         self.assertEqual(result, False)
 
 
-class TestClassFqdn(unittest.TestCase):
+class TestClassNames(unittest.TestCase):
 
     def setUp(self):
-        self.fqdn = Fqdn(zones=zones, fqdn='www.example.com')
+        self.fqdn = Names(zones=zones, fqdn='www.example.com')
 
     def test_attribute_fqdn(self):
         self.assertEqual(self.fqdn.fqdn, 'www.example.com.')
@@ -129,11 +129,11 @@ class TestClassFqdn(unittest.TestCase):
         self.assertEqual(self.fqdn.tsig_key, 'tPyvZA==')
 
 
-# class TestClassFqdnRaises(unittest.TestCase):
+# class TestClassNamesRaises(unittest.TestCase):
 #
 #     def assertRaisesMsg(self, kwargs, msg):
 #         with self.assertRaises(JfErr) as cm:
-#             Fqdn(zones, **kwargs)
+#             Names(zones, **kwargs)
 #         self.assertEqual(str(cm.exception), msg)
 #
 #     def test_no_kwargs(self):

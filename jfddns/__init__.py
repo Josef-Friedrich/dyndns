@@ -1,6 +1,6 @@
 from jfddns.config import load_config, validate_config
 from jfddns.ipaddresses import IpAddresses
-from jfddns.names import Fqdn
+from jfddns.names import Names
 from jfddns.validate import JfErr
 import argparse
 import flask
@@ -41,8 +41,8 @@ def update_dns_record(secret=None, fqdn=None, zone_name=None, record_name=None,
     if str(secret) != str(config['secret']):
         raise JfErr('You specified a wrong secret key.')
 
-    fqdn = Fqdn(zones, fqdn=fqdn, zone_name=zone_name,
-                record_name=record_name)
+    fqdn = Names(zones, fqdn=fqdn, zone_name=zone_name,
+                 record_name=record_name)
 
     zone = zones.get_zone_by_name(fqdn.zone_name)
 

@@ -104,7 +104,7 @@ class Zones(object):
         return False
 
 
-class Fqdn(object):
+class Names(object):
 
     def __init__(self, zones, fqdn=None, zone_name=None, record_name=None):
         self.fqdn = None
