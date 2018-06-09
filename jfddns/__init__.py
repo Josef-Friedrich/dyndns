@@ -44,7 +44,8 @@ def update_dns_record(secret=None, fqdn=None, zone_name=None, record_name=None,
     names = Names(zones, fqdn=fqdn, zone_name=zone_name,
                   record_name=record_name)
 
-    ipaddresses = IpAddresses(ip_1=ip_1, ip_2=ip_2, ipv4=ipv4, ipv6=ipv6)
+    ipaddresses = IpAddresses(ip_1=ip_1, ip_2=ip_2, ipv4=ipv4, ipv6=ipv6,
+                              request=flask.request)
 
     update = jf_dns.DnsUpdate(
         nameserver=config['nameserver'],

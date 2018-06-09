@@ -18,7 +18,11 @@ def format_attr(ip_version):
 
 class IpAddresses(object):
 
-    def __init__(self, ip_1=None, ip_2=None, ipv4=None, ipv6=None):
+    def __init__(self, ip_1=None, ip_2=None, ipv4=None, ipv6=None,
+                 request=None):
+
+        if request:
+            self.request = request
 
         self.ipv4 = None
         """The ipv4 address to update DNS record with."""
@@ -37,6 +41,9 @@ class IpAddresses(object):
             self._set_ip(ip_2)
 
         if not self.ipv4 and not self.ipv6:
+            self._get_client_ip()
+
+        if not self.ipv4 and not self.ipv6:
             raise JfErr('No ip address set.')
 
     def _get_ip(self, ip_version):
@@ -44,6 +51,13 @@ class IpAddresses(object):
 
     def _setattr(self, ip_version, value):
         return setattr(self, format_attr(ip_version), value)
+
+    def _get_client_ip(self):
+        # request.environ['REMOTE_ADDR']
+        if hasattr(self, 'request'):
+            remote_addr = self.request.remote_addr
+            self._set_ip(remote_addr)
+            return remote_addr
 
     def _set_ip(self, address):
         ip, ip_version = validate(address)
