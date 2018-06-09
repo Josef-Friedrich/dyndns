@@ -1,4 +1,4 @@
-from jfddns.config import validate_config, load_config
+from jfddns.config import validate_config, load_config, validate_secret
 from jfddns.validate import JfErr
 import os
 import unittest
@@ -12,6 +12,20 @@ class TestConfig(unittest.TestCase):
         os.environ['JFDDNS_CONFIG_FILE'] = _helper.config_file
         config = load_config()
         self.assertEqual(config['secret'], 12345678)
+
+
+class TestFunctionValidateSecret(unittest.TestCase):
+
+    def test_valid(self):
+        self.assertEqual(validate_secret('abcd1234'), 'abcd1234')
+
+    def test_invalid_to_short(self):
+        with self.assertRaises(JfErr):
+            validate_secret('1234567')
+
+    def test_invalid_non_alpanumeric(self):
+        with self.assertRaises(JfErr):
+            validate_secret('12345äüö')
 
 
 class TestFunctionValidateConfig(unittest.TestCase):
