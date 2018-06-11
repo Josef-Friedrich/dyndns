@@ -33,3 +33,19 @@ first existing configuration file and ignores the later in this order:
 1. Custom path specified in the environment variable ``JFDDNS_CONFIG_FILE``
 2. Current working directory of the ``jfddns`` app (cwd): ``<cwd>/.jfddns.yml``
 3. ``/etc/jfddns.yml``
+
+Usage
+-----
+
+Update by path
+^^^^^^^^^^^^^^
+
+1. ``<your-domain>/update-by-path/<secret>/<fqdn>``
+2. ``<your-domain>/update-by-path/<secret>/<fqdn>/<ip_1>``
+3. ``<your-domain>/update-by-path/<secret>/<fqdn>/<ip_1>/<ip_2>``
+
+
+Update by query
+^^^^^^^^^^^^^^^
+
+``<your-domain>/update-by-query?secret=<secret>&fqdn=<fqdn>``

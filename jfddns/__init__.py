@@ -32,6 +32,21 @@ def msg(text):
 def update_dns_record(secret=None, fqdn=None, zone_name=None, record_name=None,
                       ip_1=None, ip_2=None, ipv4=None, ipv6=None, config=None):
 
+    """
+    :param str secret: A password like secret string.
+    :param str fqdn: The Fully-Qualified Domain Name
+      (e. g. ``www.example.com``)
+    :param str zone_name: The zone name (e. g. ``example.com``)
+    :param str record_name: The record name (e. g. ``www``)
+    :param str ip_1: A IP address, can be version 4 or version 6
+    :param str ip_2: A second IP address, can be version 4 or version 6. Must
+      be a different version than ``ip_1``.
+    :param str ipv4: A IP address version 4
+    :param str ipv6: A IP address version 6
+    :param dict config: The configuration as a dictionary as return by the
+      function ``validate_config()``.
+    """
+
     if not config:
         config = load_config()
 
