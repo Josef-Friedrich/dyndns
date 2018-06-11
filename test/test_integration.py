@@ -177,6 +177,10 @@ class TestStaticPages(unittest.TestCase):
         app.config['TESTING'] = True
         self.app = app.test_client()
 
+    def test_index(self):
+        response = self.app.get('/')
+        self.assertIn('Usage', response.data.decode('utf-8'))
+
     def test_about(self):
         response = self.app.get('/about')
         self.assertIn('jfddns (version:', response.data.decode('utf-8'))

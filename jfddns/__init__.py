@@ -116,10 +116,25 @@ def update_by_query_string():
         return msg('ERROR {}'.format(e))
 
 
+def rst_to_string(file_name):
+    path = os.path.join(os.path.dirname(__file__), file_name)
+    rst = open(path, 'r')
+    return rst.read()
+
+
 @app.route('/')
 def index():
-    usage = open(os.path.join(os.path.dirname(__file__), 'usage.rst'), 'r')
-    return publish_string(usage.read(), writer_name='html')
+    config = False
+    try:
+        config = validate_config(load_config())
+    except Exception:
+        pass
+
+    rst = rst_to_string('usage.rst')
+    if not config:
+        rst = rst_to_string('configuration.rst') + '\n\n' + rst
+
+    return publish_string(rst, writer_name='html')
 
 
 @app.route('/about')
