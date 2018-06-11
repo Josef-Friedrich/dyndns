@@ -1,12 +1,14 @@
+from docutils.core import publish_string
 from jfddns.config import load_config, validate_config
+from jfddns.exceptions import JfErr
 from jfddns.ipaddresses import IpAddresses
 from jfddns.names import Names
-from jfddns.exceptions import JfErr
 import argparse
 import flask
 import inspect
 import jfddns.dns as jf_dns
 import logging
+import os
 
 
 from ._version import get_versions
@@ -112,6 +114,12 @@ def update_by_query_string():
         return update_dns_record(**input_args)
     except JfErr as e:
         return msg('ERROR {}'.format(e))
+
+
+@app.route('/')
+def index():
+    usage = open(os.path.join(os.path.dirname(__file__), 'usage.rst'), 'r')
+    return publish_string(usage.read(), writer_name='html')
 
 
 @app.route('/about')

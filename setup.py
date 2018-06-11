@@ -13,6 +13,7 @@ setup(
     packages=find_packages(),
     install_requires=[
         'dnspython',
+        'docutils',
         'flask',
         'PyYAML',
     ],
@@ -25,5 +26,8 @@ setup(
         'console_scripts': [
             'jfddns-debug = jfddns:debug',
         ],
+    },
+    package_data = {
+        '': ['*.rst'],
     },
 )
