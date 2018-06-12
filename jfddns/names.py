@@ -135,10 +135,10 @@ class Names(object):
             self.fqdn = zone.build_fqdn(self.record_name)
 
         if not self.record_name:
-            return JfErr('Value "record_name" is required.')
+            raise JfErr('Value "record_name" is required.')
 
         if not self.zone_name:
-            return JfErr('Value "zone_name" is required.')
+            raise JfErr('Value "zone_name" is required.')
 
         self._zone = self._zones.get_zone_by_name(self.zone_name)
         self.tsig_key = self._zone.tsig_key
