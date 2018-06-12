@@ -97,10 +97,14 @@ class Zones(object):
         for example: www.example.com -> www. example.com.
         """
         fqdn = validate_hostname(fqdn)
+        # To handle subzones (example.com and dyndns.example.com)
+        results = {}
         for zone_name, zone in self.zones.items():
             record_name = fqdn.replace(zone.zone_name, '')
             if len(record_name) > 0 and len(record_name) < len(fqdn):
-                return (record_name, zone.zone_name)
+                results[len(record_name)] = (record_name, zone.zone_name)
+        for key in sorted(results):
+            return results[key]
         return False
 
 

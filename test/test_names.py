@@ -2,7 +2,8 @@ from jfddns.names import \
     Names, \
     validate_hostname, \
     validate_tsig_key, \
-    Zone
+    Zone, \
+    Zones
 from _helper import zones
 from jfddns.exceptions import JfErr
 import unittest
@@ -104,6 +105,14 @@ class TestClassZonesMethodSplitNames(unittest.TestCase):
     def test_unkown_zone(self):
         result = zones.split_fqdn('www.xx.org')
         self.assertEqual(result, False)
+
+    def test_subzones(self):
+        zones = Zones([
+            {'name': 'example.com.', 'tsig_key': 'tPyvZA=='},
+            {'name': 'dyndns.example.com', 'tsig_key': 'tPyvZA=='},
+        ])
+        result = zones.split_fqdn('lol.dyndns.example.com')
+        self.assertEqual(result, ('lol.', 'dyndns.example.com.'))
 
 
 class TestClassNames(unittest.TestCase):
