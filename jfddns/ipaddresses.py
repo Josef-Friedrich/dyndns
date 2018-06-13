@@ -1,15 +1,16 @@
 import ipaddress
-from jfddns.exceptions import JfErr
+from jfddns.exceptions import ParameterError
 
 
 def validate(address, ip_version=None):
     try:
         address = ipaddress.ip_address(address)
         if ip_version and ip_version != address.version:
-            raise JfErr('IP version "{}" does not match.'.format(ip_version))
+            raise ParameterError('IP version "{}" does not match.'
+                                 .format(ip_version))
         return str(address), address.version
     except ValueError:
-        raise JfErr('Invalid ip address "{}"'.format(address))
+        raise ParameterError('Invalid ip address "{}"'.format(address))
 
 
 def format_attr(ip_version):
@@ -44,7 +45,7 @@ class IpAddresses(object):
             self._get_client_ip()
 
         if not self.ipv4 and not self.ipv6:
-            raise JfErr('No ip address set.')
+            raise ParameterError('No ip address set.')
 
     def _get_ip(self, ip_version):
         return getattr(self, format_attr(ip_version))
@@ -68,6 +69,6 @@ class IpAddresses(object):
                     format_attr(ip_version),
                     old_ip,
                 )
-            raise JfErr(msg)
+            raise ParameterError(msg)
 
         self._setattr(ip_version, ip)

@@ -1,12 +1,12 @@
 from jfddns.ipaddresses import IpAddresses
-from jfddns.exceptions import JfErr
+from jfddns.exceptions import ParameterError
 import unittest
 
 
 class TestClassIpAddresses(unittest.TestCase):
 
     def assertRaisesMsg(self, kwargs, msg):
-        with self.assertRaises(JfErr) as cm:
+        with self.assertRaises(ParameterError) as cm:
             IpAddresses(**kwargs)
         self.assertEqual(str(cm.exception), msg)
 

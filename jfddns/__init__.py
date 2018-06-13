@@ -1,6 +1,6 @@
 from docutils.core import publish_string
 from jfddns.config import load_config, validate_config
-from jfddns.exceptions import JfErr
+from jfddns.exceptions import JfErr, ParameterError
 from jfddns.ipaddresses import IpAddresses
 from jfddns.names import Names
 import argparse
@@ -113,6 +113,8 @@ def update_by_query_string():
     try:
         return update_dns_record(**input_args)
     except JfErr as e:
+        return msg('ERROR {}'.format(e))
+    except ParameterError as e:
         return msg('ERROR {}'.format(e))
 
 

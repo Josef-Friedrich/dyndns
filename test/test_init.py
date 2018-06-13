@@ -1,5 +1,5 @@
 from jfddns import update_dns_record
-from jfddns.exceptions import JfErr
+from jfddns.exceptions import JfErr, ParameterError
 import os
 import unittest
 from unittest import mock
@@ -11,8 +11,8 @@ class TestFunctionUpdateDnsRecord(unittest.TestCase):
     def setUp(self):
         os.environ['JFDDNS_CONFIG_FILE'] = _helper.config_file
 
-    def assertRaisesMsg(self, kwargs, msg):
-        with self.assertRaises(JfErr) as cm:
+    def assertRaisesMsg(self, kwargs, error, msg):
+        with self.assertRaises(error) as cm:
             update_dns_record(**kwargs)
         self.assertEqual(str(cm.exception), msg)
 
@@ -20,6 +20,7 @@ class TestFunctionUpdateDnsRecord(unittest.TestCase):
         self.assertRaisesMsg(
             {'secret': '12345678', 'fqdn': 'a', 'zone_name': 'b',
              'record_name': 'c'},
+            JfErr,
             'Specify "fqdn" or "zone_name" and "record_name".'
         )
 
@@ -27,6 +28,7 @@ class TestFunctionUpdateDnsRecord(unittest.TestCase):
         self.assertRaisesMsg(
             {'secret': '12345678', 'fqdn': 'www.example.com',
              'ip_1': 'lol'},
+            ParameterError,
             'Invalid ip address "lol"',
         )
 
@@ -34,6 +36,7 @@ class TestFunctionUpdateDnsRecord(unittest.TestCase):
         self.assertRaisesMsg(
             {'secret': '12345678', 'fqdn': 'www.example.com',
              'ip_2': 'lol'},
+            ParameterError,
             'Invalid ip address "lol"',
         )
 
@@ -41,6 +44,7 @@ class TestFunctionUpdateDnsRecord(unittest.TestCase):
         self.assertRaisesMsg(
             {'secret': '12345678', 'fqdn': 'www.example.com',
              'ip_1': '1.2.3.4', 'ip_2': '1.2.3.4'},
+            ParameterError,
             'The attribute "ipv4" is already set and has the value "1.2.3.4".',
         )
 
