@@ -1,6 +1,6 @@
 from docutils.core import publish_string
 from jfddns.config import load_config, validate_config
-from jfddns.exceptions import JfErr, ParameterError
+from jfddns.exceptions import JfErr, ParameterError, ConfigurationError
 from jfddns.ipaddresses import IpAddresses
 from jfddns.names import Names
 import argparse
@@ -89,6 +89,8 @@ def catch_errors(**kwargs):
     except JfErr as e:
         return msg('ERROR {}'.format(e))
     except ParameterError as e:
+        return msg('ERROR {}'.format(e))
+    except ConfigurationError as e:
         return msg('ERROR {}'.format(e))
 
 

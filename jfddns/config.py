@@ -1,5 +1,5 @@
 from jfddns.names import Zones
-from jfddns.exceptions import JfErr
+from jfddns.exceptions import ConfigurationError, JfErr
 import os
 import re
 import yaml
@@ -33,8 +33,9 @@ def validate_secret(secret):
     if re.match('^[a-zA-Z0-9]+$', secret) and len(secret) >= 8:
         return secret
     else:
-        raise JfErr('The secret must be at least 8 characters long and may '
-                    'not contain any non-alpha-numeric characters.')
+        raise ConfigurationError('The secret must be at least 8 characters '
+                                 'long and may not contain any '
+                                 'non-alpha-numeric characters.')
 
 
 def validate_config(config=None):
@@ -47,40 +48,49 @@ def validate_config(config=None):
         try:
             config = load_config()
         except IOError:
-            raise JfErr('The configuration file could not be found.')
+            raise ConfigurationError('The configuration file could not be '
+                                     'found.')
         except yaml.error.YAMLError:
-            raise JfErr('The configuration file is in a invalid YAML format.')
+            raise ConfigurationError('The configuration file is in a invalid '
+                                     'YAML format.')
 
     if not config:
-        raise JfErr('The configuration file could not be found.')
+        raise ConfigurationError('The configuration file could not be found.')
 
     if 'secret' not in config:
-        raise JfErr('Your configuration must have a "secret" key, '
-                    'for example: "secret: VDEdxeTKH"')
+        raise ConfigurationError('Your configuration must have a "secret" '
+                                 'key, for example: "secret: VDEdxeTKH"')
 
     config['secret'] = validate_secret(config['secret'])
 
     if 'nameserver' not in config:
-        raise JfErr('Your configuration must have a "nameserver" key, '
-                    'for example: "nameserver: 127.0.0.1"')
+        raise ConfigurationError('Your configuration must have a "nameserver" '
+                                 'key, for example: "nameserver: 127.0.0.1"')
 
     if 'zones' not in config:
-        raise JfErr('Your configuration must have a "zones" key.')
+        raise ConfigurationError('Your configuration must have a "zones" key.')
 
     if not isinstance(config['zones'], (list,)):
-        raise JfErr('Your "zones" key must contain a list of zones.')
+        raise ConfigurationError('Your "zones" key must contain a list of '
+                                 'zones.')
 
     if len(config['zones']) < 1:
-        raise JfErr('You must have at least one zone configured, for example:'
-                    '"- name: example.com" and "tsig_key: tPyvZA=="')
+        raise ConfigurationError('You must have at least one zone configured, '
+                                 'for example: "- name: example.com" and '
+                                 '"tsig_key: tPyvZA=="')
 
     for zone in config['zones']:
         if 'name' not in zone:
-            raise JfErr('Your zone dictionary must contain a key "name"')
+            raise ConfigurationError('Your zone dictionary must contain a key '
+                                     '"name"')
 
         if 'tsig_key' not in zone:
-            raise JfErr('Your zone dictionary must contain a key "tsig_key"')
+            raise ConfigurationError('Your zone dictionary must contain a key '
+                                     '"tsig_key"')
 
-    config['zones'] = Zones(config['zones'])
+    try:
+        config['zones'] = Zones(config['zones'])
+    except JfErr as e:
+        raise ConfigurationError(str(e))
 
     return config

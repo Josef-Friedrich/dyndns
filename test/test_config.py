@@ -1,5 +1,5 @@
 from jfddns.config import validate_config, load_config, validate_secret
-from jfddns.exceptions import JfErr
+from jfddns.exceptions import ConfigurationError
 import os
 import unittest
 from unittest import mock
@@ -20,11 +20,11 @@ class TestFunctionValidateSecret(unittest.TestCase):
         self.assertEqual(validate_secret('abcd1234'), 'abcd1234')
 
     def test_invalid_to_short(self):
-        with self.assertRaises(JfErr):
+        with self.assertRaises(ConfigurationError):
             validate_secret('1234567')
 
     def test_invalid_non_alpanumeric(self):
-        with self.assertRaises(JfErr):
+        with self.assertRaises(ConfigurationError):
             validate_secret('12345äüö')
 
 
@@ -34,7 +34,7 @@ class TestFunctionValidateConfig(unittest.TestCase):
         os.environ['JFDDNS_CONFIG_FILE'] = _helper.config_file
 
     def assertRaisesMsg(self, config, msg):
-        with self.assertRaises(JfErr) as cm:
+        with self.assertRaises(ConfigurationError) as cm:
             validate_config(config)
 
         self.assertEqual(str(cm.exception), msg)
@@ -94,7 +94,7 @@ class TestFunctionValidateConfig(unittest.TestCase):
         self.assertRaisesMsg(
             {'secret': '12345678', 'nameserver': '127.0.0.1',
              'zones': []},
-            'You must have at least one zone configured, for example:'
+            'You must have at least one zone configured, for example: '
             '"- name: example.com" and "tsig_key: tPyvZA=="'
         )
 
