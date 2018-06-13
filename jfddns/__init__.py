@@ -83,15 +83,20 @@ def update_dns_record(secret=None, fqdn=None, zone_name=None, record_name=None,
     return msg(' | '.join(out))
 
 
+def catch_errors(**kwargs):
+    try:
+        return update_dns_record(**kwargs)
+    except JfErr as e:
+        return msg('ERROR {}'.format(e))
+    except ParameterError as e:
+        return msg('ERROR {}'.format(e))
+
+
 @app.route('/update-by-path/<secret>/<fqdn>')
 @app.route('/update-by-path/<secret>/<fqdn>/<ip_1>')
 @app.route('/update-by-path/<secret>/<fqdn>/<ip_1>/<ip_2>')
 def update_by_path(secret, fqdn, ip_1=None, ip_2=None):
-    try:
-        return update_dns_record(secret=secret, fqdn=fqdn, ip_1=ip_1,
-                                 ip_2=ip_2)
-    except JfErr as e:
-        return msg('ERROR {}'.format(e))
+    return catch_errors(secret=secret, fqdn=fqdn, ip_1=ip_1, ip_2=ip_2)
 
 
 @app.route('/update-by-query')
@@ -110,12 +115,7 @@ def update_by_query_string():
         if key not in kwargs:
             return msg('Unknown query string argument: "{}"'.format(key))
 
-    try:
-        return update_dns_record(**input_args)
-    except JfErr as e:
-        return msg('ERROR {}'.format(e))
-    except ParameterError as e:
-        return msg('ERROR {}'.format(e))
+    return catch_errors(**input_args)
 
 
 def rst_to_string(file_name):
