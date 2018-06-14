@@ -1,7 +1,9 @@
 """Load and validate the configuration."""
 
 from jfddns.names import Zones
-from jfddns.exceptions import ConfigurationError, NamesError
+from jfddns.exceptions import ConfigurationError, NamesError, IpAddressesError
+from jfddns.ipaddresses import validate as validate_ip
+
 import os
 import re
 import yaml
@@ -68,6 +70,13 @@ def validate_config(config=None):
     if 'nameserver' not in config:
         raise ConfigurationError('Your configuration must have a "nameserver" '
                                  'key, for example: "nameserver: 127.0.0.1"')
+
+    try:
+        validate_ip(config['nameserver'])
+    except IpAddressesError:
+        msg = 'The "nameserver" entry in your configuration is not a valid ' \
+              'IP address: "{}".'.format(config['nameserver'])
+        raise ConfigurationError(msg)
 
     if 'zones' not in config:
         raise ConfigurationError('Your configuration must have a "zones" key.')

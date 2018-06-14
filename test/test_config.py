@@ -77,6 +77,13 @@ class TestFunctionValidateConfig(unittest.TestCase):
             'for example: "nameserver: 127.0.0.1"'
         )
 
+    def test_invalid_nameserver_ip(self):
+        self.assertRaisesMsg(
+            {'secret': '12345678', 'nameserver': 'lol'},
+            'The "nameserver" entry in your configuration is not a valid IP '
+            'address: "lol".'
+        )
+
     def test_no_zones(self):
         self.assertRaisesMsg(
             {'secret': '12345678', 'nameserver': '127.0.0.1'},
