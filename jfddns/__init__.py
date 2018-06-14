@@ -4,6 +4,7 @@ from docutils.core import publish_string
 from jfddns.config import load_config, validate_config
 from jfddns.exceptions import \
     ConfigurationError, \
+    DNSServerError, \
     IpAddressesError, \
     NamesError, \
     ParameterError
@@ -102,6 +103,8 @@ def catch_errors(**kwargs):
         return msg('ERROR {}'.format(e))
     except ConfigurationError as e:
         return msg('ERROR {}'.format(e))
+    except DNSServerError as error:
+        return msg('DNS SERVER ERROR: {}'.format(error))
 
 
 @app.route('/update-by-path/<secret>/<fqdn>')

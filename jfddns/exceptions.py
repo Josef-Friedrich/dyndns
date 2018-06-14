@@ -14,8 +14,12 @@ class IpAddressesError(JfDDnsError):
 
 
 class ConfigurationError(JfDDnsError):
-    """Server side configuration error."""
+    """jfddns configuration error."""
 
 
 class ParameterError(JfDDnsError):
     """Client side parameter error."""
+
+
+class DNSServerError(JfDDnsError):
+    """Communicating with the external DNS server."""

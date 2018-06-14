@@ -1,9 +1,11 @@
 """Query the DSN server using the package“dnspython”."""
 
+from jfddns.exceptions import DNSServerError
 import dns.exception
 import dns.name
 import dns.query
 import dns.resolver
+import dns.tsig
 import dns.tsigkeyring
 import dns.update
 
@@ -69,8 +71,14 @@ class DnsUpdate(object):
             rdtype = self._convert_record_type(ip_version)
             self._dns_update.delete(self.names.fqdn, rdtype)
             self._dns_update.add(self.names.fqdn, 300, rdtype, new_ip)
-            # dns.tsig.PeerBadKey: The peer didn't know the key we used
-            dns.query.tcp(self._dns_update, where=self.nameserver)
+            try:
+                dns.query.tcp(self._dns_update, where=self.nameserver,
+                              timeout=5)
+            except dns.tsig.PeerBadKey as error:
+                raise DNSServerError(str(error))
+            except dns.exception.Timeout as error:
+                raise DNSServerError('The DNS operation to the nameserver '
+                                     '"{}" timed out.'.format(self.nameserver))
             checked_ip = self._resolve(self.names.record_name, ip_version)
             out['status'] = 'UPDATED'
 
