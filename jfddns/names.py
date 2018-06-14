@@ -5,7 +5,7 @@ record and zone names)
 
 """
 
-from jfddns.exceptions import JfErr
+from jfddns.exceptions import JfErr, NamesError
 import binascii
 import dns.name
 import dns.tsigkeyring
@@ -17,7 +17,7 @@ def validate_hostname(hostname):
         # strip exactly one dot from the right, if present
         hostname = hostname[:-1]
     if len(hostname) > 253:
-        raise JfErr(
+        raise NamesError(
             'The hostname "{}..." is longer than 253 characters.'
             .format(hostname[:10])
         )
@@ -26,7 +26,7 @@ def validate_hostname(hostname):
 
     tld = labels[-1]
     if re.match(r"[0-9]+$", tld):
-        raise JfErr(
+        raise NamesError(
             'The TLD "{}" of the hostname "{}" must be not all-numeric.'
             .format(tld, hostname)
         )
@@ -34,7 +34,7 @@ def validate_hostname(hostname):
     allowed = re.compile(r"(?!-)[a-z0-9-]{1,63}(?<!-)$", re.IGNORECASE)
     for label in labels:
         if not allowed.match(label):
-            raise JfErr(
+            raise NamesError(
                 'The label "{}" of the hostname "{}" is invalid.'
                 .format(label, hostname)
             )
@@ -44,12 +44,12 @@ def validate_hostname(hostname):
 
 def validate_tsig_key(tsig_key):
     if not tsig_key:
-        raise JfErr('Invalid tsig key: "{}".'.format(tsig_key))
+        raise NamesError('Invalid tsig key: "{}".'.format(tsig_key))
     try:
         dns.tsigkeyring.from_text({'tmp.org.': tsig_key})
         return tsig_key
     except binascii.Error:
-        raise JfErr('Invalid tsig key: "{}".'.format(tsig_key))
+        raise NamesError('Invalid tsig key: "{}".'.format(tsig_key))
 
 
 class Zone(object):
@@ -90,7 +90,7 @@ class Zones(object):
         if zone_name in self.zones:
             return self.zones[validate_hostname(zone_name)]
         else:
-            raise JfErr('Unkown zone"{}'.format(zone_name))
+            raise NamesError('Unkown zone"{}'.format(zone_name))
 
     def split_fqdn(self, fqdn):
         """Split hostname into record_name and zone_name
@@ -121,7 +121,8 @@ class Names(object):
         """The name resource record (e. g. ``www.``)"""
 
         if fqdn and zone_name and record_name:
-            raise JfErr('Specify "fqdn" or "zone_name" and "record_name".')
+            raise NamesError('Specify "fqdn" or "zone_name" and '
+                             '"record_name".')
 
         self._zones = zones
 
@@ -139,10 +140,10 @@ class Names(object):
             self.fqdn = zone.build_fqdn(self.record_name)
 
         if not self.record_name:
-            raise JfErr('Value "record_name" is required.')
+            raise NamesError('Value "record_name" is required.')
 
         if not self.zone_name:
-            raise JfErr('Value "zone_name" is required.')
+            raise NamesError('Value "zone_name" is required.')
 
         self._zone = self._zones.get_zone_by_name(self.zone_name)
         self.tsig_key = self._zone.tsig_key

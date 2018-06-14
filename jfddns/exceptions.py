@@ -6,6 +6,10 @@ class JfDDnsError(Exception):
     """Base exception of the package ``jfddns``."""
 
 
+class NamesError(JfDDnsError):
+    """This error gets thrown by invalid DNS names."""
+
+
 class ConfigurationError(JfDDnsError):
     """Server side configuration error."""
 

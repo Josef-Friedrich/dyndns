@@ -1,5 +1,5 @@
 from jfddns import update_dns_record
-from jfddns.exceptions import JfErr, ParameterError
+from jfddns.exceptions import ParameterError
 import os
 import unittest
 from unittest import mock
@@ -20,7 +20,7 @@ class TestFunctionUpdateDnsRecord(unittest.TestCase):
         self.assertRaisesMsg(
             {'secret': '12345678', 'fqdn': 'a', 'zone_name': 'b',
              'record_name': 'c'},
-            JfErr,
+            ParameterError,
             'Specify "fqdn" or "zone_name" and "record_name".'
         )
 

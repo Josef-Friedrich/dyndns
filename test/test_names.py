@@ -5,14 +5,14 @@ from jfddns.names import \
     Zone, \
     Zones
 from _helper import zones
-from jfddns.exceptions import JfErr
+from jfddns.exceptions import NamesError
 import unittest
 
 
 class TestFunctionValidateHostname(unittest.TestCase):
 
     def assertRaisesMsg(self, hostname, msg):
-        with self.assertRaises(JfErr) as cm:
+        with self.assertRaises(NamesError) as cm:
             validate_hostname(hostname)
         self.assertEqual(str(cm.exception), msg)
 
@@ -46,7 +46,7 @@ class TestFunctionValidateHostname(unittest.TestCase):
 class TestFunctionValidateTsigKey(unittest.TestCase):
 
     def assertRaisesMsg(self, tsig_key, msg):
-        with self.assertRaises(JfErr) as cm:
+        with self.assertRaises(NamesError) as cm:
             validate_tsig_key(tsig_key)
         self.assertEqual(str(cm.exception), msg)
 

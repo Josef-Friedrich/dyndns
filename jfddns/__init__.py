@@ -1,6 +1,10 @@
 from docutils.core import publish_string
 from jfddns.config import load_config, validate_config
-from jfddns.exceptions import JfErr, ParameterError, ConfigurationError
+from jfddns.exceptions import \
+    ConfigurationError, \
+    JfErr, \
+    NamesError, \
+    ParameterError
 from jfddns.ipaddresses import IpAddresses
 from jfddns.names import Names
 import argparse
@@ -58,8 +62,11 @@ def update_dns_record(secret=None, fqdn=None, zone_name=None, record_name=None,
     if str(secret) != str(config['secret']):
         raise JfErr('You specified a wrong secret key.')
 
-    names = Names(zones, fqdn=fqdn, zone_name=zone_name,
-                  record_name=record_name)
+    try:
+        names = Names(zones, fqdn=fqdn, zone_name=zone_name,
+                      record_name=record_name)
+    except NamesError as e:
+        raise ParameterError(str(e))
 
     ipaddresses = IpAddresses(ip_1=ip_1, ip_2=ip_2, ipv4=ipv4, ipv6=ipv6,
                               request=flask.request)
