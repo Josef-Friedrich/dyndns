@@ -70,7 +70,7 @@ class DnsUpdate(object):
             self._dns_update.delete(self.names.fqdn, rdtype)
             self._dns_update.add(self.names.fqdn, 300, rdtype, new_ip)
             # dns.tsig.PeerBadKey: The peer didn't know the key we used
-            dns.query.tcp(self._dns_update, self.nameserver)
+            dns.query.tcp(self._dns_update, where=self.nameserver)
             checked_ip = self._resolve(self.names.record_name, ip_version)
             out['status'] = 'UPDATED'
 
