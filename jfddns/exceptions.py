@@ -1,3 +1,6 @@
+"""A collection of exceptions."""
+
+
 class JfDDnsError(Exception):
     """Base exception of the package ``jfddns``."""
 

@@ -1,3 +1,5 @@
+"""Query the DSN server using the package“dnspython”."""
+
 import dns.exception
 import dns.name
 import dns.query

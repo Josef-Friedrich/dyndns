@@ -1,3 +1,5 @@
+"""Bundles the logging functionality."""
+
 import logging
 
 logger = logging.getLogger('jfddns')

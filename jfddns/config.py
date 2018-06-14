@@ -1,3 +1,5 @@
+"""Load and validate the configuration."""
+
 from jfddns.names import Zones
 from jfddns.exceptions import ConfigurationError, NamesError
 import os

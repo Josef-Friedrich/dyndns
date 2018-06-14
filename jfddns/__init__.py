@@ -1,3 +1,5 @@
+"""Initialize the Flask app."""
+
 from docutils.core import publish_string
 from jfddns.config import load_config, validate_config
 from jfddns.exceptions import \
