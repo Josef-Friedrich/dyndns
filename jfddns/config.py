@@ -1,5 +1,5 @@
 from jfddns.names import Zones
-from jfddns.exceptions import ConfigurationError, NamesError, JfErr
+from jfddns.exceptions import ConfigurationError, NamesError
 import os
 import re
 import yaml
@@ -90,8 +90,6 @@ def validate_config(config=None):
 
     try:
         config['zones'] = Zones(config['zones'])
-    except JfErr as e:
-        raise ConfigurationError(str(e))
     except NamesError as e:
         raise ConfigurationError(str(e))
 

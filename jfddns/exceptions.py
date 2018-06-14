@@ -1,7 +1,3 @@
-class JfErr(Exception):
-    pass
-
-
 class JfDDnsError(Exception):
     """Base exception of the package ``jfddns``."""
 

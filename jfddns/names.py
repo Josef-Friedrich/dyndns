@@ -5,7 +5,7 @@ record and zone names)
 
 """
 
-from jfddns.exceptions import JfErr, NamesError
+from jfddns.exceptions import NamesError
 import binascii
 import dns.name
 import dns.tsigkeyring
@@ -67,7 +67,7 @@ class Zone(object):
         if len(record_name) > 0 and len(record_name) < len(fqdn):
             return (record_name, self.zone_name)
         else:
-            raise JfErr('FQDN "{}" is not splitable by zone "{}".')
+            raise NamesError('FQDN "{}" is not splitable by zone "{}".')
 
     def build_fqdn(self, record_name):
         record_name = validate_hostname(record_name)

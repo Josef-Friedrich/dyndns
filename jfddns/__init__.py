@@ -3,7 +3,6 @@ from jfddns.config import load_config, validate_config
 from jfddns.exceptions import \
     ConfigurationError, \
     IpAddressesError, \
-    JfErr, \
     NamesError, \
     ParameterError
 from jfddns.ipaddresses import IpAddresses
@@ -61,7 +60,7 @@ def update_dns_record(secret=None, fqdn=None, zone_name=None, record_name=None,
     zones = config['zones']
 
     if str(secret) != str(config['secret']):
-        raise JfErr('You specified a wrong secret key.')
+        raise ParameterError('You specified a wrong secret key.')
 
     try:
         names = Names(zones, fqdn=fqdn, zone_name=zone_name,
@@ -97,8 +96,6 @@ def update_dns_record(secret=None, fqdn=None, zone_name=None, record_name=None,
 def catch_errors(**kwargs):
     try:
         return update_dns_record(**kwargs)
-    except JfErr as e:
-        return msg('ERROR {}'.format(e))
     except ParameterError as e:
         return msg('ERROR {}'.format(e))
     except ConfigurationError as e:
