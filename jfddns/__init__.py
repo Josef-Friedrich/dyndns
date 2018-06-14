@@ -2,6 +2,7 @@ from docutils.core import publish_string
 from jfddns.config import load_config, validate_config
 from jfddns.exceptions import \
     ConfigurationError, \
+    IpAddressesError, \
     JfErr, \
     NamesError, \
     ParameterError
@@ -68,8 +69,11 @@ def update_dns_record(secret=None, fqdn=None, zone_name=None, record_name=None,
     except NamesError as e:
         raise ParameterError(str(e))
 
-    ipaddresses = IpAddresses(ip_1=ip_1, ip_2=ip_2, ipv4=ipv4, ipv6=ipv6,
-                              request=flask.request)
+    try:
+        ipaddresses = IpAddresses(ip_1=ip_1, ip_2=ip_2, ipv4=ipv4, ipv6=ipv6,
+                                  request=flask.request)
+    except IpAddressesError as e:
+        raise ParameterError(str(e))
 
     update = jf_dns.DnsUpdate(
         nameserver=config['nameserver'],

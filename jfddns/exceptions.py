@@ -10,6 +10,10 @@ class NamesError(JfDDnsError):
     """This error gets thrown by invalid DNS names."""
 
 
+class IpAddressesError(JfDDnsError):
+    """This error gets thrown by invalid IP addresses."""
+
+
 class ConfigurationError(JfDDnsError):
     """Server side configuration error."""
 
