@@ -99,10 +99,10 @@ def update_dns_record(secret=None, fqdn=None, zone_name=None, record_name=None,
 def catch_errors(**kwargs):
     try:
         return update_dns_record(**kwargs)
-    except ParameterError as e:
-        return msg('ERROR {}'.format(e))
-    except ConfigurationError as e:
-        return msg('ERROR {}'.format(e))
+    except ParameterError as error:
+        return msg('ERROR {}'.format(error))
+    except ConfigurationError as error:
+        return msg('ERROR {}'.format(error))
     except DNSServerError as error:
         return msg('DNS SERVER ERROR: {}'.format(error))
 
