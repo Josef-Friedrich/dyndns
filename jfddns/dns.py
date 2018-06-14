@@ -87,7 +87,7 @@ class DnsUpdate(object):
             out['status'] = 'UPDATED'
 
             if new_ip != checked_ip:
-                out['status'] = 'ERROR'
+                out['status'] = 'DNS_SERVER_ERROR'
 
         return out
 

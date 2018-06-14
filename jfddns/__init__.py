@@ -10,11 +10,11 @@ from jfddns.exceptions import \
     ParameterError
 from jfddns.ipaddresses import IpAddresses
 from jfddns.names import Names
+from jfddns.log import msg
 import argparse
 import flask
 import inspect
 import jfddns.dns as jf_dns
-import logging
 import os
 
 
@@ -23,19 +23,6 @@ __version__ = get_versions()['version']
 del get_versions
 
 app = flask.Flask(__name__)
-
-
-logger = logging.getLogger('jfddns')
-handler = logging.FileHandler('jfddns.log')
-formatter = logging.Formatter('%(asctime)s %(message)s')
-handler.setFormatter(formatter)
-logger.addHandler(handler)
-logger.setLevel(logging.INFO)
-
-
-def msg(text):
-    logger.info(text)
-    return text
 
 
 def update_dns_record(secret=None, fqdn=None, zone_name=None, record_name=None,
@@ -84,27 +71,27 @@ def update_dns_record(secret=None, fqdn=None, zone_name=None, record_name=None,
     )
     results = update.update()
 
-    out = []
+    messages = []
     for result in results:
-        out.append('{} fqdn: {} old_ip: {} new_ip: {}'.format(
-            result['status'],
+        message = 'fqdn: {} old_ip: {} new_ip: {}'.format(
             names.fqdn,
             result['old_ip'],
             result['new_ip'],
-        ))
+        )
+        messages.append(msg(message, result['status']))
 
-    return msg(' | '.join(out))
+    return ' | '.join(messages)
 
 
 def catch_errors(**kwargs):
     try:
         return update_dns_record(**kwargs)
     except ParameterError as error:
-        return msg('ERROR {}'.format(error))
+        return msg(str(error), 'PARAMETER_ERROR')
     except ConfigurationError as error:
-        return msg('ERROR {}'.format(error))
+        return msg(str(error), 'CONFIGURATION_ERROR')
     except DNSServerError as error:
-        return msg('DNS SERVER ERROR: {}'.format(error))
+        return msg(str(error), 'DNS_SERVER_ERROR')
 
 
 @app.route('/update-by-path/<secret>/<fqdn>')
@@ -128,7 +115,10 @@ def update_by_query_string():
         input_args[key] = arg
 
         if key not in kwargs:
-            return msg('Unknown query string argument: "{}"'.format(key))
+            return msg(
+                'Unknown query string argument: "{}"'.format(key),
+                'PARAMETER_ERROR',
+            )
 
     return catch_errors(**input_args)
 

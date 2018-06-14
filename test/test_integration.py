@@ -70,7 +70,7 @@ class TestUpdateByPath(Integration):
                                                 '1.2.3.5')
         self.assertEqual(
             self.data,
-            'UPDATED fqdn: www.example.com. old_ip: 1.2.3.4 new_ip: 1.2.3.5',
+            'UPDATED: fqdn: www.example.com. old_ip: 1.2.3.4 new_ip: 1.2.3.5',
         )
 
     def test_ipv6_update(self):
@@ -81,7 +81,7 @@ class TestUpdateByPath(Integration):
                                                 'aaaa', '1::3')
         self.assertEqual(
             self.data,
-            'UPDATED fqdn: www.example.com. old_ip: 1::2 new_ip: 1::3',
+            'UPDATED: fqdn: www.example.com. old_ip: 1::2 new_ip: 1::3',
         )
 
     def test_ipv4_ipv6_update(self):
@@ -92,8 +92,8 @@ class TestUpdateByPath(Integration):
                                                 'aaaa', '1::3')
         self.assertEqual(
             self.data,
-            'UPDATED fqdn: www.example.com. old_ip: 1.2.3.4 new_ip: 1.2.3.5 | '
-            'UPDATED fqdn: www.example.com. old_ip: 1::2 new_ip: 1::3',
+            'UPDATED: fqdn: www.example.com. old_ip: 1.2.3.4 new_ip: 1.2.3.5 '
+            '| UPDATED: fqdn: www.example.com. old_ip: 1::2 new_ip: 1::3',
         )
 
     def test_ipv6_ipv4_update(self):
@@ -104,8 +104,8 @@ class TestUpdateByPath(Integration):
                                                 'aaaa', '1::3')
         self.assertEqual(
             self.data,
-            'UPDATED fqdn: www.example.com. old_ip: 1.2.3.4 new_ip: 1.2.3.5 | '
-            'UPDATED fqdn: www.example.com. old_ip: 1::2 new_ip: 1::3',
+            'UPDATED: fqdn: www.example.com. old_ip: 1.2.3.4 new_ip: 1.2.3.5 '
+            '| UPDATED: fqdn: www.example.com. old_ip: 1::2 new_ip: 1::3',
         )
 
 
@@ -120,7 +120,7 @@ class TestUpdateByQuery(Integration):
         self.get('/update-by-query?lol=lol')
         self.assertEqual(
             self.data,
-            'Unknown query string argument: "lol"',
+            'PARAMETER_ERROR: Unknown query string argument: "lol"',
         )
 
     def test_ipv4_update(self):
@@ -131,7 +131,7 @@ class TestUpdateByQuery(Integration):
                                                 '1.2.3.5')
         self.assertEqual(
             self.data,
-            'UPDATED fqdn: www.example.com. old_ip: 1.2.3.4 new_ip: 1.2.3.5',
+            'UPDATED: fqdn: www.example.com. old_ip: 1.2.3.4 new_ip: 1.2.3.5',
         )
 
     def test_ipv6_update(self):
@@ -142,7 +142,7 @@ class TestUpdateByQuery(Integration):
                                                 'aaaa', '1::3')
         self.assertEqual(
             self.data,
-            'UPDATED fqdn: www.example.com. old_ip: 1::2 new_ip: 1::3',
+            'UPDATED: fqdn: www.example.com. old_ip: 1::2 new_ip: 1::3',
         )
 
     def test_ipv4_ipv6_update(self):
@@ -150,8 +150,8 @@ class TestUpdateByQuery(Integration):
         self.get(self._url('ipv4=1.2.3.5&ipv6=1::3'), side_effect)
         self.assertEqual(
             self.data,
-            'UPDATED fqdn: www.example.com. old_ip: 1.2.3.4 new_ip: 1.2.3.5 | '
-            'UPDATED fqdn: www.example.com. old_ip: 1::2 new_ip: 1::3',
+            'UPDATED: fqdn: www.example.com. old_ip: 1.2.3.4 new_ip: 1.2.3.5 '
+            '| UPDATED: fqdn: www.example.com. old_ip: 1::2 new_ip: 1::3',
         )
 
     def test_ip_1_ip_2_update(self):
@@ -159,15 +159,15 @@ class TestUpdateByQuery(Integration):
         self.get(self._url('ip_1=1.2.3.5&ip_2=1::3'), side_effect)
         self.assertEqual(
             self.data,
-            'UPDATED fqdn: www.example.com. old_ip: 1.2.3.4 new_ip: 1.2.3.5 | '
-            'UPDATED fqdn: www.example.com. old_ip: 1::2 new_ip: 1::3',
+            'UPDATED: fqdn: www.example.com. old_ip: 1.2.3.4 new_ip: 1.2.3.5 '
+            '| UPDATED: fqdn: www.example.com. old_ip: 1::2 new_ip: 1::3',
         )
 
     def test_invalid_ipv4(self):
         self.get(self._url('ipv4=lol'))
         self.assertEqual(
             self.data,
-            'ERROR Invalid ip address "lol"',
+            'PARAMETER_ERROR: Invalid ip address "lol"',
         )
 
 
