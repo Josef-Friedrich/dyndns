@@ -2,37 +2,38 @@
 
 import logging
 
-logger = logging.getLogger('jfddns')
-handler = logging.FileHandler('jfddns.log')
-formatter = logging.Formatter('%(asctime)s %(message)s')
-handler.setFormatter(formatter)
-logger.addHandler(handler)
-logger.setLevel(logging.INFO)
+class Message(object):
 
+# CRITICAL 	50
+# ERROR 	40
+# WARNING 	30
+# INFO 	20
+# DEBUG 	10
+# NOTSET 	0
 
-def msg(text, level='info'):
-    log_message = getattr(logger, level)
-    log_message(text)
-    return text
+    log_levels = {
+        'CONFIGURATION_ERROR': 52,
+        'DNS_SERVER_ERROR': 51,
+        'PARAMETER_ERROR': 41,
+        'UPDATED': 22,
+        'UNCHANGED': 21,
+    }
 
+    def __init__(self):
+        self._setup_logging()
 
-def message(text, level='info'):
-    log_message = getattr(logger, level)
-    log_message(text)
-    return text
+    def _setup_logging():
+        for log_level, log_level_num in self.log_levels:
+            logging.addLevelName(log_level_num, log_level)
 
+        self.logger = logging.getLogger('jfddns')
+        handler = logging.FileHandler('jfddns.log')
+        formatter = logging.Formatter('%(asctime)s %(message)s')
+        handler.setFormatter(formatter)
+        self.logger.addHandler(handler)
+        self.logger.setLevel(logging.INFO)
 
-CONFIGURATION_ERROR = 51
-logging.addLevelName(CONFIGURATION_ERROR, 'CONFIGURATION_ERROR')
-
-PARAMETER_ERROR = 41
-logging.addLevelName(PARAMETER_ERROR, 'PARAMETER_ERROR')
-
-DNS_SERVER_ERROR = 31
-logging.addLevelName(DNS_SERVER_ERROR, 'DNS_SERVER_ERROR')
-
-UPDATED = 21
-logging.addLevelName(UPDATED, 'UPDATED')
-
-UNCHANGED = 11
-logging.addLevelName(UNCHANGED, 'UNCHANGED')
+    def message(text, level='info'):
+        log_message = getattr(logger, level)
+        log_message(text)
+        return text
