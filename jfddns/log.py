@@ -35,7 +35,9 @@ class Message(object):
 
         self.logger = logging.getLogger('jfddns')
         handler = logging.FileHandler(log_file)
-        formatter = logging.Formatter('%(asctime)s %(levelname)s %(message)s')
+        formatter = logging.Formatter(
+            '%(asctime)s %(levelname)s: %(message)s'
+        )
         handler.setFormatter(formatter)
         self.logger.addHandler(handler)
         self.logger.setLevel(logging.DEBUG)

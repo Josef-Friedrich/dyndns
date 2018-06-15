@@ -102,5 +102,5 @@ class TestClassDnsUpdate(unittest.TestCase):
         self.assertEqual(
             result,
             {'ip_version': 4, 'new_ip': '1.2.3.5', 'old_ip': '1.2.3.4',
-             'status': 'ERROR'},
+             'status': 'DNS_SERVER_ERROR'},
         )
