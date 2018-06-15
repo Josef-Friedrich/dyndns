@@ -8,7 +8,6 @@ Update by path
 2. ``<your-domain>/update-by-path/<secret>/<fqdn>/<ip_1>``
 3. ``<your-domain>/update-by-path/<secret>/<fqdn>/<ip_1>/<ip_2>``
 
-
 Update by query
 ^^^^^^^^^^^^^^^
 

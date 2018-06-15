@@ -84,6 +84,13 @@ class TestFunctionValidateConfig(unittest.TestCase):
             'address: "lol".'
         )
 
+    def test_invalid_jfddns_domain(self):
+        self.assertRaisesMsg(
+            {'secret': '12345678', 'nameserver': '127.0.0.1',
+             'jfddns_domain': 'l o l'},
+            'The label "l o l" of the hostname "l o l" is invalid.'
+        )
+
     def test_no_zones(self):
         self.assertRaisesMsg(
             {'secret': '12345678', 'nameserver': '127.0.0.1'},
@@ -139,6 +146,7 @@ class TestFunctionValidateConfig(unittest.TestCase):
         config = load_config()
         config = validate_config(config)
         self.assertEqual(config['secret'], '12345678')
+        self.assertEqual(config['jfddns_domain'], 'example.com')
 
 
 if __name__ == '__main__':

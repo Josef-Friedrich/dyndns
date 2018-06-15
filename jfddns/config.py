@@ -1,6 +1,6 @@
 """Load and validate the configuration."""
 
-from jfddns.names import Zones
+from jfddns.names import Zones, validate_hostname
 from jfddns.exceptions import ConfigurationError, NamesError, IpAddressesError
 from jfddns.ipaddresses import validate as validate_ip
 
@@ -44,10 +44,6 @@ def validate_secret(secret):
 
 def validate_config(config=None):
 
-    ##
-    # config
-    ##
-
     if not config:
         try:
             config = load_config()
@@ -78,6 +74,12 @@ def validate_config(config=None):
               'IP address: "{}".'.format(config['nameserver'])
         raise ConfigurationError(msg)
 
+    if 'jfddns_domain' in config:
+        try:
+            validate_hostname(config['jfddns_domain'])
+        except NamesError as error:
+            raise ConfigurationError(str(error))
+
     if 'zones' not in config:
         raise ConfigurationError('Your configuration must have a "zones" key.')
 
@@ -101,7 +103,7 @@ def validate_config(config=None):
 
     try:
         config['zones'] = Zones(config['zones'])
-    except NamesError as e:
-        raise ConfigurationError(str(e))
+    except NamesError as error:
+        raise ConfigurationError(str(error))
 
     return config

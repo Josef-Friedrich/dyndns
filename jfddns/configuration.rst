@@ -1,7 +1,7 @@
 Configuration
 -------------
 
-``jfddns`` requires a configuration file in the YAML markup language
+``jfddns`` requires a configuration file in the YAML markup language.
 
 
 .. code-block:: yaml
@@ -9,6 +9,7 @@ Configuration
     ---
     secret: 12345678
     nameserver: 127.0.0.1
+    jfddns_domain: example.com
     zones:
       - name: example.com
         tsig_key: tPyvZA==

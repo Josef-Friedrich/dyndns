@@ -144,6 +144,14 @@ def index():
         pass
 
     rst = rst_to_string('usage.rst')
+
+    if config and 'jfddns_domain' in config:
+        print(rst)
+        rst = rst.replace(
+            '<your-domain>',
+            'http://{}'.format(config['jfddns_domain'])
+        )
+
     if not config:
         rst = rst_to_string('configuration.rst') + '\n\n' + rst
 
