@@ -7,27 +7,31 @@ def get_path(*path_segments):
     return os.path.join(os.getcwd(), *path_segments)
 
 
-def open_file(*path_segments, clean=False):
+def open_file(path_segments, mode, clean=False):
     file_path = get_path(*path_segments)
     if clean:
         open(file_path, 'w').close()
-    return open(file_path, 'a')
+    return open(file_path, mode)
 
 
 def main():
-    header = open_file('README_header.rst')
-    readme = open_file('README.rst')
+    readme = open_file(['README.rst'], 'a', clean=True)
 
-    configuration = open_file('jfddns', 'configuration.rst')
-    usage = open_file('jfddns', 'usage.rst')
+    header = open_file(['README_header.rst'], 'r')
+    configuration = open_file(['jfddns', 'configuration.rst'], 'r')
+    usage = open_file(['jfddns', 'usage.rst'], 'r')
 
-    for line in header.read():
+    for line in header.readlines():
         readme.write(str(line))
 
-    for line in configuration.read():
+    readme.write('\n')
+
+    for line in configuration.readlines():
         readme.write(str(line))
 
-    for line in usage.read():
+    readme.write('\n')
+
+    for line in usage.readlines():
         readme.write(str(line))
 
 
