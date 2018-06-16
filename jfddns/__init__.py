@@ -9,13 +9,14 @@ from jfddns.exceptions import \
     NamesError, \
     ParameterError
 from jfddns.ipaddresses import IpAddresses
-from jfddns.names import Names
 from jfddns.log import msg
+from jfddns.names import Names
 import argparse
 import flask
 import inspect
 import jfddns.dns as jf_dns
 import os
+import re
 
 
 from ._version import get_versions
@@ -146,7 +147,7 @@ def index():
     rst = rst_to_string('usage.rst')
 
     if config and 'jfddns_domain' in config:
-        print(rst)
+        rst = re.sub(r'``(<your-domain>.*)``', r'`\1 <\1>`_', rst)
         rst = rst.replace(
             '<your-domain>',
             'http://{}'.format(config['jfddns_domain'])
