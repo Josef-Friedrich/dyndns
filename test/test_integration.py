@@ -170,6 +170,12 @@ class TestUpdateByQuery(Integration):
             'PARAMETER_ERROR: Invalid ip address "lol"',
         )
 
+    def test_ttl(self):
+        side_effect = [['1.2.3.4'], ['1.2.3.5']]
+        self.get(self._url('ipv4=1.2.3.5&ttl=123'), side_effect)
+        self.mock_update.add.assert_called_with('www.example.com.', 123, 'a',
+                                                '1.2.3.5')
+
 
 class TestStaticPages(unittest.TestCase):
 

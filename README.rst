@@ -81,3 +81,4 @@ Arguments for the query string
   be a different version than ``ip_1``.
 * ``ipv4``: A IP address version 4.
 * ``ipv6``: A IP address version 6.
+* ``ttl``: Time to live. The default value is 300.

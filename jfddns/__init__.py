@@ -27,7 +27,8 @@ app = flask.Flask(__name__)
 
 
 def update_dns_record(secret=None, fqdn=None, zone_name=None, record_name=None,
-                      ip_1=None, ip_2=None, ipv4=None, ipv6=None, config=None):
+                      ip_1=None, ip_2=None, ipv4=None, ipv6=None, ttl=None,
+                      config=None):
     """
     Update a DNS record.
 
@@ -46,6 +47,7 @@ def update_dns_record(secret=None, fqdn=None, zone_name=None, record_name=None,
       be a different version than ``ip_1``.
     :param str ipv4: A IP address version 4.
     :param str ipv6: A IP address version 6.
+    :param int ttl: Time to live.
     :param dict config: The configuration in the Python dictionary format
       (as returned by the function ``validate_config()``).
     """
@@ -75,6 +77,7 @@ def update_dns_record(secret=None, fqdn=None, zone_name=None, record_name=None,
         nameserver=config['nameserver'],
         names=names,
         ipaddresses=ipaddresses,
+        ttl=ttl,
     )
     results = update.update()
 

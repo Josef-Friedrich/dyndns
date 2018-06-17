@@ -15,10 +15,15 @@ class DnsUpdate(object):
     Update the DNS server
     """
 
-    def __init__(self, nameserver, names, ipaddresses):
+    def __init__(self, nameserver, names, ipaddresses, ttl=None):
         self.nameserver = nameserver   #: The nameserver
         self.names = names
         self.ipaddresses = ipaddresses
+        self.ttl = ttl
+        if not self.ttl:
+            self.ttl = 300
+        else:
+            self.ttl = int(ttl)
 
         self._tsigkeyring = self._build_tsigkeyring(
             self.names.zone_name,
@@ -70,7 +75,7 @@ class DnsUpdate(object):
         if new_ip != old_ip:
             rdtype = self._convert_record_type(ip_version)
             self._dns_update.delete(self.names.fqdn, rdtype)
-            self._dns_update.add(self.names.fqdn, 300, rdtype, new_ip)
+            self._dns_update.add(self.names.fqdn, self.ttl, rdtype, new_ip)
             try:
                 dns.query.tcp(self._dns_update, where=self.nameserver,
                               timeout=5)
