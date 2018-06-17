@@ -1,5 +1,6 @@
 """Bundles the logging functionality."""
 
+import datetime
 import logging
 import os
 import sqlite3
@@ -17,19 +18,48 @@ class UpdatesDB(object):
         self._create_tables()
 
     def _create_tables(self):
-
         self.cursor.execute("""
             CREATE TABLE IF NOT EXISTS updates (
-                update_time DATETIME,
+                update_time TEXT,
                 fqdn TEXT,
-                record_type VARCHAR(4),
+                record_type TEXT,
                 ip TEXT
         );""")
 
         self.cursor.execute("""
-            CREATE TABLE IF NOT EXISTS fqdn (
+            CREATE TABLE IF NOT EXISTS fqdns (
                 fqdn TEXT
         );""")
+
+    @staticmethod
+    def _now_to_iso8601():
+        return datetime.datetime.now().isoformat(' ')
+
+    @staticmethod
+    def _iso8601_to_datetime(iso8601):
+        return datetime.datetime.strptime(iso8601, "%Y-%m-%d %H:%M:%S.%f")
+
+    def log_update(self, fqdn, record_type, ip):
+
+        self.cursor.execute(
+            'SELECT fqdn FROM fqdns WHERE fqdn = ?;',
+            (fqdn,)
+        )
+
+        row = self.cursor.fetchone()
+
+        if not row or row[0] != fqdn:
+            self.cursor.execute(
+                'INSERT INTO fqdns VALUES (?);',
+                (fqdn,)
+            )
+
+        update_time = self._now_to_iso8601()
+        self.cursor.execute(
+            'INSERT INTO updates VALUES (?, ?, ?, ?);',
+            (update_time, fqdn, record_type, ip),
+        )
+        self.connection.commit()
 
 
 class Message(object):
