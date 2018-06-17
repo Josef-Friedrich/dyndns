@@ -32,6 +32,8 @@ class TestClassUpdateDB(unittest.TestCase):
 
     def setUp(self):
         self.db_file = os.path.join(os.getcwd(), 'jfddns.db')
+        if os.path.exists(self.db_file):
+            os.remove(self.db_file)
 
     def test_init(self):
         db = UpdatesDB()
@@ -46,7 +48,6 @@ class TestClassUpdateDB(unittest.TestCase):
         self.assertEqual(date.year, 2008)
 
     def test_method_log_update(self):
-        os.remove(self.db_file)
         db = UpdatesDB()
         db.log_update('www.example.com', 'a', '1.2.3.4')
 
@@ -74,6 +75,23 @@ class TestClassUpdateDB(unittest.TestCase):
         db.cursor.execute('SELECT * FROM updates;')
         rows = db.cursor.fetchall()
         self.assertEqual(len(rows), 2)
+
+    def test_method_get_fqdns(self):
+        db = UpdatesDB()
+        db.log_update('c.example.com', 'a', '1.2.3.4')
+        db.log_update('b.example.com', 'a', '1.2.3.4')
+        db.log_update('a.example.com', 'a', '1.2.3.4')
+        db.log_update('a.example.com', 'a', '1.2.3.3')
+        db.log_update('a.example.com', 'a', '1.2.3.2')
+
+        self.assertEqual(db.get_fqdns(),
+                         ['a.example.com', 'b.example.com', 'c.example.com'])
+
+    def test_method_is_fqdn_stored(self):
+        db = UpdatesDB()
+        self.assertFalse(db._is_fqdn_stored('example.com'))
+        db.log_update('example.com', 'a', '1.2.3.2')
+        self.assertTrue(db._is_fqdn_stored('example.com'))
 
 
 if __name__ == '__main__':

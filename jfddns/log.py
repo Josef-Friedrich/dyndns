@@ -39,16 +39,24 @@ class UpdatesDB(object):
     def _iso8601_to_datetime(iso8601):
         return datetime.datetime.strptime(iso8601, "%Y-%m-%d %H:%M:%S.%f")
 
-    def log_update(self, fqdn, record_type, ip):
+    def get_fqdns(self):
+        self.cursor.execute('SELECT fqdn FROM fqdns;')
+        fqdns = self.cursor.fetchall()
+        out = []
+        for fqdn in fqdns:
+                out.append(fqdn[0])
+        out.sort()
+        return out
 
+    def _is_fqdn_stored(self, fqdn):
         self.cursor.execute(
             'SELECT fqdn FROM fqdns WHERE fqdn = ?;',
             (fqdn,)
         )
+        return bool(self.cursor.fetchone())
 
-        row = self.cursor.fetchone()
-
-        if not row or row[0] != fqdn:
+    def log_update(self, fqdn, record_type, ip):
+        if not self._is_fqdn_stored(fqdn):
             self.cursor.execute(
                 'INSERT INTO fqdns VALUES (?);',
                 (fqdn,)
