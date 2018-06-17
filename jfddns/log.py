@@ -2,8 +2,34 @@
 
 import logging
 import os
+import sqlite3
+
 
 log_file = os.path.join(os.getcwd(), 'jfddns.log')
+
+
+class UpdatesDB(object):
+
+    def __init__(self):
+        self.db_file = os.path.join(os.getcwd(), 'jfddns.db')
+        self.connection = sqlite3.connect(self.db_file)
+        self.cursor = self.connection.cursor()
+        self._create_tables()
+
+    def _create_tables(self):
+
+        self.cursor.execute("""
+            CREATE TABLE IF NOT EXISTS updates (
+                update_time DATETIME,
+                fqdn TEXT,
+                record_type VARCHAR(4),
+                ip TEXT
+        );""")
+
+        self.cursor.execute("""
+            CREATE TABLE IF NOT EXISTS fqdn (
+                fqdn TEXT
+        );""")
 
 
 class Message(object):

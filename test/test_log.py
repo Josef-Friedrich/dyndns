@@ -1,5 +1,7 @@
-import unittest
 from jfddns import log
+from jfddns.log import UpdatesDB
+import os
+import unittest
 
 
 def clean_log_file(log_file_path):
@@ -23,6 +25,13 @@ class TestMethodMsg(unittest.TestCase):
         result = log_file.read()
         self.assertIn('UNCHANGED', result)
         self.assertIn('lol', result)
+
+
+class TestClassUpdateDB(unittest.TestCase):
+
+    def test_init(self):
+        db = UpdatesDB()
+        self.assertEqual(db.db_file, os.path.join(os.getcwd(), 'jfddns.db'))
 
 
 if __name__ == '__main__':
