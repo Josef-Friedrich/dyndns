@@ -10,12 +10,23 @@ jfddns
 A simple dynamic DNS update HTTP based API using python and the flask
 web framework.
 
-
 Installation
 ------------
 
+Install ``jfddns`` into the directory
+``/usr/local/share/python-virtualenv/jfddns`` using a virtual
+environment.
 
-/var/www/dyndns.example.com/jfddns.ini
+.. code-block:: text
+
+    python3 -m venv /usr/local/share/python-virtualenv/jfddns
+    source /usr/local/share/python-virtualenv/jfddns/bin/activate
+    pip3 install jfddns
+
+
+The working directory of our flask web API is in the directory
+``/var/www/dyndns.example.com``. Create a file
+``/var/www/dyndns.example.com/jfddns.ini``.
 
 .. code-block:: ini
 
@@ -35,7 +46,7 @@ Installation
 
 
 Example configuration file for nginx:
-``/etc/nginx/sites-enabled/dyndns.example.com.``
+``/etc/nginx/sites-available/dyndns.example.com.``
 
 .. code-block:: text
 
