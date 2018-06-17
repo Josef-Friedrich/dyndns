@@ -1,6 +1,7 @@
 """Query the DSN server using the package“dnspython”."""
 
 from jfddns.exceptions import DNSServerError
+from jfddns.log import UpdatesDB
 import dns.exception
 import dns.name
 import dns.query
@@ -31,6 +32,7 @@ class DnsUpdate(object):
         )
         self._dns_update = dns.update.Update(self.names.zone_name,
                                              keyring=self._tsigkeyring)
+        self._updates_db = UpdatesDB()
 
     @staticmethod
     def _build_tsigkeyring(zone_name, tsig_key):
@@ -89,9 +91,11 @@ class DnsUpdate(object):
                 raise DNSServerError('The DNS operation to the nameserver '
                                      '"{}" timed out.'.format(self.nameserver))
             checked_ip = self._resolve(self.names.record_name, ip_version)
-            out['status'] = 'UPDATED'
 
-            if new_ip != checked_ip:
+            if new_ip == checked_ip:
+                out['status'] = 'UPDATED'
+                self._updates_db.log_update(self.names.fqdn, rdtype, new_ip)
+            else:
                 out['status'] = 'DNS_SERVER_ERROR'
 
         return out
