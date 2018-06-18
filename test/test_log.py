@@ -18,7 +18,7 @@ class TestMethodMsg(unittest.TestCase):
         clean_log_file(self.log_file)
 
     def test_msg(self):
-        self.assertEqual(log.msg('lol', 'UNCHANGED'), 'UNCHANGED: lol')
+        self.assertEqual(log.msg('lol', 'UNCHANGED'), 'UNCHANGED: lol\n')
 
     def test_log_file(self):
         log.msg('lol', 'UNCHANGED')

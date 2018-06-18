@@ -59,7 +59,8 @@ class TestFunctionUpdateDnsRecord(unittest.TestCase):
                                    ip_1='1.2.3.5')
         self.assertEqual(
             result,
-            'UPDATED: fqdn: www.example.com. old_ip: 1.2.3.4 new_ip: 1.2.3.5',
+            'UPDATED: fqdn: www.example.com. old_ip: 1.2.3.4 new_ip: '
+            '1.2.3.5\n',
         )
         update.delete.assert_has_calls([
             mock.call('www.example.com.', 'a'),
