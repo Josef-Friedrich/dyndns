@@ -93,9 +93,9 @@ def update_dns_record(secret=None, fqdn=None, zone_name=None, record_name=None,
     return ' | '.join(messages)
 
 
-def catch_errors(**kwargs):
+def catch_errors(function, **kwargs):
     try:
-        return update_dns_record(**kwargs)
+        return function(**kwargs)
     except ParameterError as error:
         return msg(str(error), 'PARAMETER_ERROR')
     except ConfigurationError as error:
@@ -108,7 +108,8 @@ def catch_errors(**kwargs):
 @app.route('/update-by-path/<secret>/<fqdn>/<ip_1>')
 @app.route('/update-by-path/<secret>/<fqdn>/<ip_1>/<ip_2>')
 def update_by_path(secret, fqdn, ip_1=None, ip_2=None):
-    return catch_errors(secret=secret, fqdn=fqdn, ip_1=ip_1, ip_2=ip_2)
+    return catch_errors(update_dns_record, secret=secret, fqdn=fqdn, ip_1=ip_1,
+                        ip_2=ip_2)
 
 
 @app.route('/update-by-query')
@@ -130,7 +131,7 @@ def update_by_query_string():
                 'PARAMETER_ERROR',
             )
 
-    return catch_errors(**input_args)
+    return catch_errors(update_dns_record, **input_args)
 
 
 def rst_to_string(file_name):
