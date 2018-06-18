@@ -66,6 +66,22 @@ class DnsUpdate(object):
         except dns.exception.DNSException:
             return ''
 
+    def _query_tcp(self, dns_update):
+        """Catch some error and convert this error to jfddns specific
+        errors."""
+        try:
+            dns.query.tcp(dns_update, where=self.nameserver,
+                          timeout=5)
+        except dns.tsig.PeerBadKey as error:
+            raise DNSServerError('The peer "{}" didn\'t know the tsig key '
+                                 'we used for the zone "{}".'.format(
+                                    self.nameserver,
+                                    self.names.zone_name,
+                                 ))
+        except dns.exception.Timeout as error:
+            raise DNSServerError('The DNS operation to the nameserver '
+                                 '"{}" timed out.'.format(self.nameserver))
+
     def _set_record(self, new_ip, ip_version=4):
         out = {}
         old_ip = self._resolve(self.names.record_name, ip_version)
@@ -83,18 +99,8 @@ class DnsUpdate(object):
                 self._dns_update.delete(self.names.fqdn, 'aaaa')
 
             self._dns_update.add(self.names.fqdn, self.ttl, rdtype, new_ip)
-            try:
-                dns.query.tcp(self._dns_update, where=self.nameserver,
-                              timeout=5)
-            except dns.tsig.PeerBadKey as error:
-                raise DNSServerError('The peer "{}" didn\'t know the tsig key '
-                                     'we used for the zone "{}".'.format(
-                                        self.nameserver,
-                                        self.names.zone_name,
-                                     ))
-            except dns.exception.Timeout as error:
-                raise DNSServerError('The DNS operation to the nameserver '
-                                     '"{}" timed out.'.format(self.nameserver))
+            self._query_tcp(self._dns_update)
+
             checked_ip = self._resolve(self.names.record_name, ip_version)
 
             if new_ip == checked_ip:
@@ -108,18 +114,7 @@ class DnsUpdate(object):
     def delete(self):
         self._dns_update.delete(self.names.fqdn, 'a')
         self._dns_update.delete(self.names.fqdn, 'aaaa')
-        try:
-            dns.query.tcp(self._dns_update, where=self.nameserver,
-                          timeout=5)
-        except dns.tsig.PeerBadKey as error:
-            raise DNSServerError('The peer "{}" didn\'t know the tsig key '
-                                 'we used for the zone "{}".'.format(
-                                    self.nameserver,
-                                    self.names.zone_name,
-                                 ))
-        except dns.exception.Timeout as error:
-            raise DNSServerError('The DNS operation to the nameserver '
-                                 '"{}" timed out.'.format(self.nameserver))
+        self._query_tcp(self._dns_update)
         return True
 
     def update(self):
