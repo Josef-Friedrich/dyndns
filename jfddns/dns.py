@@ -77,6 +77,11 @@ class DnsUpdate(object):
         if new_ip != old_ip:
             rdtype = self._convert_record_type(ip_version)
             self._dns_update.delete(self.names.fqdn, rdtype)
+            # If the client (a notebook) changes in a network without ipv6
+            # support, we have to delete the 'aaaa' record
+            if rdtype == 'a':
+                self._dns_update.delete(self.names.fqdn, 'aaaa')
+
             self._dns_update.add(self.names.fqdn, self.ttl, rdtype, new_ip)
             try:
                 dns.query.tcp(self._dns_update, where=self.nameserver,

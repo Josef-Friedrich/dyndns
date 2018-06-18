@@ -61,7 +61,10 @@ class TestFunctionUpdateDnsRecord(unittest.TestCase):
             result,
             'UPDATED: fqdn: www.example.com. old_ip: 1.2.3.4 new_ip: 1.2.3.5',
         )
-        update.delete.assert_called_with('www.example.com.', 'a')
+        update.delete.assert_has_calls([
+            mock.call('www.example.com.', 'a'),
+            mock.call('www.example.com.', 'aaaa'),
+        ])
         update.add.assert_called_with('www.example.com.', 300, 'a', '1.2.3.5')
 
 

@@ -65,7 +65,10 @@ class TestUpdateByPath(Integration):
         self.get(self._url('1.2.3.5'),
                  [['1.2.3.4'], ['1.2.3.5']])
 
-        self.mock_update.delete.assert_called_with('www.example.com.', 'a')
+        self.mock_update.delete.assert_has_calls([
+            mock.call('www.example.com.', 'a'),
+            mock.call('www.example.com.', 'aaaa'),
+        ])
         self.mock_update.add.assert_called_with('www.example.com.', 300, 'a',
                                                 '1.2.3.5')
         self.assertEqual(
@@ -126,7 +129,11 @@ class TestUpdateByQuery(Integration):
     def test_ipv4_update(self):
         side_effect = [['1.2.3.4'], ['1.2.3.5']]
         self.get(self._url('ipv4=1.2.3.5'), side_effect)
-        self.mock_update.delete.assert_called_with('www.example.com.', 'a')
+
+        self.mock_update.delete.assert_has_calls([
+            mock.call('www.example.com.', 'a'),
+            mock.call('www.example.com.', 'aaaa'),
+        ])
         self.mock_update.add.assert_called_with('www.example.com.', 300, 'a',
                                                 '1.2.3.5')
         self.assertEqual(

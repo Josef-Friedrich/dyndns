@@ -56,7 +56,10 @@ class TestClassDnsUpdate(unittest.TestCase):
         dns.record_name = 'www'
         result = dns._set_record('1.2.3.5', 4)
 
-        update.delete.assert_called_with('www.example.com.', 'a')
+        update.delete.assert_has_calls([
+            mock.call('www.example.com.', 'a'),
+            mock.call('www.example.com.', 'aaaa'),
+        ])
         update.add.assert_called_with('www.example.com.', 300, 'a', '1.2.3.5')
         self.assertEqual(tcp.call_args[1]['where'], '127.0.0.1')
         Update.assert_called()
