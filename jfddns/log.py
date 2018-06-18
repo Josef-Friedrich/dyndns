@@ -108,7 +108,7 @@ class Message(object):
 
     def message(self, msg, log_level):
         self.logger.log(self._log_level_num(log_level), msg)
-        return '{}: {}'.format(log_level, msg)
+        return '{}: {}\n'.format(log_level, msg)
 
 
 message = Message()
