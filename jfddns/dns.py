@@ -16,7 +16,7 @@ class DnsUpdate(object):
     Update the DNS server
     """
 
-    def __init__(self, nameserver, names, ipaddresses, ttl=None):
+    def __init__(self, nameserver, names, ipaddresses=None, ttl=None):
         self.nameserver = nameserver   #: The nameserver
         self.names = names
         self.ipaddresses = ipaddresses
@@ -104,6 +104,23 @@ class DnsUpdate(object):
                 out['status'] = 'DNS_SERVER_ERROR'
 
         return out
+
+    def delete(self):
+        self._dns_update.delete(self.names.fqdn, 'a')
+        self._dns_update.delete(self.names.fqdn, 'aaaa')
+        try:
+            dns.query.tcp(self._dns_update, where=self.nameserver,
+                          timeout=5)
+        except dns.tsig.PeerBadKey as error:
+            raise DNSServerError('The peer "{}" didn\'t know the tsig key '
+                                 'we used for the zone "{}".'.format(
+                                    self.nameserver,
+                                    self.names.zone_name,
+                                 ))
+        except dns.exception.Timeout as error:
+            raise DNSServerError('The DNS operation to the nameserver '
+                                 '"{}" timed out.'.format(self.nameserver))
+        return True
 
     def update(self):
         results = []

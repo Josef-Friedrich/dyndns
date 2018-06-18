@@ -186,6 +186,26 @@ class TestUpdateByQuery(Integration):
                                                 '1.2.3.5')
 
 
+class TestDeleteByPath(Integration):
+
+    @staticmethod
+    def _url(fqdn):
+        return '/delete-by-path/12345678/{}'.format(fqdn)
+
+    def test_deletion(self):
+        self.get(self._url('www.example.com'))
+
+        self.mock_update.delete.assert_has_calls([
+            mock.call('www.example.com.', 'a'),
+            mock.call('www.example.com.', 'aaaa'),
+        ])
+        self.mock_update.add.assert_not_called()
+        self.assertEqual(
+            self.data,
+            'UPDATED: Deleted "www.example.com.".\n',
+        )
+
+
 class TestStaticPages(unittest.TestCase):
 
     def setUp(self):

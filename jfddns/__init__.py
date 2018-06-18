@@ -93,6 +93,33 @@ def update_dns_record(secret=None, fqdn=None, zone_name=None, record_name=None,
     return ' | '.join(messages)
 
 
+def delete_dns_record(secret=None, fqdn=None, config=None):
+    if not config:
+        config = load_config()
+
+    config = validate_config(config)
+    zones = config['zones']
+
+    if str(secret) != str(config['secret']):
+        raise ParameterError('You specified a wrong secret key.')
+
+    try:
+        names = Names(zones, fqdn=fqdn)
+    except NamesError as e:
+        raise ParameterError(str(e))
+
+    delete = jf_dns.DnsUpdate(
+        nameserver=config['nameserver'],
+        names=names,
+    )
+
+    if delete.delete():
+        return msg('Deleted "{}".'.format(names.fqdn), 'UPDATED')
+    else:
+        return msg('Deletion not successful "{}".'.format(names.fqdn),
+                   'UNCHANGED')
+
+
 def catch_errors(function, **kwargs):
     try:
         return function(**kwargs)
@@ -132,6 +159,11 @@ def update_by_query_string():
             )
 
     return catch_errors(update_dns_record, **input_args)
+
+
+@app.route('/delete-by-path/<secret>/<fqdn>')
+def delete_by_path(secret, fqdn, ip_1=None, ip_2=None):
+    return catch_errors(delete_dns_record, secret=secret, fqdn=fqdn)
 
 
 def rst_to_string(file_name):

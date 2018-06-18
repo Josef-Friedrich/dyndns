@@ -162,3 +162,11 @@ Arguments for the query string
 * ``ipv4``: A IP address version 4.
 * ``ipv6``: A IP address version 6.
 * ``ttl``: Time to live. The default value is 300.
+
+Delete by path
+^^^^^^^^^^^^^^
+
+Hit this url to delete a DNS record corresponding to the ``fqdn``.
+Both ipv4 and ipv6 entries are deleted.
+
+``<your-domain>/delete-by-path/secret/fqdn``
