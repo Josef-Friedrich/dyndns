@@ -202,7 +202,7 @@ def index():
     if not config:
         out = read_restructured_text_file('configuration.rst') + '\n\n' + out
 
-    out = out + rst_about()
+    out = out + '\n\n' + rst_about()
     return restructured_text_to_html(out)
 
 
