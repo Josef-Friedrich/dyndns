@@ -1,20 +1,22 @@
----
 branches:
-    except:
-        - donttestme
-
+  except:
+  - donttestme
 language: python
-
 matrix:
-    include:
-        - python: 3.6
-          env: TOXENV=py36
-        - python: 3.6
-          env: TOXENV=docs
-        - python: 3.6
-          env: TOXENV=flake8
-
+  include:
+  - python: 3.6
+    env: TOXENV=py36
+  - python: 3.6
+    env: TOXENV=docs
+  - python: 3.6
+    env: TOXENV=flake8
 install:
-    - pip install tox
-
+- pip install tox
 script: tox
+deploy:
+  provider: pypi
+  user: JosefFriedrich
+  password:
+    secure: JLvS6oWOmCMwyrfRxNrlusdyuVjw9H7bt723kNCPEam9zqLmqiYP1AhEa8Qd7atIiM9KKAj9E4LfUKciI1ZBmdqpFOJuVacjhU9C/X1pz4R3hz0ZKGALoHzMUPcOeVSi4N2e5kopXFgDngKokj3u0vCOh9y0Gc2FaShX1hI0+ejiwKonfvfMX/I/AaL098VtFFGE0YHLMEJsmHvk62mqcyxRCHL02S0koSWJbwUltGUihtigW0k6ytVhuXPjD7xM7gZ5enjtPoBNWK6LGnp8vYGIGmLfBHepnfQccztUTXoz8/WyHi7W3aJr3rpoA/yMSD+sR72vsibqg8oITogonnYo89pshKobP+ji9ExIJ+Y/3bGESIPfnEWXgI6o6M463Ot3EP6bTAqAgfUv/Kc4Kxbal7gQDwAFZCsbrrkVgP41Qbl9yeruI8AW4KjDwCHIIS/XdWPWI1nHxtCi1NkzLfc7zfQGMxNrfeLXIzYu/cS/89jMNGkNRjgVfl4/+JUMFbZFOXzm+CIdRtsaVvnwaqvotuiCfGyBmTQ2l3wkQyssGiBqFAeV940lZGJbPaYsHI/9rTAxvNqv1E9OL5H2UOUSqfJLO+XRZNFxuDCFaBvJVlkaUhcJTS9oJvCjA8U42zfPAwmEpydHKFrkxleMJlr2ZjUflh9jQ4rj4g6RoJM=
+  on:
+    tags: true
