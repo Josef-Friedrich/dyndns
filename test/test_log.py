@@ -30,6 +30,19 @@ class TestMethodMsg(unittest.TestCase):
 
 class TestClassUpdateDB(unittest.TestCase):
 
+    def _setup_test_db(self):
+        db = UpdatesDB()
+        db.log_update('c.example.com', 'a', '1.2.3.4')
+        db.log_update('c.example.com', 'a', '2.2.3.4')
+        db.log_update('c.example.com', 'a', '3.2.3.4')
+        db.log_update('c.example.com', 'aaaa', '1::2')
+        db.log_update('c.example.com', 'aaaa', '1::3')
+        db.log_update('b.example.com', 'a', '1.2.3.4')
+        db.log_update('a.example.com', 'a', '1.2.3.4')
+        db.log_update('a.example.com', 'a', '1.2.3.3')
+        db.log_update('a.example.com', 'a', '1.2.3.2')
+        return db
+
     def setUp(self):
         self.db_file = os.path.join(os.getcwd(), 'jfddns.db')
         if os.path.exists(self.db_file):
@@ -77,13 +90,7 @@ class TestClassUpdateDB(unittest.TestCase):
         self.assertEqual(len(rows), 2)
 
     def test_method_get_fqdns(self):
-        db = UpdatesDB()
-        db.log_update('c.example.com', 'a', '1.2.3.4')
-        db.log_update('b.example.com', 'a', '1.2.3.4')
-        db.log_update('a.example.com', 'a', '1.2.3.4')
-        db.log_update('a.example.com', 'a', '1.2.3.3')
-        db.log_update('a.example.com', 'a', '1.2.3.2')
-
+        db = self._setup_test_db()
         self.assertEqual(db.get_fqdns(),
                          ['a.example.com', 'b.example.com', 'c.example.com'])
 
@@ -92,6 +99,11 @@ class TestClassUpdateDB(unittest.TestCase):
         self.assertFalse(db._is_fqdn_stored('example.com'))
         db.log_update('example.com', 'a', '1.2.3.2')
         self.assertTrue(db._is_fqdn_stored('example.com'))
+
+    def test_method_get_updates_by_fqdn(self):
+        db = self._setup_test_db()
+        result = db.get_updates_by_fqdn('a.example.com')
+        self.assertEqual(result[0][3], '1.2.3.4')
 
 
 if __name__ == '__main__':

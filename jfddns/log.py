@@ -48,6 +48,11 @@ class UpdatesDB(object):
         out.sort()
         return out
 
+    def get_updates_by_fqdn(self, fqdn):
+        self.cursor.execute('SELECT * FROM updates where fqdn = ?;',
+                            (fqdn,))
+        return self.cursor.fetchall()
+
     def _is_fqdn_stored(self, fqdn):
         self.cursor.execute(
             'SELECT fqdn FROM fqdns WHERE fqdn = ?;',

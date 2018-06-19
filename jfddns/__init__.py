@@ -9,7 +9,7 @@ from jfddns.exceptions import \
     NamesError, \
     ParameterError
 from jfddns.ipaddresses import IpAddresses
-from jfddns.log import msg
+from jfddns.log import msg, UpdatesDB
 from jfddns.names import Names
 import argparse
 import flask
@@ -209,6 +209,25 @@ def index():
 @app.route('/about')
 def about():
     return restructured_text_to_html(rst_about())
+
+
+@app.route('/statistics')
+def statistics():
+    db = UpdatesDB()
+
+    def format_date(date_string):
+        return re.sub(r'\..*', '', date_string)
+
+    out = []
+    for fqdn in db.get_fqdns():
+        out.append('<h2>{}</h2><table>'.format(fqdn))
+        for update in db.get_updates_by_fqdn(fqdn):
+            row = '<tr><td>{}</td><td>{}</td><td>{}</td></tr>'.format(
+                format_date(update[0]), update[2], update[3]
+            )
+            out.append(row)
+        out.append('</table>')
+    return '\n'.join(out)
 
 
 def get_argparser():
