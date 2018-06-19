@@ -1,6 +1,6 @@
 """Initialize the Flask app."""
 
-from docutils.core import publish_string
+import docutils.core
 from jfddns.config import load_config, validate_config
 from jfddns.exceptions import \
     ConfigurationError, \
@@ -9,7 +9,7 @@ from jfddns.exceptions import \
     NamesError, \
     ParameterError
 from jfddns.ipaddresses import IpAddresses
-from jfddns.log import msg
+from jfddns.log import msg, UpdatesDB
 from jfddns.names import Names
 import argparse
 import flask
@@ -24,6 +24,10 @@ __version__ = get_versions()['version']
 del get_versions
 
 app = flask.Flask(__name__)
+
+
+def restructured_text_to_html(restructured_text):
+    return docutils.core.publish_string(restructured_text, writer_name='html')
 
 
 def update_dns_record(secret=None, fqdn=None, zone_name=None, record_name=None,
@@ -166,10 +170,16 @@ def delete_by_path(secret, fqdn, ip_1=None, ip_2=None):
     return catch_errors(delete_dns_record, secret=secret, fqdn=fqdn)
 
 
-def rst_to_string(file_name):
+def read_restructured_text_file(file_name):
     path = os.path.join(os.path.dirname(__file__), file_name)
     rst = open(path, 'r')
     return rst.read()
+
+
+def rst_about():
+    return 'About\n-----\n\n' \
+           '`jfddns <https://pypi.org/project/jfddns>`_  (version: {})' \
+           .format(__version__)
 
 
 @app.route('/')
@@ -180,24 +190,44 @@ def index():
     except Exception:
         pass
 
-    rst = rst_to_string('usage.rst')
+    out = read_restructured_text_file('usage.rst')
 
     if config and 'jfddns_domain' in config:
-        rst = re.sub(r'``(<your-domain>.*)``', r'`\1 <\1>`_', rst)
-        rst = rst.replace(
+        out = re.sub(r'``(<your-domain>.*)``', r'`\1 <\1>`_', out)
+        out = out.replace(
             '<your-domain>',
             'http://{}'.format(config['jfddns_domain'])
         )
 
     if not config:
-        rst = rst_to_string('configuration.rst') + '\n\n' + rst
+        out = read_restructured_text_file('configuration.rst') + '\n\n' + out
 
-    return publish_string(rst, writer_name='html')
+    out = out + '\n\n' + rst_about()
+    return restructured_text_to_html(out)
 
 
 @app.route('/about')
 def about():
-    return 'jfddns (version: {})'.format(__version__)
+    return restructured_text_to_html(rst_about())
+
+
+@app.route('/statistics')
+def statistics():
+    db = UpdatesDB()
+
+    def format_date(date_string):
+        return re.sub(r'\..*', '', date_string)
+
+    out = []
+    for fqdn in db.get_fqdns():
+        out.append('<h2>{}</h2><table>'.format(fqdn))
+        for update in db.get_updates_by_fqdn(fqdn):
+            row = '<tr><td>{}</td><td>{}</td><td>{}</td></tr>'.format(
+                format_date(update[0]), update[2], update[3]
+            )
+            out.append(row)
+        out.append('</table>')
+    return '\n'.join(out)
 
 
 def get_argparser():
