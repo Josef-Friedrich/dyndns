@@ -1,6 +1,6 @@
 """Initialize the Flask app."""
 
-from docutils.core import publish_string as restructured_text_to_html
+import docutils.core
 from jfddns.config import load_config, validate_config
 from jfddns.exceptions import \
     ConfigurationError, \
@@ -24,6 +24,10 @@ __version__ = get_versions()['version']
 del get_versions
 
 app = flask.Flask(__name__)
+
+
+def restructured_text_to_html(restructured_text):
+    return docutils.core.publish_string(restructured_text, writer_name='html')
 
 
 def update_dns_record(secret=None, fqdn=None, zone_name=None, record_name=None,
@@ -166,7 +170,7 @@ def delete_by_path(secret, fqdn, ip_1=None, ip_2=None):
     return catch_errors(delete_dns_record, secret=secret, fqdn=fqdn)
 
 
-def rst_to_string(file_name):
+def read_restructured_text_file(file_name):
     path = os.path.join(os.path.dirname(__file__), file_name)
     rst = open(path, 'r')
     return rst.read()
@@ -186,26 +190,25 @@ def index():
     except Exception:
         pass
 
-    rst = rst_to_string('usage.rst')
+    out = read_restructured_text_file('usage.rst')
 
     if config and 'jfddns_domain' in config:
-        rst = re.sub(r'``(<your-domain>.*)``', r'`\1 <\1>`_', rst)
-        rst = rst.replace(
+        out = re.sub(r'``(<your-domain>.*)``', r'`\1 <\1>`_', out)
+        out = out.replace(
             '<your-domain>',
             'http://{}'.format(config['jfddns_domain'])
         )
 
     if not config:
-        rst = rst_to_string('configuration.rst') + '\n\n' + rst
+        out = read_restructured_text_file('configuration.rst') + '\n\n' + out
 
-    rst = rst + rst_about()
-
-    return restructured_text_to_html(rst, writer_name='html')
+    out = out + rst_about()
+    return restructured_text_to_html(out)
 
 
 @app.route('/about')
 def about():
-    return restructured_text_to_html(rst_about(), writer_name='html')
+    return restructured_text_to_html(rst_about())
 
 
 def get_argparser():
