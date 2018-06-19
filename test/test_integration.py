@@ -214,11 +214,16 @@ class TestStaticPages(unittest.TestCase):
 
     def test_index(self):
         response = self.app.get('/')
-        self.assertIn('Usage', response.data.decode('utf-8'))
+        data = response.data.decode('utf-8')
+        self.assertIn('Usage', data)
+        self.assertIn('About', data)
+        self.assertIn('https://pypi.org/project/jfddns', data)
 
     def test_about(self):
         response = self.app.get('/about')
-        self.assertIn('jfddns (version:', response.data.decode('utf-8'))
+        data = response.data.decode('utf-8')
+        self.assertIn('jfddns', data)
+        self.assertIn('https://pypi.org/project/jfddns', data)
 
 
 if __name__ == '__main__':

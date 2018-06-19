@@ -1,6 +1,6 @@
 """Initialize the Flask app."""
 
-from docutils.core import publish_string
+from docutils.core import publish_string as restructured_text_to_html
 from jfddns.config import load_config, validate_config
 from jfddns.exceptions import \
     ConfigurationError, \
@@ -172,6 +172,12 @@ def rst_to_string(file_name):
     return rst.read()
 
 
+def rst_about():
+    return 'About\n-----\n\n' \
+           '`jfddns <https://pypi.org/project/jfddns>`_  (version: {})' \
+           .format(__version__)
+
+
 @app.route('/')
 def index():
     config = False
@@ -192,12 +198,14 @@ def index():
     if not config:
         rst = rst_to_string('configuration.rst') + '\n\n' + rst
 
-    return publish_string(rst, writer_name='html')
+    rst = rst + rst_about()
+
+    return restructured_text_to_html(rst, writer_name='html')
 
 
 @app.route('/about')
 def about():
-    return 'jfddns (version: {})'.format(__version__)
+    return restructured_text_to_html(rst_about(), writer_name='html')
 
 
 def get_argparser():
