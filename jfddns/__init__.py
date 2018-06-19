@@ -213,6 +213,19 @@ def about():
 
 @app.route('/statistics')
 def statistics():
+    try:
+        config = validate_config(load_config())
+    except Exception:
+        pass
+
+    def has_record(fqdn, config):
+        names = Names(config['zones'], fqdn=fqdn)
+        update = jf_dns.DnsUpdate(
+            nameserver=config['nameserver'],
+            names=names,
+        )
+        return update._resolve('', 4)
+
     db = UpdatesDB()
 
     def format_date(date_string):
@@ -220,13 +233,14 @@ def statistics():
 
     out = []
     for fqdn in db.get_fqdns():
-        out.append('<h2>{}</h2><table>'.format(fqdn))
-        for update in db.get_updates_by_fqdn(fqdn):
-            row = '<tr><td>{}</td><td>{}</td><td>{}</td></tr>'.format(
-                format_date(update[0]), update[2], update[3]
-            )
-            out.append(row)
-        out.append('</table>')
+        if has_record(fqdn, config):
+            out.append('<h2>{}</h2><table>'.format(fqdn))
+            for update in db.get_updates_by_fqdn(fqdn):
+                row = '<tr><td>{}</td><td>{}</td><td>{}</td></tr>'.format(
+                    format_date(update[0]), update[2], update[3]
+                )
+                out.append(row)
+            out.append('</table>')
     return '\n'.join(out)
 
 
