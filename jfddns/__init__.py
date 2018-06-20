@@ -224,7 +224,7 @@ def statistics():
             nameserver=config['nameserver'],
             names=names,
         )
-        return update._resolve('', 4)
+        return update._resolve(4)
 
     db = UpdatesDB()
 

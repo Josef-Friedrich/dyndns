@@ -32,7 +32,7 @@ class TestClassDnsUpdate(unittest.TestCase):
         _names = copy.deepcopy(names)
         _names.zone_name = 'google.com.'
         dns = DnsUpdate('8.8.8.8', _names, ipaddresses)
-        ip = dns._resolve('www', 4)
+        ip = dns._resolve(4)
         ipaddress.ip_address(ip)
 
     @mock.patch('dns.resolver.Resolver')
@@ -40,7 +40,7 @@ class TestClassDnsUpdate(unittest.TestCase):
         resolver = Resolver.return_value
         resolver.query.return_value = ['1.2.3.4']
         dns = DnsUpdate('8.8.8.8', names, ipaddresses)
-        ip = dns._resolve('www', 4)
+        ip = dns._resolve(4)
         ipaddress.ip_address(ip)
         self.assertEqual(ip, '1.2.3.4')
 

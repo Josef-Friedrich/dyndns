@@ -54,7 +54,7 @@ class DnsUpdate(object):
         else:
             raise ValueError('“ip_version” must be 4 or 6')
 
-    def _resolve(self, record_name, ip_version=4):
+    def _resolve(self, ip_version=4):
         resolver = dns.resolver.Resolver()
         resolver.nameservers = [self.nameserver]
         try:
@@ -84,7 +84,7 @@ class DnsUpdate(object):
 
     def _set_record(self, new_ip, ip_version=4):
         out = {}
-        old_ip = self._resolve(self.names.record_name, ip_version)
+        old_ip = self._resolve(ip_version)
         out['ip_version'] = ip_version
         out['new_ip'] = new_ip
         out['old_ip'] = old_ip
@@ -101,7 +101,7 @@ class DnsUpdate(object):
             self._dns_update.add(self.names.fqdn, self.ttl, rdtype, new_ip)
             self._query_tcp(self._dns_update)
 
-            checked_ip = self._resolve(self.names.record_name, ip_version)
+            checked_ip = self._resolve(ip_version)
 
             if new_ip == checked_ip:
                 out['status'] = 'UPDATED'
