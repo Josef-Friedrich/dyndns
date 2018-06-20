@@ -35,5 +35,6 @@ setup(
     },
     package_data = {
         '': ['*.rst'],
+        '': ['templates/*.html'],
     },
 )

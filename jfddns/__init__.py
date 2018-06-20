@@ -241,7 +241,8 @@ def statistics():
                 )
                 out.append(row)
             out.append('</table>')
-    return '\n'.join(out)
+    return flask.render_template('base.html', title='Statistics',
+                                 content='\n'.join(out))
 
 
 def get_argparser():
