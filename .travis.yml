@@ -21,7 +21,7 @@ script: tox
 
 jobs:
     include:
-        - stage: deploy
+      - stage: deploy
             python: 3.6
             env: TOXENV=py36
             deploy:
