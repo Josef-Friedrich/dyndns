@@ -91,6 +91,11 @@ class TestClassZones(unittest.TestCase):
         self.assertEqual(zone.zone_name, 'example.org.')
         self.assertEqual(zone.tsig_key, 'tPyvZA==')
 
+    def test_method_get_zone_by_name_raises(self):
+        with self.assertRaises(NamesError) as cm:
+            zones.get_zone_by_name('lol.org')
+        self.assertEqual(str(cm.exception), 'Unkown zone "lol.org.".')
+
 
 class TestClassZonesMethodSplitNames(unittest.TestCase):
 

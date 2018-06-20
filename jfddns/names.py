@@ -90,7 +90,7 @@ class Zones(object):
         if zone_name in self.zones:
             return self.zones[validate_hostname(zone_name)]
         else:
-            raise NamesError('Unkown zone"{}'.format(zone_name))
+            raise NamesError('Unkown zone "{}".'.format(zone_name))
 
     def split_fqdn(self, fqdn):
         """Split hostname into record_name and zone_name
