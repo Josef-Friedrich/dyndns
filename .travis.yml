@@ -4,7 +4,7 @@ python: 3.6
 
 env:
   - TOXENV=py36
-  - TOXENV=doc
+  - TOXENV=docs
   - TOXENV=flake8
 
 install:
@@ -16,6 +16,7 @@ jobs:
     include:
         - stage: deploy
           script: echo "Deploying on PyPi ..."
+          env:
           deploy:
               provider: pypi
               user: JosefFriedrich
