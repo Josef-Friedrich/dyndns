@@ -97,7 +97,7 @@ class TestUpdateByPath(Integration):
         self.assertEqual(
             self.data,
             'UPDATED: fqdn: www.example.com. old_ip: 1.2.3.4 new_ip: 1.2.3.5\n'
-            ' | UPDATED: fqdn: www.example.com. old_ip: 1::2 new_ip: 1::3\n',
+            'UPDATED: fqdn: www.example.com. old_ip: 1::2 new_ip: 1::3\n',
         )
 
     def test_ipv6_ipv4_update(self):
@@ -109,7 +109,7 @@ class TestUpdateByPath(Integration):
         self.assertEqual(
             self.data,
             'UPDATED: fqdn: www.example.com. old_ip: 1.2.3.4 new_ip: 1.2.3.5\n'
-            ' | UPDATED: fqdn: www.example.com. old_ip: 1::2 new_ip: 1::3\n',
+            'UPDATED: fqdn: www.example.com. old_ip: 1::2 new_ip: 1::3\n',
         )
 
 
@@ -160,7 +160,7 @@ class TestUpdateByQuery(Integration):
         self.assertEqual(
             self.data,
             'UPDATED: fqdn: www.example.com. old_ip: 1.2.3.4 new_ip: 1.2.3.5\n'
-            ' | UPDATED: fqdn: www.example.com. old_ip: 1::2 new_ip: 1::3\n',
+            'UPDATED: fqdn: www.example.com. old_ip: 1::2 new_ip: 1::3\n',
         )
 
     def test_ip_1_ip_2_update(self):
@@ -169,7 +169,7 @@ class TestUpdateByQuery(Integration):
         self.assertEqual(
             self.data,
             'UPDATED: fqdn: www.example.com. old_ip: 1.2.3.4 new_ip: 1.2.3.5\n'
-            ' | UPDATED: fqdn: www.example.com. old_ip: 1::2 new_ip: 1::3\n',
+            'UPDATED: fqdn: www.example.com. old_ip: 1::2 new_ip: 1::3\n',
         )
 
     def test_invalid_ipv4(self):

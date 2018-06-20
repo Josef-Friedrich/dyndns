@@ -94,7 +94,7 @@ def update_dns_record(secret=None, fqdn=None, zone_name=None, record_name=None,
         )
         messages.append(msg(message, result['status']))
 
-    return ' | '.join(messages)
+    return ''.join(messages)
 
 
 def delete_dns_record(secret=None, fqdn=None, config=None):
