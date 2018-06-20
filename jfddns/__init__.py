@@ -234,13 +234,17 @@ def statistics():
     out = []
     for fqdn in db.get_fqdns():
         if has_record(fqdn, config):
-            out.append('<h2>{}</h2><table>'.format(fqdn))
-            for update in db.get_updates_by_fqdn(fqdn):
-                row = '<tr><td>{}</td><td>{}</td><td>{}</td></tr>'.format(
-                    format_date(update[0]), update[2], update[3]
-                )
-                out.append(row)
-            out.append('</table>')
+            rows = db.get_updates_by_fqdn(fqdn)
+            table = flask.render_template('fqdn-table.html', fqdn=fqdn,
+                                          rows=rows)
+            out.append(table)
+        # out.append('<h2>{}</h2><table>'.format(fqdn))
+        # for update in db.get_updates_by_fqdn(fqdn):
+        #     row = '<tr><td>{}</td><td>{}</td><td>{}</td></tr>'.format(
+        #         format_date(update[0]), update[2], update[3]
+        #     )
+        #     out.append(row)
+        # out.append('</table>')
     return flask.render_template('base.html', title='Statistics',
                                  content='\n'.join(out))
 

@@ -1,13 +1,17 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="utf-8">
-  <title>jfddns: {{ title }}</title>
-</head>
+  <head>
+    <meta charset="utf-8">
+    <title>jfddns: {{ title }}</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.7.1/css/bulma.min.css">
+  </head>
 
-<body>
-<h1>{{ title }}<h1/>
-
-{{ content }}
-</body>
+  <body>
+    <div class="container">
+      <h1 class="title">{{ title }}</h1>
+      {% autoescape false %}
+      {{ content }}
+      {% endautoescape %}
+    </div>
+  </body>
 </html>
