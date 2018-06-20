@@ -17,6 +17,7 @@ jobs:
         - stage: deploy
           script: echo "Deploying on PyPi ..."
           env:
+          install:
           deploy:
               provider: pypi
               user: JosefFriedrich
