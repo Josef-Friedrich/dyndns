@@ -218,12 +218,14 @@ class TestStaticPages(unittest.TestCase):
         self.assertIn('Usage', data)
         self.assertIn('About', data)
         self.assertIn('https://pypi.org/project/jfddns', data)
+        self.assertIn('<!-- jfddns base template -->', data)
 
     def test_about(self):
         response = self.app.get('/about')
         data = response.data.decode('utf-8')
-        self.assertIn('jfddns', data)
+        self.assertIn('About', data)
         self.assertIn('https://pypi.org/project/jfddns', data)
+        self.assertIn('<!-- jfddns base template -->', data)
 
 
 if __name__ == '__main__':

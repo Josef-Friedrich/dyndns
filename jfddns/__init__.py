@@ -32,7 +32,8 @@ def authenticate(secret, config):
 
 
 def restructured_text_to_html(restructured_text):
-    return docutils.core.publish_string(restructured_text, writer_name='html')
+    html = docutils.core.publish_parts(restructured_text, writer_name='html')
+    return html['html_body']
 
 
 def parameter_err(function, exception, *args, **kwargs):
@@ -175,8 +176,7 @@ def read_restructured_text_file(file_name):
 
 
 def rst_about():
-    return 'About\n-----\n\n' \
-           '`jfddns <https://pypi.org/project/jfddns>`_  (version: {})' \
+    return '`jfddns <https://pypi.org/project/jfddns>`_  (version: {})' \
            .format(__version__)
 
 
@@ -200,13 +200,17 @@ def index():
     if not config:
         out = read_restructured_text_file('configuration.rst') + '\n\n' + out
 
-    out = out + '\n\n' + rst_about()
-    return restructured_text_to_html(out)
+    content = restructured_text_to_html(out + '\n\nAbout\n-----\n\n' +
+                                        rst_about())
+    return flask.render_template('base.html', title='jfddns',
+                                 content=content)
 
 
 @app.route('/about')
 def about():
-    return restructured_text_to_html(rst_about())
+    about = rst_about()
+    return flask.render_template('base.html', title='About',
+                                 content=restructured_text_to_html(about))
 
 
 @app.route('/statistics')
