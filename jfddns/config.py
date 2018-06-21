@@ -107,3 +107,7 @@ def validate_config(config=None):
         raise ConfigurationError(str(error))
 
     return config
+
+
+def get_config():
+    return validate_config(load_config())

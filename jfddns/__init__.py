@@ -1,7 +1,7 @@
 """Initialize the Flask app."""
 
 import docutils.core
-from jfddns.config import load_config, validate_config
+from jfddns.config import get_config
 from jfddns.exceptions import \
     ConfigurationError, \
     DNSServerError, \
@@ -57,9 +57,8 @@ def update_dns_record(secret=None, fqdn=None, zone_name=None, record_name=None,
     """
 
     if not config:
-        config = load_config()
+        config = get_config()
 
-    config = validate_config(config)
     zones = config['zones']
 
     if str(secret) != str(config['secret']):
@@ -99,9 +98,7 @@ def update_dns_record(secret=None, fqdn=None, zone_name=None, record_name=None,
 
 def delete_dns_record(secret=None, fqdn=None, config=None):
     if not config:
-        config = load_config()
-
-    config = validate_config(config)
+        config = get_config()
     zones = config['zones']
 
     if str(secret) != str(config['secret']):
@@ -186,7 +183,7 @@ def rst_about():
 def index():
     config = False
     try:
-        config = validate_config(load_config())
+        config = get_config()
     except Exception:
         pass
 
@@ -214,7 +211,7 @@ def about():
 @app.route('/statistics')
 def statistics():
     try:
-        config = validate_config(load_config())
+        config = get_config()
     except Exception:
         pass
 
