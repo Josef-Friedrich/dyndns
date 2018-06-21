@@ -35,6 +35,13 @@ def restructured_text_to_html(restructured_text):
     return docutils.core.publish_string(restructured_text, writer_name='html')
 
 
+def parameter_err(function, exception, *args, **kwargs):
+    try:
+        return function(*args, **kwargs)
+    except exception as e:
+        raise ParameterError(str(e))
+
+
 def update_dns_record(secret=None, fqdn=None, zone_name=None, record_name=None,
                       ip_1=None, ip_2=None, ipv4=None, ipv6=None, ttl=None,
                       config=None):
@@ -68,17 +75,11 @@ def update_dns_record(secret=None, fqdn=None, zone_name=None, record_name=None,
 
     authenticate(secret, config)
 
-    try:
-        names = Names(zones, fqdn=fqdn, zone_name=zone_name,
-                      record_name=record_name)
-    except NamesError as e:
-        raise ParameterError(str(e))
-
-    try:
-        ipaddresses = IpAddresses(ip_1=ip_1, ip_2=ip_2, ipv4=ipv4, ipv6=ipv6,
-                                  request=flask.request)
-    except IpAddressesError as e:
-        raise ParameterError(str(e))
+    names = parameter_err(Names, NamesError, zones, fqdn=fqdn,
+                          zone_name=zone_name, record_name=record_name)
+    ipaddresses = parameter_err(IpAddresses, IpAddressesError, ip_1=ip_1,
+                                ip_2=ip_2, ipv4=ipv4, ipv6=ipv6,
+                                request=flask.request)
 
     update = jf_dns.DnsUpdate(
         nameserver=config['nameserver'],
@@ -107,10 +108,7 @@ def delete_dns_record(secret=None, fqdn=None, config=None):
 
     authenticate(secret, config)
 
-    try:
-        names = Names(zones, fqdn=fqdn)
-    except NamesError as e:
-        raise ParameterError(str(e))
+    names = parameter_err(Names, NamesError, zones, fqdn=fqdn)
 
     delete = jf_dns.DnsUpdate(
         nameserver=config['nameserver'],
