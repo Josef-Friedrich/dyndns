@@ -26,6 +26,11 @@ del get_versions
 app = flask.Flask(__name__)
 
 
+def authenticate(secret, config):
+    if str(secret) != str(config['secret']):
+        raise ParameterError('You specified a wrong secret key.')
+
+
 def restructured_text_to_html(restructured_text):
     return docutils.core.publish_string(restructured_text, writer_name='html')
 
@@ -61,8 +66,7 @@ def update_dns_record(secret=None, fqdn=None, zone_name=None, record_name=None,
 
     zones = config['zones']
 
-    if str(secret) != str(config['secret']):
-        raise ParameterError('You specified a wrong secret key.')
+    authenticate(secret, config)
 
     try:
         names = Names(zones, fqdn=fqdn, zone_name=zone_name,
@@ -101,8 +105,7 @@ def delete_dns_record(secret=None, fqdn=None, config=None):
         config = get_config()
     zones = config['zones']
 
-    if str(secret) != str(config['secret']):
-        raise ParameterError('You specified a wrong secret key.')
+    authenticate(secret, config)
 
     try:
         names = Names(zones, fqdn=fqdn)
