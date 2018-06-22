@@ -53,6 +53,23 @@ class UpdatesDB(object):
                             (fqdn,))
         return self.cursor.fetchall()
 
+    def get_updates_by_fqdn_dict(self, fqdn):
+        self.cursor.execute('SELECT * FROM updates where fqdn = ?;',
+                            (fqdn,))
+        rows = self.cursor.fetchall()
+        out = []
+
+        for row in rows:
+            row_dict = {
+                'update_time': row[0],
+                'fqdn': row[1],
+                'record_type': row[2],
+                'ip': row[3],
+            }
+            out.append(row_dict)
+
+        return out
+
     def _is_fqdn_stored(self, fqdn):
         self.cursor.execute(
             'SELECT fqdn FROM fqdns WHERE fqdn = ?;',

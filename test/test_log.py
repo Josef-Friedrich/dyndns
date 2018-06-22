@@ -105,6 +105,14 @@ class TestClassUpdateDB(unittest.TestCase):
         result = db.get_updates_by_fqdn('a.example.com')
         self.assertEqual(result[0][3], '1.2.3.4')
 
+    def test_method_get_updates_by_fqdn_dict(self):
+        db = self._setup_test_db()
+        result = db.get_updates_by_fqdn_dict('a.example.com')
+        self.assertTrue(result[0]['update_time'])
+        self.assertEqual(result[0]['fqdn'], 'a.example.com')
+        self.assertEqual(result[0]['record_type'], 'a')
+        self.assertEqual(result[0]['ip'], '1.2.3.4')
+
 
 if __name__ == '__main__':
     unittest.main()
