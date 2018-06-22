@@ -9,6 +9,22 @@ import sqlite3
 log_file = os.path.join(os.getcwd(), 'jfddns.log')
 
 
+class DateTime(object):
+
+    def __init__(self, date_time_string=None):
+        if not date_time_string:
+            self.datetime = datetime.datetime.now()
+        else:
+            self.datetime = datetime.strptime(date_time_string,
+                                              '%Y-%m-%d %H:%M:%S.%f')
+
+    def iso8601(self):
+        return self.datetime.isoformat(' ')
+
+    def iso8601_short(self):
+        return self.datetime.strftime('%Y-%m-%d %H:%M:%S')
+
+
 class UpdatesDB(object):
 
     def __init__(self):

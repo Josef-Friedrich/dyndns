@@ -1,5 +1,5 @@
 from jfddns import log
-from jfddns.log import UpdatesDB
+from jfddns.log import UpdatesDB, DateTime
 import os
 import unittest
 import datetime
@@ -26,6 +26,21 @@ class TestMethodMsg(unittest.TestCase):
         result = log_file.read()
         self.assertIn('UNCHANGED', result)
         self.assertIn('lol', result)
+
+
+class TestClassDateTime(unittest.TestCase):
+
+    def setUp(self):
+        self.dt = DateTime()
+
+    def test_init(self):
+        self.assertTrue(self.dt.datetime)
+
+    def test_iso8601(self):
+        self.assertTrue(self.dt.iso8601())
+
+    def test_iso8601_short(self):
+        self.assertTrue(self.dt.iso8601_short())
 
 
 class TestClassUpdateDB(unittest.TestCase):
