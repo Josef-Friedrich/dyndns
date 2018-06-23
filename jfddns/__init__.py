@@ -215,28 +215,14 @@ def about():
 
 @app.route('/statistics')
 def statistics():
-    try:
-        config = get_config()
-    except Exception:
-        pass
-
-    def has_record(fqdn, config):
-        names = Names(config['zones'], fqdn=fqdn)
-        update = jf_dns.DnsUpdate(
-            nameserver=config['nameserver'],
-            names=names,
-        )
-        return update._resolve(4)
-
     db = UpdatesDB()
 
     out = []
     for fqdn in db.get_fqdns():
-        if has_record(fqdn, config):
-            rows = db.get_updates_by_fqdn_dict(fqdn)
-            table = flask.render_template('fqdn-table.html', fqdn=fqdn,
-                                          rows=rows)
-            out.append(table)
+        rows = db.get_updates_by_fqdn_dict(fqdn)
+        table = flask.render_template('fqdn-table.html', fqdn=fqdn,
+                                      rows=rows)
+        out.append(table)
 
     return flask.render_template('base.html', title='Statistics',
                                  content='\n'.join(out))
@@ -245,18 +231,6 @@ def statistics():
 @app.route('/last-updates')
 def last_updates():
     db = UpdatesDB()
-    db.log_update(True, 'c.example.com', 'a', '1.2.3.4')
-    db.log_update(False, 'c.example.com', 'a', '1.2.3.4')
-    db.log_update(True, 'c.example.com', 'a', '2.2.3.4')
-    db.log_update(True, 'c.example.com', 'a', '3.2.3.4')
-    db.log_update(True, 'c.example.com', 'aaaa', '1::2')
-    db.log_update(True, 'c.example.com', 'aaaa', '1::3')
-    db.log_update(True, 'b.example.com', 'a', '1.2.3.4')
-    db.log_update(False, 'b.example.com', 'a', '1.2.3.4')
-    db.log_update(True, 'a.example.com', 'a', '1.2.3.4')
-    db.log_update(True, 'a.example.com', 'a', '1.2.3.3')
-    db.log_update(True, 'a.example.com', 'a', '1.2.3.2')
-    db.log_update(False, 'a.example.com', 'a', '1.2.3.2')
     results = []
     db.cursor.execute('SELECT * FROM updates ORDER BY update_time LIMIT 25;')
     rows = db.cursor.fetchall()

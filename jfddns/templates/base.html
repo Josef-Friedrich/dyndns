@@ -8,6 +8,32 @@
   </head>
 
   <body>
+
+<nav class="navbar" role="navigation" aria-label="dropdown navigation">
+  <div class="navbar-menu">
+    <div class="navbar-start">
+      <div class="navbar-item has-dropdown is-hoverable">
+        <a class="navbar-link">
+          Menu
+        </a>
+
+        <div class="navbar-dropdown">
+          <a class="navbar-item" href="/">Home</a>
+          <a class="navbar-item" href="/statistics">Updates by FQDN</a>
+          <a class="navbar-item" href="/last-updates">Last updates attempts</a>
+
+          <hr class="navbar-divider">
+
+          <a class="navbar-item" href="/about">About</a>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</nav>
+
+
+
     <div class="container">
       <h1 class="title">{{ title }}</h1>
       {% autoescape false %}
