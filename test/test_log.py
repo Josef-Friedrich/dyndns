@@ -48,14 +48,17 @@ class TestClassUpdateDB(unittest.TestCase):
     def _setup_test_db(self):
         db = UpdatesDB()
         db.log_update(True, 'c.example.com', 'a', '1.2.3.4')
+        db.log_update(False, 'c.example.com', 'a', '1.2.3.4')
         db.log_update(True, 'c.example.com', 'a', '2.2.3.4')
         db.log_update(True, 'c.example.com', 'a', '3.2.3.4')
         db.log_update(True, 'c.example.com', 'aaaa', '1::2')
         db.log_update(True, 'c.example.com', 'aaaa', '1::3')
         db.log_update(True, 'b.example.com', 'a', '1.2.3.4')
+        db.log_update(False, 'b.example.com', 'a', '1.2.3.4')
         db.log_update(True, 'a.example.com', 'a', '1.2.3.4')
         db.log_update(True, 'a.example.com', 'a', '1.2.3.3')
         db.log_update(True, 'a.example.com', 'a', '1.2.3.2')
+        db.log_update(False, 'a.example.com', 'a', '1.2.3.2')
         return db
 
     def setUp(self):
@@ -76,6 +79,7 @@ class TestClassUpdateDB(unittest.TestCase):
         row = rows[0]
         dt = DateTime(row[0])
         self.assertEqual(dt.datetime.year, datetime.datetime.now().year)
+        self.assertEqual(row[1], 1)
         self.assertEqual(row[2], 'www.example.com')
         self.assertEqual(row[3], 'a')
         self.assertEqual(row[4], '1.2.3.4')

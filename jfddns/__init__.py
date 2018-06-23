@@ -242,6 +242,33 @@ def statistics():
                                  content='\n'.join(out))
 
 
+@app.route('/last-updates')
+def last_updates():
+    db = UpdatesDB()
+    db.log_update(True, 'c.example.com', 'a', '1.2.3.4')
+    db.log_update(False, 'c.example.com', 'a', '1.2.3.4')
+    db.log_update(True, 'c.example.com', 'a', '2.2.3.4')
+    db.log_update(True, 'c.example.com', 'a', '3.2.3.4')
+    db.log_update(True, 'c.example.com', 'aaaa', '1::2')
+    db.log_update(True, 'c.example.com', 'aaaa', '1::3')
+    db.log_update(True, 'b.example.com', 'a', '1.2.3.4')
+    db.log_update(False, 'b.example.com', 'a', '1.2.3.4')
+    db.log_update(True, 'a.example.com', 'a', '1.2.3.4')
+    db.log_update(True, 'a.example.com', 'a', '1.2.3.3')
+    db.log_update(True, 'a.example.com', 'a', '1.2.3.2')
+    db.log_update(False, 'a.example.com', 'a', '1.2.3.2')
+    results = []
+    db.cursor.execute('SELECT * FROM updates ORDER BY update_time LIMIT 25;')
+    rows = db.cursor.fetchall()
+
+    for row in rows:
+        results.append(db.normalize_row(row))
+
+    content = flask.render_template('table-last-updates.html', rows=results)
+    return flask.render_template('base.html', title='Last updates',
+                                 content=content)
+
+
 def get_argparser():
     parser = argparse.ArgumentParser()
     parser.add_argument('-p', '--port', type=int, default=54321)

@@ -1,0 +1,20 @@
+<table class="table is-striped is-fullwidth">
+  <thead>
+    <tr>
+      <td>update time</td>
+      <td>fqdn</td>
+      <td>record type</td>
+      <td>ip</td>
+    </tr>
+  </thead>
+  <tbody>
+    {%- for row in rows %}
+    <tr{% if row.updated %} class="is-selected"{% endif %}>
+      <td>{{ row.update_time }}</td>
+      <td>{{ row.fqdn }}</td>
+      <td>{{ row.record_type }}</td>
+      <td>{{ row.ip }}</td>
+    </tr>
+    {%- endfor %}
+  </tbody>
+</table>

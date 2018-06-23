@@ -62,6 +62,16 @@ class UpdatesDB(object):
                             (fqdn,))
         return self.cursor.fetchall()
 
+    @staticmethod
+    def normalize_row(row):
+        return {
+            'update_time': DateTime(row[0]).iso8601_short(),
+            'updated': bool(row[1]),
+            'fqdn': row[2],
+            'record_type': row[3],
+            'ip': row[4],
+        }
+
     def get_updates_by_fqdn_dict(self, fqdn):
         self.cursor.execute('SELECT * FROM updates where fqdn = ?;',
                             (fqdn,))
