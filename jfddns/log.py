@@ -47,14 +47,6 @@ class UpdatesDB(object):
                 fqdn TEXT
         );""")
 
-    @staticmethod
-    def _now_to_iso8601():
-        return datetime.datetime.now().isoformat(' ')
-
-    @staticmethod
-    def _iso8601_to_datetime(iso8601):
-        return datetime.datetime.strptime(iso8601, "%Y-%m-%d %H:%M:%S.%f")
-
     def get_fqdns(self):
         self.cursor.execute('SELECT fqdn FROM fqdns;')
         fqdns = self.cursor.fetchall()
@@ -77,7 +69,7 @@ class UpdatesDB(object):
 
         for row in rows:
             row_dict = {
-                'update_time': row[0],
+                'update_time': DateTime(row[0]).iso8601_short(),
                 'fqdn': row[1],
                 'record_type': row[2],
                 'ip': row[3],
@@ -100,7 +92,7 @@ class UpdatesDB(object):
                 (fqdn,)
             )
 
-        update_time = self._now_to_iso8601()
+        update_time = DateTime().iso8601()
         self.cursor.execute(
             'INSERT INTO updates VALUES (?, ?, ?, ?);',
             (update_time, fqdn, record_type, ip),

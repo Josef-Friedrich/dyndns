@@ -67,14 +67,6 @@ class TestClassUpdateDB(unittest.TestCase):
         db = UpdatesDB()
         self.assertEqual(db.db_file, self.db_file)
 
-    def test_method_now_to_iso8601(self):
-        now = UpdatesDB._now_to_iso8601()
-        self.assertIn(str(datetime.datetime.now().year), now)
-
-    def test_method_iso8601_to_datetime(self):
-        date = UpdatesDB._iso8601_to_datetime('2008-09-03 20:56:35.450686')
-        self.assertEqual(date.year, 2008)
-
     def test_method_log_update(self):
         db = UpdatesDB()
         db.log_update('www.example.com', 'a', '1.2.3.4')
@@ -82,8 +74,8 @@ class TestClassUpdateDB(unittest.TestCase):
         db.cursor.execute('SELECT * FROM updates;')
         rows = db.cursor.fetchall()
         row = rows[0]
-        update_time = db._iso8601_to_datetime(row[0])
-        self.assertEqual(update_time.year, datetime.datetime.now().year)
+        dt = DateTime(row[0])
+        self.assertEqual(dt.datetime.year, datetime.datetime.now().year)
         self.assertEqual(row[1], 'www.example.com')
         self.assertEqual(row[2], 'a')
         self.assertEqual(row[3], '1.2.3.4')
