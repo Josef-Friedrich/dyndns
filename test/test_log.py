@@ -31,16 +31,16 @@ class TestMethodMsg(unittest.TestCase):
 class TestClassDateTime(unittest.TestCase):
 
     def setUp(self):
-        self.dt = DateTime()
+        self.dt = DateTime('2018-06-23 07:49:58.694510')
 
     def test_init(self):
-        self.assertTrue(self.dt.datetime)
+        self.assertEqual(str(self.dt.datetime), '2018-06-23 07:49:58.694510')
 
     def test_iso8601(self):
-        self.assertTrue(self.dt.iso8601())
+        self.assertEqual(self.dt.iso8601(), '2018-06-23 07:49:58.694510')
 
     def test_iso8601_short(self):
-        self.assertTrue(self.dt.iso8601_short())
+        self.assertEqual(self.dt.iso8601_short(), '2018-06-23 07:49:58')
 
 
 class TestClassUpdateDB(unittest.TestCase):

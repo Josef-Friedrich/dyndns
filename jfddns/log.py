@@ -15,8 +15,8 @@ class DateTime(object):
         if not date_time_string:
             self.datetime = datetime.datetime.now()
         else:
-            self.datetime = datetime.strptime(date_time_string,
-                                              '%Y-%m-%d %H:%M:%S.%f')
+            self.datetime = datetime.datetime.strptime(date_time_string,
+                                                       '%Y-%m-%d %H:%M:%S.%f')
 
     def iso8601(self):
         return self.datetime.isoformat(' ')
