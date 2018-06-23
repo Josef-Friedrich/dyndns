@@ -4,9 +4,9 @@
   <tbody>
     {% for row in rows %}
     <tr>
-      {% for cell in row %}
-      <td>{{ cell }}</td>
-      {% endfor %}
+      <td>{{ row.update_time }}</td>
+      <td>{{ row.record_type }}</td>
+      <td>{{ row.ip }}</td>
     </tr>
     {% endfor %}
   </tbody>
