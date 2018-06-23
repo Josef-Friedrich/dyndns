@@ -228,5 +228,19 @@ class TestStaticPages(unittest.TestCase):
         self.assertIn('<!-- jfddns base template -->', data)
 
 
+class TestStatistics(unittest.TestCase):
+
+    def setUp(self):
+        app.config['TESTING'] = True
+        self.app = app.test_client()
+        _helper.remove_updates_db()
+        _helper.get_updates_db()
+
+    def test_statistics(self):
+        response = self.app.get('/statistics')
+        data = response.data.decode('utf-8')
+        self.assertIn('a.example.com', data)
+
+
 if __name__ == '__main__':
     unittest.main()

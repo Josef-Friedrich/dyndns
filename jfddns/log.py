@@ -73,21 +73,14 @@ class UpdatesDB(object):
         }
 
     def get_updates_by_fqdn_dict(self, fqdn):
-        self.cursor.execute('SELECT * FROM updates where fqdn = ?;',
+        self.cursor.execute('SELECT * FROM updates WHERE updated = 1 AND'
+                            ' fqdn = ?;',
                             (fqdn,))
         rows = self.cursor.fetchall()
         out = []
-
         for row in rows:
-            row_dict = {
-                'update_time': DateTime(row[0]).iso8601_short(),
-                'updated': bool(row[1]),
-                'fqdn': row[2],
-                'record_type': row[3],
-                'ip': row[4],
-            }
+            row_dict = self.normalize_row(row)
             out.append(row_dict)
-
         return out
 
     def _is_fqdn_stored(self, fqdn):

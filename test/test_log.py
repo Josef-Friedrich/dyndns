@@ -1,8 +1,8 @@
 from jfddns import log
 from jfddns.log import UpdatesDB, DateTime
-import os
-import unittest
+import _helper
 import datetime
+import unittest
 
 
 def clean_log_file(log_file_path):
@@ -45,30 +45,12 @@ class TestClassDateTime(unittest.TestCase):
 
 class TestClassUpdateDB(unittest.TestCase):
 
-    def _setup_test_db(self):
-        db = UpdatesDB()
-        db.log_update(True, 'c.example.com', 'a', '1.2.3.4')
-        db.log_update(False, 'c.example.com', 'a', '1.2.3.4')
-        db.log_update(True, 'c.example.com', 'a', '2.2.3.4')
-        db.log_update(True, 'c.example.com', 'a', '3.2.3.4')
-        db.log_update(True, 'c.example.com', 'aaaa', '1::2')
-        db.log_update(True, 'c.example.com', 'aaaa', '1::3')
-        db.log_update(True, 'b.example.com', 'a', '1.2.3.4')
-        db.log_update(False, 'b.example.com', 'a', '1.2.3.4')
-        db.log_update(True, 'a.example.com', 'a', '1.2.3.4')
-        db.log_update(True, 'a.example.com', 'a', '1.2.3.3')
-        db.log_update(True, 'a.example.com', 'a', '1.2.3.2')
-        db.log_update(False, 'a.example.com', 'a', '1.2.3.2')
-        return db
-
     def setUp(self):
-        self.db_file = os.path.join(os.getcwd(), 'jfddns.db')
-        if os.path.exists(self.db_file):
-            os.remove(self.db_file)
+        _helper.remove_updates_db()
 
     def test_init(self):
         db = UpdatesDB()
-        self.assertEqual(db.db_file, self.db_file)
+        self.assertTrue(db.db_file)
 
     def test_method_log_update(self):
         db = UpdatesDB()
@@ -101,7 +83,7 @@ class TestClassUpdateDB(unittest.TestCase):
         self.assertEqual(len(rows), 2)
 
     def test_method_get_fqdns(self):
-        db = self._setup_test_db()
+        db = _helper.get_updates_db()
         self.assertEqual(db.get_fqdns(),
                          ['a.example.com', 'b.example.com', 'c.example.com'])
 
@@ -112,12 +94,12 @@ class TestClassUpdateDB(unittest.TestCase):
         self.assertTrue(db._is_fqdn_stored('example.com'))
 
     def test_method_get_updates_by_fqdn(self):
-        db = self._setup_test_db()
+        db = _helper.get_updates_db()
         result = db.get_updates_by_fqdn('a.example.com')
         self.assertEqual(result[0][4], '1.2.3.4')
 
     def test_method_get_updates_by_fqdn_dict(self):
-        db = self._setup_test_db()
+        db = _helper.get_updates_db()
         result = db.get_updates_by_fqdn_dict('a.example.com')
         self.assertTrue(result[0]['update_time'])
         self.assertEqual(result[0]['fqdn'], 'a.example.com')
