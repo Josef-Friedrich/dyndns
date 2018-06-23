@@ -37,6 +37,7 @@ class UpdatesDB(object):
         self.cursor.execute("""
             CREATE TABLE IF NOT EXISTS updates (
                 update_time TEXT,
+                updated INTEGER,
                 fqdn TEXT,
                 record_type TEXT,
                 ip TEXT
@@ -70,9 +71,10 @@ class UpdatesDB(object):
         for row in rows:
             row_dict = {
                 'update_time': DateTime(row[0]).iso8601_short(),
-                'fqdn': row[1],
-                'record_type': row[2],
-                'ip': row[3],
+                'updated': bool(row[1]),
+                'fqdn': row[2],
+                'record_type': row[3],
+                'ip': row[4],
             }
             out.append(row_dict)
 
@@ -85,17 +87,16 @@ class UpdatesDB(object):
         )
         return bool(self.cursor.fetchone())
 
-    def log_update(self, fqdn, record_type, ip):
+    def log_update(self, updated, fqdn, record_type, ip):
         if not self._is_fqdn_stored(fqdn):
             self.cursor.execute(
                 'INSERT INTO fqdns VALUES (?);',
                 (fqdn,)
             )
 
-        update_time = DateTime().iso8601()
         self.cursor.execute(
-            'INSERT INTO updates VALUES (?, ?, ?, ?);',
-            (update_time, fqdn, record_type, ip),
+            'INSERT INTO updates VALUES (?, ?, ?, ?, ?);',
+            (DateTime().iso8601(), int(updated), fqdn, record_type, ip),
         )
         self.connection.commit()
 

@@ -47,15 +47,15 @@ class TestClassUpdateDB(unittest.TestCase):
 
     def _setup_test_db(self):
         db = UpdatesDB()
-        db.log_update('c.example.com', 'a', '1.2.3.4')
-        db.log_update('c.example.com', 'a', '2.2.3.4')
-        db.log_update('c.example.com', 'a', '3.2.3.4')
-        db.log_update('c.example.com', 'aaaa', '1::2')
-        db.log_update('c.example.com', 'aaaa', '1::3')
-        db.log_update('b.example.com', 'a', '1.2.3.4')
-        db.log_update('a.example.com', 'a', '1.2.3.4')
-        db.log_update('a.example.com', 'a', '1.2.3.3')
-        db.log_update('a.example.com', 'a', '1.2.3.2')
+        db.log_update(True, 'c.example.com', 'a', '1.2.3.4')
+        db.log_update(True, 'c.example.com', 'a', '2.2.3.4')
+        db.log_update(True, 'c.example.com', 'a', '3.2.3.4')
+        db.log_update(True, 'c.example.com', 'aaaa', '1::2')
+        db.log_update(True, 'c.example.com', 'aaaa', '1::3')
+        db.log_update(True, 'b.example.com', 'a', '1.2.3.4')
+        db.log_update(True, 'a.example.com', 'a', '1.2.3.4')
+        db.log_update(True, 'a.example.com', 'a', '1.2.3.3')
+        db.log_update(True, 'a.example.com', 'a', '1.2.3.2')
         return db
 
     def setUp(self):
@@ -69,23 +69,23 @@ class TestClassUpdateDB(unittest.TestCase):
 
     def test_method_log_update(self):
         db = UpdatesDB()
-        db.log_update('www.example.com', 'a', '1.2.3.4')
+        db.log_update(True, 'www.example.com', 'a', '1.2.3.4')
 
         db.cursor.execute('SELECT * FROM updates;')
         rows = db.cursor.fetchall()
         row = rows[0]
         dt = DateTime(row[0])
         self.assertEqual(dt.datetime.year, datetime.datetime.now().year)
-        self.assertEqual(row[1], 'www.example.com')
-        self.assertEqual(row[2], 'a')
-        self.assertEqual(row[3], '1.2.3.4')
+        self.assertEqual(row[2], 'www.example.com')
+        self.assertEqual(row[3], 'a')
+        self.assertEqual(row[4], '1.2.3.4')
 
         db.cursor.execute('SELECT fqdn FROM fqdns;')
         row = db.cursor.fetchone()
         self.assertEqual(row[0], 'www.example.com')
 
         # Add second entry
-        db.log_update('www.example.com', 'a', '1.2.3.4')
+        db.log_update(True, 'www.example.com', 'a', '1.2.3.4')
 
         # fqdn gets entered only one time
         db.cursor.execute('SELECT fqdn FROM fqdns;')
@@ -104,13 +104,13 @@ class TestClassUpdateDB(unittest.TestCase):
     def test_method_is_fqdn_stored(self):
         db = UpdatesDB()
         self.assertFalse(db._is_fqdn_stored('example.com'))
-        db.log_update('example.com', 'a', '1.2.3.2')
+        db.log_update(True, 'example.com', 'a', '1.2.3.2')
         self.assertTrue(db._is_fqdn_stored('example.com'))
 
     def test_method_get_updates_by_fqdn(self):
         db = self._setup_test_db()
         result = db.get_updates_by_fqdn('a.example.com')
-        self.assertEqual(result[0][3], '1.2.3.4')
+        self.assertEqual(result[0][4], '1.2.3.4')
 
     def test_method_get_updates_by_fqdn_dict(self):
         db = self._setup_test_db()

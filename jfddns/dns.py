@@ -33,6 +33,7 @@ class DnsUpdate(object):
         self._dns_update = dns.update.Update(self.names.zone_name,
                                              keyring=self._tsigkeyring)
         self._updates_db = UpdatesDB()
+        self.log_update = self._updates_db.log_update
 
     @staticmethod
     def _build_tsigkeyring(zone_name, tsig_key):
@@ -84,14 +85,16 @@ class DnsUpdate(object):
 
     def _set_record(self, new_ip, ip_version=4):
         out = {}
-        old_ip = self._resolve(ip_version)
         out['ip_version'] = ip_version
         out['new_ip'] = new_ip
+        old_ip = self._resolve(ip_version)
         out['old_ip'] = old_ip
-        out['status'] = 'UNCHANGED'
+        rdtype = self._convert_record_type(ip_version)
 
-        if new_ip != old_ip:
-            rdtype = self._convert_record_type(ip_version)
+        if new_ip == old_ip:
+            out['status'] = 'UNCHANGED'
+            self.log_update(False, self.names.fqdn, rdtype, new_ip)
+        else:
             self._dns_update.delete(self.names.fqdn, rdtype)
             # If the client (a notebook) moves in a network without ipv6
             # support, we have to delete the 'aaaa' record.
@@ -105,7 +108,7 @@ class DnsUpdate(object):
 
             if new_ip == checked_ip:
                 out['status'] = 'UPDATED'
-                self._updates_db.log_update(self.names.fqdn, rdtype, new_ip)
+                self.log_update(True, self.names.fqdn, rdtype, new_ip)
             else:
                 out['status'] = 'DNS_SERVER_ERROR'
 
