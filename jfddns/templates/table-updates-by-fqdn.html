@@ -1,0 +1,20 @@
+<h2 class="subtitle">{{ fqdn }}</h2>
+
+<table class="table is-striped is-fullwidth">
+  <thead>
+    <tr>
+      <td>update time</td>
+      <td>record type</td>
+      <td>ip</td>
+    </tr>
+  </thead>
+  <tbody>
+    {%- for row in rows %}
+    <tr>
+      <td>{{ row.update_time }}</td>
+      <td>{{ row.record_type }}</td>
+      <td>{{ row.ip }}</td>
+    </tr>
+    {%- endfor %}
+  </tbody>
+<table>

@@ -26,6 +26,27 @@ del get_versions
 app = flask.Flask(__name__)
 
 
+def get_updates_db():
+    db = UpdatesDB()
+    arguments_list = (
+        (True, 'c.example.com', 'a', '1.2.3.4'),
+        (False, 'c.example.com', 'a', '1.2.3.4'),
+        (True, 'c.example.com', 'a', '2.2.3.4'),
+        (True, 'c.example.com', 'a', '3.2.3.4'),
+        (True, 'c.example.com', 'aaaa', '1::2'),
+        (True, 'c.example.com', 'aaaa', '1::3'),
+        (True, 'b.example.com', 'a', '1.2.3.4'),
+        (False, 'b.example.com', 'a', '1.2.3.4'),
+        (True, 'a.example.com', 'a', '1.2.3.4'),
+        (True, 'a.example.com', 'a', '1.2.3.3'),
+        (True, 'a.example.com', 'a', '1.2.3.2'),
+        (False, 'a.example.com', 'a', '1.2.3.2'),
+    )
+    for arguments in arguments_list:
+        db.log_update(*arguments)
+    return db
+
+
 def authenticate(secret, config):
     if str(secret) != str(config['secret']):
         raise ParameterError('You specified a wrong secret key.')
@@ -215,12 +236,13 @@ def about():
 
 @app.route('/statistics/updates-by-fqdn')
 def statistics():
+    get_updates_db()
     db = UpdatesDB()
 
     out = []
     for fqdn in db.get_fqdns():
         rows = db.get_updates_by_fqdn_dict(fqdn)
-        table = flask.render_template('fqdn-table.html', fqdn=fqdn,
+        table = flask.render_template('table-updates-by-fqdn.html', fqdn=fqdn,
                                       rows=rows)
         out.append(table)
 
@@ -230,6 +252,7 @@ def statistics():
 
 @app.route('/statistics/latest-submissions')
 def last_updates():
+    get_updates_db()
     db = UpdatesDB()
     results = []
     db.cursor.execute('SELECT * FROM updates ORDER BY update_time DESC '
@@ -239,7 +262,8 @@ def last_updates():
     for row in rows:
         results.append(db.normalize_row(row))
 
-    content = flask.render_template('table-last-updates.html', rows=results)
+    content = flask.render_template('table-latest-submissions.html',
+                                    rows=results)
     return flask.render_template('base.html', title='Latest submissions',
                                  content=content)
 
