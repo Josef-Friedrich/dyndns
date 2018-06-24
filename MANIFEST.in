@@ -2,3 +2,4 @@ include versioneer.py
 include jfddns/_version.py
 include jfddns/*.rst
 include jfddns/*.html
+include jfddns/*.css
