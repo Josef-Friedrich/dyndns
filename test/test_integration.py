@@ -241,6 +241,11 @@ class TestStatistics(unittest.TestCase):
         data = response.data.decode('utf-8')
         self.assertIn('a.example.com', data)
 
+    def test_last_updates(self):
+        response = self.app.get('/last-updates')
+        data = response.data.decode('utf-8')
+        self.assertIn('a.example.com', data)
+
 
 if __name__ == '__main__':
     unittest.main()

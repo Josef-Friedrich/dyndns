@@ -232,7 +232,8 @@ def statistics():
 def last_updates():
     db = UpdatesDB()
     results = []
-    db.cursor.execute('SELECT * FROM updates ORDER BY update_time LIMIT 25;')
+    db.cursor.execute('SELECT * FROM updates ORDER BY update_time DESC '
+                      'LIMIT 50;')
     rows = db.cursor.fetchall()
 
     for row in rows:
