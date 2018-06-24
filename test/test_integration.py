@@ -237,12 +237,12 @@ class TestStatistics(unittest.TestCase):
         _helper.get_updates_db()
 
     def test_statistics(self):
-        response = self.app.get('/statistics')
+        response = self.app.get('/statistics/updates-by-fqdn')
         data = response.data.decode('utf-8')
         self.assertIn('a.example.com', data)
 
     def test_last_updates(self):
-        response = self.app.get('/last-updates')
+        response = self.app.get('/statistics/latest-submissions')
         data = response.data.decode('utf-8')
         self.assertIn('a.example.com', data)
 

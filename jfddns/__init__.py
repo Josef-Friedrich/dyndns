@@ -213,7 +213,7 @@ def about():
                                  content=restructured_text_to_html(about))
 
 
-@app.route('/statistics')
+@app.route('/statistics/updates-by-fqdn')
 def statistics():
     db = UpdatesDB()
 
@@ -224,11 +224,11 @@ def statistics():
                                       rows=rows)
         out.append(table)
 
-    return flask.render_template('base.html', title='Statistics',
+    return flask.render_template('base.html', title='Updates by FQDN',
                                  content='\n'.join(out))
 
 
-@app.route('/last-updates')
+@app.route('/statistics/latest-submissions')
 def last_updates():
     db = UpdatesDB()
     results = []
@@ -240,7 +240,7 @@ def last_updates():
         results.append(db.normalize_row(row))
 
     content = flask.render_template('table-last-updates.html', rows=results)
-    return flask.render_template('base.html', title='Last updates',
+    return flask.render_template('base.html', title='Latest submissions',
                                  content=content)
 
 
