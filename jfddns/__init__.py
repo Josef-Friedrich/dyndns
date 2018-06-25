@@ -210,6 +210,18 @@ def template_base(title, content):
     )
 
 
+def template_configuration():
+    return restructured_text_to_html(
+        read_restructured_text_file('configuration.rst')
+    )
+
+
+def template_usage():
+    return restructured_text_to_html(
+        read_restructured_text_file('usage.rst')
+    )
+
+
 @app.route('/')
 def index():
     config = False
@@ -239,6 +251,16 @@ def index():
 def about():
     about = rst_about()
     return template_base('About', restructured_text_to_html(about))
+
+
+@app.route('/docs/configuration')
+def docs_configuration():
+    return template_base('Configuration', template_configuration())
+
+
+@app.route('/docs/usage')
+def docs_usage():
+    return template_base('Usage', template_usage())
 
 
 @app.route('/statistics/updates-by-fqdn')
