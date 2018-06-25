@@ -31,9 +31,23 @@ def authenticate(secret, config):
         raise ParameterError('You specified a wrong secret key.')
 
 
-def restructured_text_to_html(restructured_text):
-    html = docutils.core.publish_parts(restructured_text, writer_name='html')
-    return html['html_body']
+class RestructuredText(object):
+
+    @staticmethod
+    def read(file_name):
+        path = os.path.join(os.path.dirname(__file__), 'rst', file_name)
+        rst = open(path, 'r')
+        return rst.read()
+
+    @staticmethod
+    def to_html(restructured_text):
+        html = docutils.core.publish_parts(restructured_text,
+                                           writer_name='html')
+        return html['html_body']
+
+    @staticmethod
+    def read_to_html(file_name):
+        return RestructuredText.to_html(RestructuredText.read(file_name))
 
 
 def parameter_err(function, exception, *args, **kwargs):
@@ -169,12 +183,6 @@ def delete_by_path(secret, fqdn, ip_1=None, ip_2=None):
     return catch_errors(delete_dns_record, secret=secret, fqdn=fqdn)
 
 
-def read_restructured_text_file(file_name):
-    path = os.path.join(os.path.dirname(__file__), 'rst', file_name)
-    rst = open(path, 'r')
-    return rst.read()
-
-
 def rst_about():
     return '`jfddns <https://pypi.org/project/jfddns>`_  (version: {})' \
            .format(__version__)
@@ -190,15 +198,11 @@ def template_base(title, content):
 
 
 def template_configuration():
-    return restructured_text_to_html(
-        read_restructured_text_file('configuration.rst')
-    )
+    return RestructuredText.read_to_html('configuration.rst')
 
 
 def template_usage():
-    return restructured_text_to_html(
-        read_restructured_text_file('usage.rst')
-    )
+    return RestructuredText.read_to_html('usage.rst')
 
 
 @app.route('/')
@@ -209,7 +213,7 @@ def index():
     except Exception:
         pass
 
-    out = read_restructured_text_file('usage.rst')
+    out = RestructuredText.read('usage.rst')
 
     if config and 'jfddns_domain' in config:
         out = re.sub(r'``(<your-domain>.*)``', r'`\1 <\1>`_', out)
@@ -219,17 +223,17 @@ def index():
         )
 
     if not config:
-        out = read_restructured_text_file('configuration.rst') + '\n\n' + out
+        out = RestructuredText.read('configuration.rst') + '\n\n' + out
 
-    content = restructured_text_to_html(out + '\n\nAbout\n-----\n\n' +
-                                        rst_about())
+    content = RestructuredText.to_html(out + '\n\nAbout\n-----\n\n' +
+                                       rst_about())
     return template_base('jfddns', content)
 
 
 @app.route('/about')
 def about():
     about = rst_about()
-    return template_base('About', restructured_text_to_html(about))
+    return template_base('About', RestructuredText.to_html(about))
 
 
 @app.route('/docs/configuration')
