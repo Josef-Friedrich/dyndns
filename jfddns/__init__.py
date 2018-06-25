@@ -46,8 +46,15 @@ class RestructuredText(object):
         return html['html_body']
 
     @staticmethod
-    def read_to_html(file_name):
-        return RestructuredText.to_html(RestructuredText.read(file_name))
+    def remove_heading(restructured_text):
+        return re.sub('^.*\n.*\n.*\n', '', restructured_text)
+
+    @staticmethod
+    def read_to_html(file_name, remove_heading=False):
+        rst = RestructuredText.read(file_name)
+        if remove_heading:
+            rst = RestructuredText.remove_heading(rst)
+        return RestructuredText.to_html(rst)
 
 
 def parameter_err(function, exception, *args, **kwargs):
@@ -197,12 +204,8 @@ def template_base(title, content):
     )
 
 
-def template_configuration():
-    return RestructuredText.read_to_html('configuration.rst')
-
-
-def template_usage():
-    return RestructuredText.read_to_html('usage.rst')
+def template_rst_file(file_name):
+    return RestructuredText.read_to_html(file_name, remove_heading=True)
 
 
 @app.route('/')
@@ -236,14 +239,21 @@ def about():
     return template_base('About', RestructuredText.to_html(about))
 
 
+@app.route('/docs/installation')
+def docs_installation():
+    return template_base('Installation',
+                         template_rst_file('installation.rst'))
+
+
 @app.route('/docs/configuration')
 def docs_configuration():
-    return template_base('Configuration', template_configuration())
+    return template_base('Configuration',
+                         template_rst_file('configuration.rst'))
 
 
 @app.route('/docs/usage')
 def docs_usage():
-    return template_base('Usage', template_usage())
+    return template_base('Usage', template_rst_file('usage.rst'))
 
 
 @app.route('/statistics/updates-by-fqdn')
