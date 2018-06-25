@@ -26,27 +26,6 @@ del get_versions
 app = flask.Flask(__name__)
 
 
-def get_updates_db():
-    db = UpdatesDB()
-    arguments_list = (
-        (True, 'c.example.com', 'a', '1.2.3.4'),
-        (False, 'c.example.com', 'a', '1.2.3.4'),
-        (True, 'c.example.com', 'a', '2.2.3.4'),
-        (True, 'c.example.com', 'a', '3.2.3.4'),
-        (True, 'c.example.com', 'aaaa', '1::2'),
-        (True, 'c.example.com', 'aaaa', '1::3'),
-        (True, 'b.example.com', 'a', '1.2.3.4'),
-        (False, 'b.example.com', 'a', '1.2.3.4'),
-        (True, 'a.example.com', 'a', '1.2.3.4'),
-        (True, 'a.example.com', 'a', '1.2.3.3'),
-        (True, 'a.example.com', 'a', '1.2.3.2'),
-        (False, 'a.example.com', 'a', '1.2.3.2'),
-    )
-    for arguments in arguments_list:
-        db.log_update(*arguments)
-    return db
-
-
 def authenticate(secret, config):
     if str(secret) != str(config['secret']):
         raise ParameterError('You specified a wrong secret key.')
@@ -265,7 +244,6 @@ def docs_usage():
 
 @app.route('/statistics/updates-by-fqdn')
 def statistics_updates_by_fqdn():
-    get_updates_db()
     db = UpdatesDB()
 
     out = []
@@ -280,7 +258,6 @@ def statistics_updates_by_fqdn():
 
 @app.route('/statistics/latest-submissions')
 def statistics_latest_submissions():
-    get_updates_db()
     db = UpdatesDB()
     results = []
     db.cursor.execute('SELECT * FROM updates ORDER BY update_time DESC '
