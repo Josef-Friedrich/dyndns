@@ -201,6 +201,10 @@ def rst_about():
            .format(__version__)
 
 
+def template_base(title, content):
+    return flask.render_template('base.html', title=title, content=content)
+
+
 @app.route('/')
 def index():
     config = False
@@ -223,15 +227,13 @@ def index():
 
     content = restructured_text_to_html(out + '\n\nAbout\n-----\n\n' +
                                         rst_about())
-    return flask.render_template('base.html', title='jfddns',
-                                 content=content)
+    return template_base('jfddns', content)
 
 
 @app.route('/about')
 def about():
     about = rst_about()
-    return flask.render_template('base.html', title='About',
-                                 content=restructured_text_to_html(about))
+    return template_base('About', restructured_text_to_html(about))
 
 
 @app.route('/statistics/updates-by-fqdn')
@@ -246,8 +248,7 @@ def statistics():
                                       rows=rows)
         out.append(table)
 
-    return flask.render_template('base.html', title='Updates by FQDN',
-                                 content='\n'.join(out))
+    return template_base('Updates by FQDN', '\n'.join(out))
 
 
 @app.route('/statistics/latest-submissions')
@@ -264,8 +265,7 @@ def last_updates():
 
     content = flask.render_template('table-latest-submissions.html',
                                     rows=results)
-    return flask.render_template('base.html', title='Latest submissions',
-                                 content=content)
+    return template_base('Latest submissions', content)
 
 
 def get_argparser():
