@@ -191,7 +191,7 @@ def delete_by_path(secret, fqdn, ip_1=None, ip_2=None):
 
 
 def read_restructured_text_file(file_name):
-    path = os.path.join(os.path.dirname(__file__), file_name)
+    path = os.path.join(os.path.dirname(__file__), 'rst', file_name)
     rst = open(path, 'r')
     return rst.read()
 

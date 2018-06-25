@@ -18,8 +18,8 @@ def main():
     readme = open_file(['README.rst'], 'a', clean=True)
 
     header = open_file(['README_header.rst'], 'r')
-    configuration = open_file(['jfddns', 'configuration.rst'], 'r')
-    usage = open_file(['jfddns', 'usage.rst'], 'r')
+    configuration = open_file(['jfddns', 'rst', 'configuration.rst'], 'r')
+    usage = open_file(['jfddns', 'rst', 'usage.rst'], 'r')
 
     for line in header.readlines():
         readme.write(str(line))
