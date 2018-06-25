@@ -237,7 +237,7 @@ def about():
 
 
 @app.route('/statistics/updates-by-fqdn')
-def statistics():
+def statistics_updates_by_fqdn():
     get_updates_db()
     db = UpdatesDB()
 
@@ -252,7 +252,7 @@ def statistics():
 
 
 @app.route('/statistics/latest-submissions')
-def last_updates():
+def statistics_latest_submissions():
     get_updates_db()
     db = UpdatesDB()
     results = []
