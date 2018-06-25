@@ -202,7 +202,12 @@ def rst_about():
 
 
 def template_base(title, content):
-    return flask.render_template('base.html', title=title, content=content)
+    return flask.render_template(
+        'base.html',
+        title=title,
+        content=content,
+        version=__version__,
+    )
 
 
 @app.route('/')

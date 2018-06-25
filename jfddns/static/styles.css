@@ -3,3 +3,11 @@
 table {
   table-layout: fixed;
 }
+
+code, tt {
+  background-color: #f9f9f9;
+  border: 1px solid #d3d3d3;
+  padding: 0 2px 1px;
+  font-size: 85%;
+  color: #6c6c6c;
+}
