@@ -57,11 +57,6 @@ class UpdatesDB(object):
         out.sort()
         return out
 
-    def get_updates_by_fqdn(self, fqdn):
-        self.cursor.execute('SELECT * FROM updates where fqdn = ?;',
-                            (fqdn,))
-        return self.cursor.fetchall()
-
     @staticmethod
     def normalize_row(row):
         return {
@@ -72,7 +67,7 @@ class UpdatesDB(object):
             'ip': row[4],
         }
 
-    def get_updates_by_fqdn_dict(self, fqdn):
+    def get_updates_by_fqdn(self, fqdn):
         self.cursor.execute('SELECT * FROM updates WHERE updated = 1 AND'
                             ' fqdn = ?;',
                             (fqdn,))

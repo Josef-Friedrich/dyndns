@@ -243,7 +243,7 @@ def statistics_updates_by_fqdn():
 
     out = []
     for fqdn in db.get_fqdns():
-        rows = db.get_updates_by_fqdn_dict(fqdn)
+        rows = db.get_updates_by_fqdn(fqdn)
         table = flask.render_template('table-updates-by-fqdn.html', fqdn=fqdn,
                                       rows=rows)
         out.append(table)
