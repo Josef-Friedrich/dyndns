@@ -3,6 +3,7 @@ from unittest import mock
 import _helper
 import os
 import unittest
+from bs4 import BeautifulSoup
 
 
 class Integration(unittest.TestCase):
@@ -212,6 +213,11 @@ class TestStaticPages(unittest.TestCase):
         app.config['TESTING'] = True
         self.app = app.test_client()
 
+    def get_soup(self, path):
+        response = self.app.get(path)
+        data = response.data.decode('utf-8')
+        return BeautifulSoup(data, 'html.parser')
+
     def test_index(self):
         response = self.app.get('/')
         data = response.data.decode('utf-8')
@@ -226,6 +232,14 @@ class TestStaticPages(unittest.TestCase):
         self.assertIn('About', data)
         self.assertIn('https://pypi.org/project/jfddns', data)
         self.assertIn('<!-- jfddns base template -->', data)
+
+    def test_docs_configuration(self):
+        soup = self.get_soup('/docs/configuration')
+        self.assertEqual(soup.title.string, 'jfddns: Configuration')
+
+    def test_docs_usage(self):
+        soup = self.get_soup('/docs/usage')
+        self.assertEqual(soup.title.string, 'jfddns: Usage')
 
 
 class TestStatistics(unittest.TestCase):

@@ -23,6 +23,9 @@ setup(
         'flask',
         'PyYAML',
     ],
+    tests_require=[
+        'beautifulsoup4',
+    ],
     classifiers=[
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: MIT License",
