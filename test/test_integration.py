@@ -1,4 +1,4 @@
-from jfddns import app
+from jfddns.webapp import app
 from unittest import mock
 import _helper
 import os
@@ -34,21 +34,21 @@ class TestMethodUpdateByPath(unittest.TestCase):
         app.config['TESTING'] = True
         self.app = app.test_client()
 
-    @mock.patch('jfddns.update_dns_record')
+    @mock.patch('jfddns.webapp.update_dns_record')
     def test_call_secret_fqdn(self, update):
         update.return_value = 'ok'
         self.app.get('/update-by-path/secret/fqdn')
         update.assert_called_with(secret='secret', fqdn='fqdn', ip_1=None,
                                   ip_2=None)
 
-    @mock.patch('jfddns.update_dns_record')
+    @mock.patch('jfddns.webapp.update_dns_record')
     def test_call_secret_fqdn_ip_1(self, update):
         update.return_value = 'ok'
         self.app.get('/update-by-path/secret/fqdn/ip_1')
         update.assert_called_with(secret='secret', fqdn='fqdn', ip_1='ip_1',
                                   ip_2=None)
 
-    @mock.patch('jfddns.update_dns_record')
+    @mock.patch('jfddns.webapp.update_dns_record')
     def test_call_secret_fqdn_ip1_ip2(self, update):
         update.return_value = 'ok'
         self.app.get('/update-by-path/secret/fqdn/ip_1/ip_2')

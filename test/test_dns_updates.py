@@ -1,4 +1,4 @@
-from jfddns import update_dns_record
+from jfddns.dns_updates import update_dns_record
 from jfddns.exceptions import ParameterError
 import os
 import unittest
