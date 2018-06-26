@@ -5,16 +5,15 @@ from jfddns.dns_updates import \
     catch_errors, \
     delete_dns_record, \
     update_dns_record
-from jfddns.log import msg, UpdatesDB
-import flask
-import inspect
-import re
 from jfddns.html_template import \
     RestructuredText, \
     rst_about, \
     template_base, \
     template_rst_file
-
+from jfddns.log import msg, UpdatesDB
+import flask
+import inspect
+import re
 
 app = flask.Flask(__name__)
 

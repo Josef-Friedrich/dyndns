@@ -1,4 +1,4 @@
-"""Bundles the logging functionality."""
+"""Bundle the logging functionality."""
 
 import datetime
 import logging

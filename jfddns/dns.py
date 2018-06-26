@@ -1,4 +1,4 @@
-"""Query the DSN server using the package“dnspython”."""
+"""Query the DSN server using the package “dnspython”."""
 
 from jfddns.exceptions import DNSServerError
 from jfddns.log import UpdatesDB
