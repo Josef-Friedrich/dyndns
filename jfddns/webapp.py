@@ -54,27 +54,35 @@ def delete_by_path(secret, fqdn, ip_1=None, ip_2=None):
 
 
 @app.route('/')
-def index():
+def home():
     config = False
     try:
         config = get_config()
     except Exception:
         pass
 
-    out = RestructuredText.read('usage.rst')
+    usage = RestructuredText.read('usage.rst')
 
     if config and 'jfddns_domain' in config:
-        out = re.sub(r'``(<your-domain>.*)``', r'`\1 <\1>`_', out)
-        out = out.replace(
+        usage = re.sub(r'``(<your-domain>.*)``', r'`\1 <\1>`_', usage)
+        usage = usage.replace(
             '<your-domain>',
             'http://{}'.format(config['jfddns_domain'])
         )
+    usage = RestructuredText.to_html(usage)
 
     if not config:
-        out = RestructuredText.read('configuration.rst') + '\n\n' + out
+        configuration = RestructuredText.read_to_html('configuration.rst')
+    else:
+        configuration = ''
 
-    content = RestructuredText.to_html(out + '\n\nAbout\n-----\n\n' +
-                                       rst_about())
+    about = RestructuredText.to_html('\n\nAbout\n-----\n\n' + rst_about())
+    content = flask.render_template(
+        'home.html',
+        usage=usage,
+        configuration=configuration,
+        about=about,
+    )
     return template_base('jfddns', content)
 
 
