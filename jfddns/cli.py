@@ -2,15 +2,24 @@
 
 import argparse
 from jfddns.webapp import app
+from jfddns._version import get_versions
 
 
 def get_argparser():
     parser = argparse.ArgumentParser()
+
     parser.add_argument(
         '-p', '--port',
         type=int,
         default=54321,
     )
+
+    parser.add_argument(
+        '-v', '--version',
+        action='version',
+        version=get_versions()['version'],
+    )
+
     parser.add_argument(
         '-c', '--config-file',
     )
