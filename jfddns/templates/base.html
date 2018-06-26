@@ -51,9 +51,8 @@
 
       <main class="content">
         <h1 class="title">{{ title }}</h1>
-        {% autoescape false %}
-        {{ content }}
-        {% endautoescape %}
+        
+        {{ content | safe }}
       </main>
 
       <footer class="footer">

@@ -233,6 +233,13 @@ class TestStaticPages(unittest.TestCase):
         self.assertIn('https://pypi.org/project/jfddns', data)
         self.assertIn('<!-- jfddns base template -->', data)
 
+    def test_docs_installation(self):
+        soup = self.get_soup('/docs/installation')
+        self.assertEqual(soup.title.string, 'jfddns: Installation')
+        response = self.app.get('/docs/installation')
+        data = response.data.decode('utf-8')
+        self.assertIn('<h1 class="title">Installation</h1>', data)
+
     def test_docs_configuration(self):
         soup = self.get_soup('/docs/configuration')
         self.assertEqual(soup.title.string, 'jfddns: Configuration')
