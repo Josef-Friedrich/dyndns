@@ -19,7 +19,7 @@ The working directory of our flask web API is in the directory
 .. code-block:: ini
 
     [uwsgi]
-    module = jfddns.uwsgi:app
+    module = jfddns.webapp:app
 
     master = true
     processes = 5
