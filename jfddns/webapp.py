@@ -8,11 +8,11 @@ from jfddns.dns_updates import \
 from jfddns.html_template import \
     RestructuredText, \
     rst_about, \
-    template_base
+    template_base, \
+    template_usage
 from jfddns.log import msg, UpdatesDB
 import flask
 import inspect
-import re
 
 app = flask.Flask(__name__)
 
@@ -60,16 +60,6 @@ def home():
     except Exception:
         pass
 
-    usage = RestructuredText.read('usage.rst')
-
-    if config and 'jfddns_domain' in config:
-        usage = re.sub(r'``(<your-domain>.*)``', r'`\1 <\1>`_', usage)
-        usage = usage.replace(
-            '<your-domain>',
-            'http://{}'.format(config['jfddns_domain'])
-        )
-    usage = RestructuredText.to_html(usage)
-
     if not config:
         configuration = RestructuredText.read_to_html('configuration.rst')
     else:
@@ -78,7 +68,7 @@ def home():
     about = RestructuredText.to_html('\n\nAbout\n-----\n\n' + rst_about())
     content = flask.render_template(
         'home.html',
-        usage=usage,
+        usage=template_usage(),
         configuration=configuration,
         about=about,
     )
@@ -110,10 +100,7 @@ def docs_configuration():
 
 @app.route('/docs/usage')
 def docs_usage():
-    return template_base(
-        'Usage',
-        RestructuredText.read_to_html('usage.rst', remove_heading=True),
-    )
+    return template_base('Usage', template_usage())
 
 
 @app.route('/statistics/updates-by-fqdn')

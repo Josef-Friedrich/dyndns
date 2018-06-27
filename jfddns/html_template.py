@@ -1,6 +1,7 @@
 """A collection of HTML template functions."""
 
 from jfddns._version import get_versions
+from jfddns.config import get_config
 import docutils.core
 import flask
 import os
@@ -38,6 +39,24 @@ class RestructuredText(object):
 def rst_about():
     return '`jfddns <https://pypi.org/project/jfddns>`_  (version: {})' \
            .format(version)
+
+
+def template_usage():
+    config = False
+    try:
+        config = get_config()
+    except Exception:
+        pass
+
+    usage = RestructuredText.read('usage.rst')
+
+    if config and 'jfddns_domain' in config:
+        usage = re.sub(r'``(<your-domain>.*)``', r'`\1 <\1>`_', usage)
+        usage = usage.replace(
+            '<your-domain>',
+            'http://{}'.format(config['jfddns_domain'])
+        )
+    return RestructuredText.to_html(usage)
 
 
 def template_base(title, content):
