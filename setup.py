@@ -22,6 +22,7 @@ setup(
         'docutils',
         'flask',
         'PyYAML',
+        'Pygments',
     ],
     tests_require=[
         'beautifulsoup4',
