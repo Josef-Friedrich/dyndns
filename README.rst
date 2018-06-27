@@ -4,11 +4,12 @@
 .. image:: https://travis-ci.org/Josef-Friedrich/jfddns.svg?branch=master
     :target: https://travis-ci.org/Josef-Friedrich/jfddns
 
-jfddns
-======
+About
+-----
 
-A simple dynamic DNS update HTTP based API using python and the flask
-web framework.
+`jfddns <https://pypi.org/project/jfddns>`_  is a HTTP based API to
+dynamically update DNS records (DynDNS). It’s uses Python and the
+Flask web framework to accomplish this task.
 
 Installation
 ------------
@@ -170,3 +171,4 @@ Hit this url to delete a DNS record corresponding to the ``fqdn``.
 Both ipv4 and ipv6 entries are deleted.
 
 ``<your-domain>/delete-by-path/secret/fqdn``
+

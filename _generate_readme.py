@@ -27,21 +27,14 @@ def main():
 
     for line in header.readlines():
         readme.write(str(line))
-
     readme.write('\n')
 
-    for line in installation.readlines():
-        readme.write(str(line))
-
-    readme.write('\n')
-
-    for line in configuration.readlines():
-        readme.write(str(line))
-
-    readme.write('\n')
-
-    for line in usage.readlines():
-        readme.write(str(line))
+    for rst_file in ['about.rst', 'installation.rst', 'configuration.rst',
+                     'usage.rst']:
+        rst = read_rst_file(rst_file)
+        for line in rst.readlines():
+            readme.write(str(line))
+        readme.write('\n')
 
 
 if __name__ == '__main__':

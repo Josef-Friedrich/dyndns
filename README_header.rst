@@ -3,9 +3,3 @@
 
 .. image:: https://travis-ci.org/Josef-Friedrich/jfddns.svg?branch=master
     :target: https://travis-ci.org/Josef-Friedrich/jfddns
-
-jfddns
-======
-
-A simple dynamic DNS update HTTP based API using python and the flask
-web framework.

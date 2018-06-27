@@ -36,11 +36,6 @@ class RestructuredText(object):
         return RestructuredText.to_html(rst)
 
 
-def rst_about():
-    return '`jfddns <https://pypi.org/project/jfddns>`_  (version: {})' \
-           .format(version)
-
-
 def template_usage():
     config = False
     try:

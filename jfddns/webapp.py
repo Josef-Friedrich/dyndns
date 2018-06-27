@@ -7,7 +7,6 @@ from jfddns.dns_updates import \
     update_dns_record
 from jfddns.html_template import \
     RestructuredText, \
-    rst_about, \
     template_base, \
     template_usage
 from jfddns.log import msg, UpdatesDB
@@ -65,20 +64,21 @@ def home():
     else:
         configuration = ''
 
-    about = RestructuredText.to_html('\n\nAbout\n-----\n\n' + rst_about())
     content = flask.render_template(
         'home.html',
         usage=template_usage(),
         configuration=configuration,
-        about=about,
+        about=RestructuredText.read_to_html('about.rst'),
     )
     return template_base('jfddns', content)
 
 
 @app.route('/about')
 def about():
-    about = rst_about()
-    return template_base('About', RestructuredText.to_html(about))
+    return template_base(
+        'About',
+        RestructuredText.read_to_html('about.rst', remove_heading=True),
+    )
 
 
 @app.route('/docs/installation')
