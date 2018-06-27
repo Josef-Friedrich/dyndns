@@ -8,8 +8,7 @@ from jfddns.dns_updates import \
 from jfddns.html_template import \
     RestructuredText, \
     rst_about, \
-    template_base, \
-    template_rst_file
+    template_base
 from jfddns.log import msg, UpdatesDB
 import flask
 import inspect
@@ -94,19 +93,27 @@ def about():
 
 @app.route('/docs/installation')
 def docs_installation():
-    return template_base('Installation',
-                         template_rst_file('installation.rst'))
+    return template_base(
+        'Installation',
+        RestructuredText.read_to_html('installation.rst', remove_heading=True),
+    )
 
 
 @app.route('/docs/configuration')
 def docs_configuration():
-    return template_base('Configuration',
-                         template_rst_file('configuration.rst'))
+    return template_base(
+        'Configuration',
+        RestructuredText.read_to_html('configuration.rst',
+                                      remove_heading=True),
+    )
 
 
 @app.route('/docs/usage')
 def docs_usage():
-    return template_base('Usage', template_rst_file('usage.rst'))
+    return template_base(
+        'Usage',
+        RestructuredText.read_to_html('usage.rst', remove_heading=True),
+    )
 
 
 @app.route('/statistics/updates-by-fqdn')

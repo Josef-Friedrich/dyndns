@@ -47,7 +47,3 @@ def template_base(title, content):
         content=content,
         version=version,
     )
-
-
-def template_rst_file(file_name):
-    return RestructuredText.read_to_html(file_name, remove_heading=True)
