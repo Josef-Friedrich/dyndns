@@ -9,14 +9,14 @@ import re
 import yaml
 
 
-def load_config():
+def load_config(config_file=None):
     config_files = []
+    if config_file:
+        config_files.append(config_file)
     if 'JFDDNS_CONFIG_FILE' in os.environ:
         config_files.append(os.environ['JFDDNS_CONFIG_FILE'])
     config_files.append(os.path.join(os.getcwd(), '.jfddns.yml'))
     config_files.append('/etc/jfddns.yml')
-
-    config_file = False
 
     for _config_file in config_files:
         if os.path.exists(_config_file):
@@ -109,5 +109,5 @@ def validate_config(config=None):
     return config
 
 
-def get_config():
-    return validate_config(load_config())
+def get_config(config_file=None):
+    return validate_config(load_config(config_file))

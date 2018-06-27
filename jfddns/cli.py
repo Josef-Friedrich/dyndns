@@ -9,12 +9,6 @@ def get_argparser():
     parser = argparse.ArgumentParser()
 
     parser.add_argument(
-        '-p', '--port',
-        type=int,
-        default=54321,
-    )
-
-    parser.add_argument(
         '-v', '--version',
         action='version',
         version=get_versions()['version'],
@@ -24,15 +18,28 @@ def get_argparser():
         '-c', '--config-file',
     )
 
+    subcommand = parser.add_subparsers(
+        dest='subcommand',
+        help='Subcommand',
+    )
+    subcommand.required = True
+
+    serve_parser = subcommand.add_parser('serve')
+
+    serve_parser.add_argument(
+        '-p', '--port',
+        type=int,
+        default=54321,
+    )
+
     return parser
 
 
-def debug():
+def main():
     args = get_argparser().parse_args()
-    if hasattr(args, 'config_file'):
-        global config_file
-        config_file = args.config_file
-    app.run(debug=True, port=args.port)
+
+    if args.subcommand == 'serve':
+        app.run(debug=True, port=args.port)
 
 
 if __name__ == "__main__":

@@ -33,7 +33,7 @@ setup(
     ],
     entry_points = {
         'console_scripts': [
-            'jfddns-debug = jfddns.cli:debug',
+            'jfddns-debug = jfddns.cli:main',
         ],
     },
     package_data = {
