@@ -1,8 +1,9 @@
 """Command line interface for the command jfddns-debug"""
 
-import argparse
-from jfddns.webapp import app
 from jfddns._version import get_versions
+from jfddns.webapp import app
+import argparse
+import os
 
 
 def get_argparser():
@@ -37,6 +38,9 @@ def get_argparser():
 
 def main():
     args = get_argparser().parse_args()
+
+    if args.config_file:
+        os.environ['JFDDNS_CONFIG_FILE'] = args.config_file
 
     if args.subcommand == 'serve':
         app.run(debug=True, port=args.port)

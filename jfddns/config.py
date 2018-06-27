@@ -24,7 +24,7 @@ def load_config(config_file=None):
             break
 
     if not config_file:
-        return False
+        raise ConfigurationError('The configuration file could not be found.')
 
     stream = open(config_file, 'r')
     config = yaml.load(stream)
@@ -53,9 +53,6 @@ def validate_config(config=None):
         except yaml.error.YAMLError:
             raise ConfigurationError('The configuration file is in a invalid '
                                      'YAML format.')
-
-    if not config:
-        raise ConfigurationError('The configuration file could not be found.')
 
     if 'secret' not in config:
         raise ConfigurationError('Your configuration must have a "secret" '
