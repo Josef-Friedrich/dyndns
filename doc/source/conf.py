@@ -4,11 +4,12 @@ import jfddns
 html_theme = 'sphinx_rtd_theme'
 html_theme_path = [sphinx_rtd_theme.get_html_theme_path()]
 
-extensions = [
-    'sphinx.ext.autodoc',
-    'sphinx.ext.todo',
-    'sphinx.ext.viewcode',
-]
+extensions = []
+extensions += ['sphinx.ext.autodoc']
+extensions += ['sphinx.ext.todo']
+extensions += ['sphinx.ext.viewcode']
+extensions += ['sphinxarg.ext']
+
 templates_path = ['_templates']
 source_suffix = '.rst'
 
