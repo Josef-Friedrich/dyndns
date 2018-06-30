@@ -19,24 +19,26 @@ class RestructuredText(object):
         return rst.read()
 
     @staticmethod
-    def to_html(restructured_text):
+    def remove_heading(restructured_text):
+        return re.sub('^.*\n.*\n.*\n', '', restructured_text)
+
+    @staticmethod
+    def to_html(restructured_text, remove_heading=False):
+        if remove_heading:
+            restructured_text = RestructuredText.remove_heading(
+                restructured_text
+            )
         html = docutils.core.publish_parts(restructured_text,
                                            writer_name='html')
         return html['html_body']
 
     @staticmethod
-    def remove_heading(restructured_text):
-        return re.sub('^.*\n.*\n.*\n', '', restructured_text)
-
-    @staticmethod
     def read_to_html(file_name, remove_heading=False):
         rst = RestructuredText.read(file_name)
-        if remove_heading:
-            rst = RestructuredText.remove_heading(rst)
-        return RestructuredText.to_html(rst)
+        return RestructuredText.to_html(rst, remove_heading)
 
 
-def template_usage():
+def template_usage(remove_heading=False):
     config = False
     try:
         config = get_config()
@@ -51,7 +53,7 @@ def template_usage():
             '<your-domain>',
             'http://{}'.format(config['jfddns_domain'])
         )
-    return RestructuredText.to_html(usage)
+    return RestructuredText.to_html(usage, remove_heading)
 
 
 def template_base(title, content):

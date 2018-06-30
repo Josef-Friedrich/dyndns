@@ -100,7 +100,7 @@ def docs_configuration():
 
 @app.route('/docs/usage')
 def docs_usage():
-    return template_base('Usage', template_usage())
+    return template_base('Usage', template_usage(remove_heading=True))
 
 
 @app.route('/statistics/updates-by-fqdn')
