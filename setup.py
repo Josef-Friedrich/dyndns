@@ -13,7 +13,7 @@ setup(
     author_email="josef@friedrich.rocks",
     version=versioneer.get_version(),
     cmdclass=versioneer.get_cmdclass(),
-    description="A simple dynamic DNS update HTTP based API using python and the flask web framework.",
+    description="A dynamic DNS HTTP based update server using the flask web framework.",
     long_description=read('README.rst'),
     url="https://github.com/Josef-Friedrich/dyndns",
     packages=find_packages(),
