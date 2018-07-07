@@ -14,7 +14,7 @@ def open_file(path_segments, mode, clean=False):
     return open(file_path, mode)
 
 def read_rst_file(file_name, ):
-    return open_file(['jfddns', 'rst', file_name], 'r')
+    return open_file(['dyndns', 'rst', file_name], 'r')
 
 
 def main():

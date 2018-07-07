@@ -2,6 +2,6 @@ Command line interface
 ----------------------
 
 .. argparse::
-   :module: jfddns.cli
+   :module: dyndns.cli
    :func: get_argparser
-   :prog: jfddns-debug
+   :prog: dyndns-debug

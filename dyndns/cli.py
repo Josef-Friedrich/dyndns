@@ -1,7 +1,7 @@
-"""Command line interface for the command jfddns-debug"""
+"""Command line interface for the command dyndns-debug"""
 
-from jfddns._version import get_versions
-from jfddns.webapp import app
+from dyndns._version import get_versions
+from dyndns.webapp import app
 import argparse
 
 

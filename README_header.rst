@@ -1,5 +1,5 @@
-.. image:: http://img.shields.io/pypi/v/jfddns.svg
-    :target: https://pypi.python.org/pypi/jfddns
+.. image:: http://img.shields.io/pypi/v/dyndns.svg
+    :target: https://pypi.python.org/pypi/dyndns
 
-.. image:: https://travis-ci.org/Josef-Friedrich/jfddns.svg?branch=master
-    :target: https://travis-ci.org/Josef-Friedrich/jfddns
+.. image:: https://travis-ci.org/Josef-Friedrich/dyndns.svg?branch=master
+    :target: https://travis-ci.org/Josef-Friedrich/dyndns

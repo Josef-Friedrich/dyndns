@@ -1,5 +1,5 @@
 #######################################
-Welcome to jfddns's documentation!
+Welcome to dyndns's documentation!
 #######################################
 
 Contents:

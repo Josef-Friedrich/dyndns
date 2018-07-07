@@ -1,17 +1,17 @@
 """Interface for DNS updates."""
 
-from jfddns.config import get_config
-from jfddns.exceptions import \
+from dyndns.config import get_config
+from dyndns.exceptions import \
     ConfigurationError, \
     DNSServerError, \
     IpAddressesError, \
     NamesError, \
     ParameterError
-from jfddns.ipaddresses import IpAddresses
-from jfddns.log import msg
-from jfddns.names import Names
+from dyndns.ipaddresses import IpAddresses
+from dyndns.log import msg
+from dyndns.names import Names
 import flask
-import jfddns.dns as jf_dns
+import dyndns.dns as jf_dns
 
 
 def authenticate(secret, config):

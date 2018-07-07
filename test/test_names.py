@@ -1,11 +1,11 @@
-from jfddns.names import \
+from dyndns.names import \
     Names, \
     validate_hostname, \
     validate_tsig_key, \
     Zone, \
     Zones
 from _helper import zones
-from jfddns.exceptions import NamesError
+from dyndns.exceptions import NamesError
 import unittest
 
 

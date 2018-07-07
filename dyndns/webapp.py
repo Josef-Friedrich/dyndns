@@ -1,15 +1,15 @@
 """Initialize the Flask app."""
 
-from jfddns.config import get_config
-from jfddns.dns_updates import \
+from dyndns.config import get_config
+from dyndns.dns_updates import \
     catch_errors, \
     delete_dns_record, \
     update_dns_record
-from jfddns.html_template import \
+from dyndns.html_template import \
     RestructuredText, \
     template_base, \
     template_usage
-from jfddns.log import msg, UpdatesDB
+from dyndns.log import msg, UpdatesDB
 import flask
 import inspect
 
@@ -70,7 +70,7 @@ def home():
         configuration=configuration,
         about=RestructuredText.read_to_html('about.rst'),
     )
-    return template_base('jfddns', content)
+    return template_base('dyndns', content)
 
 
 @app.route('/about')

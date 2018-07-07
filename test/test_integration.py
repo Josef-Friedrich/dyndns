@@ -1,4 +1,4 @@
-from jfddns.webapp import app
+from dyndns.webapp import app
 from unittest import mock
 import _helper
 import os
@@ -9,7 +9,7 @@ from bs4 import BeautifulSoup
 class Integration(unittest.TestCase):
 
     def setUp(self):
-        os.environ['JFDDNS_CONFIG_FILE'] = _helper.config_file
+        os.environ['dyndns_CONFIG_FILE'] = _helper.config_file
         app.config['TESTING'] = True
         self.app = app.test_client()
 
@@ -34,21 +34,21 @@ class TestMethodUpdateByPath(unittest.TestCase):
         app.config['TESTING'] = True
         self.app = app.test_client()
 
-    @mock.patch('jfddns.webapp.update_dns_record')
+    @mock.patch('dyndns.webapp.update_dns_record')
     def test_call_secret_fqdn(self, update):
         update.return_value = 'ok'
         self.app.get('/update-by-path/secret/fqdn')
         update.assert_called_with(secret='secret', fqdn='fqdn', ip_1=None,
                                   ip_2=None)
 
-    @mock.patch('jfddns.webapp.update_dns_record')
+    @mock.patch('dyndns.webapp.update_dns_record')
     def test_call_secret_fqdn_ip_1(self, update):
         update.return_value = 'ok'
         self.app.get('/update-by-path/secret/fqdn/ip_1')
         update.assert_called_with(secret='secret', fqdn='fqdn', ip_1='ip_1',
                                   ip_2=None)
 
-    @mock.patch('jfddns.webapp.update_dns_record')
+    @mock.patch('dyndns.webapp.update_dns_record')
     def test_call_secret_fqdn_ip1_ip2(self, update):
         update.return_value = 'ok'
         self.app.get('/update-by-path/secret/fqdn/ip_1/ip_2')
@@ -223,30 +223,30 @@ class TestStaticPages(unittest.TestCase):
         data = response.data.decode('utf-8')
         self.assertIn('Usage', data)
         self.assertIn('About', data)
-        self.assertIn('https://pypi.org/project/jfddns', data)
-        self.assertIn('<!-- jfddns base template -->', data)
+        self.assertIn('https://pypi.org/project/dyndns', data)
+        self.assertIn('<!-- dyndns base template -->', data)
 
     def test_about(self):
         response = self.app.get('/about')
         data = response.data.decode('utf-8')
         self.assertIn('About', data)
-        self.assertIn('https://pypi.org/project/jfddns', data)
-        self.assertIn('<!-- jfddns base template -->', data)
+        self.assertIn('https://pypi.org/project/dyndns', data)
+        self.assertIn('<!-- dyndns base template -->', data)
 
     def test_docs_installation(self):
         soup = self.get_soup('/docs/installation')
-        self.assertEqual(soup.title.string, 'jfddns: Installation')
+        self.assertEqual(soup.title.string, 'dyndns: Installation')
         response = self.app.get('/docs/installation')
         data = response.data.decode('utf-8')
         self.assertIn('<h1 class="title">Installation</h1>', data)
 
     def test_docs_configuration(self):
         soup = self.get_soup('/docs/configuration')
-        self.assertEqual(soup.title.string, 'jfddns: Configuration')
+        self.assertEqual(soup.title.string, 'dyndns: Configuration')
 
     def test_docs_usage(self):
         soup = self.get_soup('/docs/usage')
-        self.assertEqual(soup.title.string, 'jfddns: Usage')
+        self.assertEqual(soup.title.string, 'dyndns: Usage')
 
 
 class TestStatistics(unittest.TestCase):

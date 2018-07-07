@@ -1,5 +1,5 @@
-from jfddns.log import UpdatesDB
-from jfddns.names import Zones
+from dyndns.log import UpdatesDB
+from dyndns.names import Zones
 import os
 import socket
 
@@ -51,6 +51,6 @@ def get_updates_db():
 
 
 def remove_updates_db():
-    db_file = os.path.join(os.getcwd(), 'jfddns.db')
+    db_file = os.path.join(os.getcwd(), 'dyndns.db')
     if os.path.exists(db_file):
         os.remove(db_file)

@@ -1,10 +1,10 @@
-from jfddns.dns import DnsUpdate
+from dyndns.dns import DnsUpdate
 import _helper
 import unittest
 import ipaddress
 from unittest import mock
-from jfddns.ipaddresses import IpAddresses
-from jfddns.names import Names
+from dyndns.ipaddresses import IpAddresses
+from dyndns.names import Names
 import copy
 
 ipaddresses = IpAddresses(ipv4='1.2.3.4')

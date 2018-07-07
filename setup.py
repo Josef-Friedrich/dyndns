@@ -8,14 +8,14 @@ def read(fname):
 
 
 setup(
-    name="jfddns",
+    name="dyndns",
     author="Josef Friedrich",
     author_email="josef@friedrich.rocks",
     version=versioneer.get_version(),
     cmdclass=versioneer.get_cmdclass(),
     description="A simple dynamic DNS update HTTP based API using python and the flask web framework.",
     long_description=read('README.rst'),
-    url="https://github.com/Josef-Friedrich/jfddns",
+    url="https://github.com/Josef-Friedrich/dyndns",
     packages=find_packages(),
     install_requires=[
         'dnspython',
@@ -35,7 +35,7 @@ setup(
     ],
     entry_points = {
         'console_scripts': [
-            'jfddns-debug = jfddns.cli:main',
+            'dyndns-debug = dyndns.cli:main',
         ],
     },
     package_data = {

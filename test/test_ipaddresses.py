@@ -1,5 +1,5 @@
-from jfddns.ipaddresses import IpAddresses
-from jfddns.exceptions import IpAddressesError
+from dyndns.ipaddresses import IpAddresses
+from dyndns.exceptions import IpAddressesError
 import unittest
 
 

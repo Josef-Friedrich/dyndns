@@ -6,7 +6,7 @@ import os
 import sqlite3
 
 
-log_file = os.path.join(os.getcwd(), 'jfddns.log')
+log_file = os.path.join(os.getcwd(), 'dyndns.log')
 
 
 class DateTime(object):
@@ -28,7 +28,7 @@ class DateTime(object):
 class UpdatesDB(object):
 
     def __init__(self):
-        self.db_file = os.path.join(os.getcwd(), 'jfddns.db')
+        self.db_file = os.path.join(os.getcwd(), 'dyndns.db')
         self.connection = sqlite3.connect(self.db_file)
         self.cursor = self.connection.cursor()
         self._create_tables()
@@ -126,7 +126,7 @@ class Message(object):
         for log_level, log_level_num in self.log_levels.items():
             logging.addLevelName(log_level_num, log_level)
 
-        self.logger = logging.getLogger('jfddns')
+        self.logger = logging.getLogger('dyndns')
         handler = logging.FileHandler(log_file)
         formatter = logging.Formatter(
             '%(asctime)s %(levelname)s: %(message)s'

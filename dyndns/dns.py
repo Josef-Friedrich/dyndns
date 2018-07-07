@@ -1,7 +1,7 @@
 """Query the DSN server using the package “dnspython”."""
 
-from jfddns.exceptions import DNSServerError
-from jfddns.log import UpdatesDB
+from dyndns.exceptions import DNSServerError
+from dyndns.log import UpdatesDB
 import dns.exception
 import dns.name
 import dns.query
@@ -68,7 +68,7 @@ class DnsUpdate(object):
             return ''
 
     def _query_tcp(self, dns_update):
-        """Catch some error and convert this error to jfddns specific
+        """Catch some error and convert this error to dyndns specific
         errors."""
         try:
             dns.query.tcp(dns_update, where=self.nameserver,

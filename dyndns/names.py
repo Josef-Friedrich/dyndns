@@ -5,7 +5,7 @@ record and zone names)
 
 """
 
-from jfddns.exceptions import NamesError
+from dyndns.exceptions import NamesError
 import binascii
 import dns.name
 import dns.tsigkeyring

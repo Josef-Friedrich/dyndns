@@ -1,5 +1,5 @@
-from jfddns.config import validate_config, load_config, validate_secret
-from jfddns.exceptions import ConfigurationError
+from dyndns.config import validate_config, load_config, validate_secret
+from dyndns.exceptions import ConfigurationError
 import os
 import unittest
 from unittest import mock
@@ -9,7 +9,7 @@ import _helper
 class TestConfig(unittest.TestCase):
 
     def test_config(self):
-        os.environ['JFDDNS_CONFIG_FILE'] = _helper.config_file
+        os.environ['dyndns_CONFIG_FILE'] = _helper.config_file
         config = load_config()
         self.assertEqual(config['secret'], 12345678)
 
@@ -31,7 +31,7 @@ class TestFunctionValidateSecret(unittest.TestCase):
 class TestFunctionValidateConfig(unittest.TestCase):
 
     def setUp(self):
-        os.environ['JFDDNS_CONFIG_FILE'] = _helper.config_file
+        os.environ['dyndns_CONFIG_FILE'] = _helper.config_file
 
     def assertRaisesMsg(self, config, msg):
         with self.assertRaises(ConfigurationError) as cm:
@@ -42,7 +42,7 @@ class TestFunctionValidateConfig(unittest.TestCase):
     @mock.patch('os.path.exists')
     def test_no_config_file(self, exists):
         exists.return_value = False
-        os.environ['JFDDNS_CONFIG_FILE'] = '/tmp/jfddns-xxx.yml'
+        os.environ['dyndns_CONFIG_FILE'] = '/tmp/dyndns-xxx.yml'
         self.assertRaisesMsg(
             None,
             'The configuration file could not be found.',
@@ -50,7 +50,7 @@ class TestFunctionValidateConfig(unittest.TestCase):
 
     def test_invalid_yaml_format(self):
         config_file = os.path.join(_helper.files_dir, 'invalid-yaml.yml')
-        os.environ['JFDDNS_CONFIG_FILE'] = config_file
+        os.environ['dyndns_CONFIG_FILE'] = config_file
         self.assertRaisesMsg(
             None,
             'The configuration file is in a invalid YAML format.',
@@ -84,10 +84,10 @@ class TestFunctionValidateConfig(unittest.TestCase):
             'address: "lol".'
         )
 
-    def test_invalid_jfddns_domain(self):
+    def test_invalid_dyndns_domain(self):
         self.assertRaisesMsg(
             {'secret': '12345678', 'nameserver': '127.0.0.1',
-             'jfddns_domain': 'l o l'},
+             'dyndns_domain': 'l o l'},
             'The label "l o l" of the hostname "l o l" is invalid.'
         )
 
@@ -146,7 +146,7 @@ class TestFunctionValidateConfig(unittest.TestCase):
         config = load_config()
         config = validate_config(config)
         self.assertEqual(config['secret'], '12345678')
-        self.assertEqual(config['jfddns_domain'], 'example.com')
+        self.assertEqual(config['dyndns_domain'], 'example.com')
 
 
 if __name__ == '__main__':

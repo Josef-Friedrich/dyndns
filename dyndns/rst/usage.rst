@@ -1,7 +1,7 @@
 Usage
 -----
 
-``jfddns`` offers two HTTP web APIs to update DNS records. A simple
+``dyndns`` offers two HTTP web APIs to update DNS records. A simple
 and a more restricted one using only path segments and a more flexible
 using query strings.
 

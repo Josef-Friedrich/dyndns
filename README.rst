@@ -1,43 +1,43 @@
-.. image:: http://img.shields.io/pypi/v/jfddns.svg
-    :target: https://pypi.python.org/pypi/jfddns
+.. image:: http://img.shields.io/pypi/v/dyndns.svg
+    :target: https://pypi.python.org/pypi/dyndns
 
-.. image:: https://travis-ci.org/Josef-Friedrich/jfddns.svg?branch=master
-    :target: https://travis-ci.org/Josef-Friedrich/jfddns
+.. image:: https://travis-ci.org/Josef-Friedrich/dyndns.svg?branch=master
+    :target: https://travis-ci.org/Josef-Friedrich/dyndns
 
 About
 -----
 
-`jfddns <https://pypi.org/project/jfddns>`_  is a HTTP based API to
+`dyndns <https://pypi.org/project/dyndns>`_  is a HTTP based API to
 dynamically update DNS records (DynDNS). It’s uses Python and the
 Flask web framework to accomplish this task.
 
 Installation
 ------------
 
-Install ``jfddns`` into the directory
-``/usr/local/share/python-virtualenv/jfddns`` using a virtual
+Install ``dyndns`` into the directory
+``/usr/local/share/python-virtualenv/dyndns`` using a virtual
 environment.
 
 .. code-block:: text
 
-    python3 -m venv /usr/local/share/python-virtualenv/jfddns
-    source /usr/local/share/python-virtualenv/jfddns/bin/activate
-    pip3 install jfddns
+    python3 -m venv /usr/local/share/python-virtualenv/dyndns
+    source /usr/local/share/python-virtualenv/dyndns/bin/activate
+    pip3 install dyndns
 
 
 The working directory of our flask web API is in the directory
 ``/var/www/dyndns.example.com``. Create a file
-``/var/www/dyndns.example.com/jfddns.ini``.
+``/var/www/dyndns.example.com/dyndns.ini``.
 
 .. code-block:: ini
 
     [uwsgi]
-    module = jfddns.webapp:app
+    module = dyndns.webapp:app
 
     master = true
     processes = 5
 
-    socket = /var/www/dyndns.example.com/jfddns.sock
+    socket = /var/www/dyndns.example.com/dyndns.sock
     chmod-socket = 664
     uid = www-data
     gid = www-data
@@ -67,26 +67,26 @@ Example configuration file for nginx:
 
     	location / {
     			include uwsgi_params;
-    			uwsgi_pass unix:/var/www/dyndns.example.com/jfddns.sock;
+    			uwsgi_pass unix:/var/www/dyndns.example.com/dyndns.sock;
     	}
 
     }
 
 
-``/etc/systemd/system/jfddns-uwsgi.service``
+``/etc/systemd/system/dyndns-uwsgi.service``
 
 .. code-block:: text
 
     [Unit]
-    Description=uWSGI instance to serve jfddns
+    Description=uWSGI instance to serve dyndns
     After=network.target
 
     [Service]
     User=www-data
     Group=www-data
     WorkingDirectory=/var/www/dyndns.example.com
-    Environment="PATH=/usr/local/share/python-virtualenv/jfddns/bin"
-    ExecStart=/usr/local/share/python-virtualenv/jfddns/bin/uwsgi --ini uwsgi.ini
+    Environment="PATH=/usr/local/share/python-virtualenv/dyndns/bin"
+    ExecStart=/usr/local/share/python-virtualenv/dyndns/bin/uwsgi --ini uwsgi.ini
 
     [Install]
     WantedBy=multi-user.target
@@ -94,23 +94,23 @@ Example configuration file for nginx:
 Configuration
 -------------
 
-``jfddns`` requires a configuration file in the YAML markup language.
+``dyndns`` requires a configuration file in the YAML markup language.
 
-``jfddns`` looks on three places for its configuration. It picks the
+``dyndns`` looks on three places for its configuration. It picks the
 first existing configuration file and ignores the later in this order:
 
 1. Custom path specified in the environment variable
-   ``JFDDNS_CONFIG_FILE``
-2. Current working directory of the ``jfddns`` app (cwd):
-   ``<cwd>/.jfddns.yml``
-3. ``/etc/jfddns.yml``
+   ``dyndns_CONFIG_FILE``
+2. Current working directory of the ``dyndns`` app (cwd):
+   ``<cwd>/.dyndns.yml``
+3. ``/etc/dyndns.yml``
 
 .. code-block:: yaml
 
     ---
     secret: 12345678
     nameserver: 127.0.0.1
-    jfddns_domain: dyndns.example.com
+    dyndns_domain: dyndns.example.com
     zones:
       - name: example.com
         tsig_key: tPyvZA==
@@ -121,14 +121,14 @@ first existing configuration file and ignores the later in this order:
 * ``nameserver``: The IP address of your nameserver. Version 4 or
   version 6 are allowed. Use ``127.0.0.1`` to communicate with your
   nameserver on the same machine.
-* ``jfddns_domain``: The domain to serve the ``jfddns`` HTTP API. This
+* ``dyndns_domain``: The domain to serve the ``dyndns`` HTTP API. This
   key is only used in the usage page. Can be omitted.
 * ``zones``: At least one zone specified as a list.
 
 Usage
 -----
 
-``jfddns`` offers two HTTP web APIs to update DNS records. A simple
+``dyndns`` offers two HTTP web APIs to update DNS records. A simple
 and a more restricted one using only path segments and a more flexible
 using query strings.
 

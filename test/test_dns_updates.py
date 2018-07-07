@@ -1,5 +1,5 @@
-from jfddns.dns_updates import update_dns_record
-from jfddns.exceptions import ParameterError
+from dyndns.dns_updates import update_dns_record
+from dyndns.exceptions import ParameterError
 import os
 import unittest
 from unittest import mock
@@ -9,7 +9,7 @@ import _helper
 class TestFunctionUpdateDnsRecord(unittest.TestCase):
 
     def setUp(self):
-        os.environ['JFDDNS_CONFIG_FILE'] = _helper.config_file
+        os.environ['dyndns_CONFIG_FILE'] = _helper.config_file
 
     def assertRaisesMsg(self, kwargs, error, msg):
         with self.assertRaises(error) as cm:

@@ -42,8 +42,8 @@ def get_config():
     cfg.VCS = "git"
     cfg.style = "pep440"
     cfg.tag_prefix = ""
-    cfg.parentdir_prefix = "jfddns-"
-    cfg.versionfile_source = "jfddns/_version.py"
+    cfg.parentdir_prefix = "dyndns-"
+    cfg.versionfile_source = "dyndns/_version.py"
     cfg.verbose = False
     return cfg
 

@@ -1,5 +1,5 @@
-from jfddns import log
-from jfddns.log import UpdatesDB, DateTime
+from dyndns import log
+from dyndns.log import UpdatesDB, DateTime
 import _helper
 import datetime
 import unittest

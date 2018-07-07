@@ -1,30 +1,30 @@
 Installation
 ------------
 
-Install ``jfddns`` into the directory
-``/usr/local/share/python-virtualenv/jfddns`` using a virtual
+Install ``dyndns`` into the directory
+``/usr/local/share/python-virtualenv/dyndns`` using a virtual
 environment.
 
 .. code-block:: text
 
-    python3 -m venv /usr/local/share/python-virtualenv/jfddns
-    source /usr/local/share/python-virtualenv/jfddns/bin/activate
-    pip3 install jfddns
+    python3 -m venv /usr/local/share/python-virtualenv/dyndns
+    source /usr/local/share/python-virtualenv/dyndns/bin/activate
+    pip3 install dyndns
 
 
 The working directory of our flask web API is in the directory
 ``/var/www/dyndns.example.com``. Create a file
-``/var/www/dyndns.example.com/jfddns.ini``.
+``/var/www/dyndns.example.com/dyndns.ini``.
 
 .. code-block:: ini
 
     [uwsgi]
-    module = jfddns.webapp:app
+    module = dyndns.webapp:app
 
     master = true
     processes = 5
 
-    socket = /var/www/dyndns.example.com/jfddns.sock
+    socket = /var/www/dyndns.example.com/dyndns.sock
     chmod-socket = 664
     uid = www-data
     gid = www-data
@@ -54,26 +54,26 @@ Example configuration file for nginx:
 
     	location / {
     			include uwsgi_params;
-    			uwsgi_pass unix:/var/www/dyndns.example.com/jfddns.sock;
+    			uwsgi_pass unix:/var/www/dyndns.example.com/dyndns.sock;
     	}
 
     }
 
 
-``/etc/systemd/system/jfddns-uwsgi.service``
+``/etc/systemd/system/dyndns-uwsgi.service``
 
 .. code-block:: text
 
     [Unit]
-    Description=uWSGI instance to serve jfddns
+    Description=uWSGI instance to serve dyndns
     After=network.target
 
     [Service]
     User=www-data
     Group=www-data
     WorkingDirectory=/var/www/dyndns.example.com
-    Environment="PATH=/usr/local/share/python-virtualenv/jfddns/bin"
-    ExecStart=/usr/local/share/python-virtualenv/jfddns/bin/uwsgi --ini uwsgi.ini
+    Environment="PATH=/usr/local/share/python-virtualenv/dyndns/bin"
+    ExecStart=/usr/local/share/python-virtualenv/dyndns/bin/uwsgi --ini uwsgi.ini
 
     [Install]
     WantedBy=multi-user.target

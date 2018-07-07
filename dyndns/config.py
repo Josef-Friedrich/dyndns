@@ -1,8 +1,8 @@
 """Load and validate the configuration."""
 
-from jfddns.names import Zones, validate_hostname
-from jfddns.exceptions import ConfigurationError, NamesError, IpAddressesError
-from jfddns.ipaddresses import validate as validate_ip
+from dyndns.names import Zones, validate_hostname
+from dyndns.exceptions import ConfigurationError, NamesError, IpAddressesError
+from dyndns.ipaddresses import validate as validate_ip
 
 import os
 import re
@@ -13,10 +13,10 @@ def load_config(config_file=None):
     config_files = []
     if config_file:
         config_files.append(config_file)
-    if 'JFDDNS_CONFIG_FILE' in os.environ:
-        config_files.append(os.environ['JFDDNS_CONFIG_FILE'])
-    config_files.append(os.path.join(os.getcwd(), '.jfddns.yml'))
-    config_files.append('/etc/jfddns.yml')
+    if 'dyndns_CONFIG_FILE' in os.environ:
+        config_files.append(os.environ['dyndns_CONFIG_FILE'])
+    config_files.append(os.path.join(os.getcwd(), '.dyndns.yml'))
+    config_files.append('/etc/dyndns.yml')
 
     for _config_file in config_files:
         if os.path.exists(_config_file):
@@ -71,9 +71,9 @@ def validate_config(config=None):
               'IP address: "{}".'.format(config['nameserver'])
         raise ConfigurationError(msg)
 
-    if 'jfddns_domain' in config:
+    if 'dyndns_domain' in config:
         try:
-            validate_hostname(config['jfddns_domain'])
+            validate_hostname(config['dyndns_domain'])
         except NamesError as error:
             raise ConfigurationError(str(error))
 

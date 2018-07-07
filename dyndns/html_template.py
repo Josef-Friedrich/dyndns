@@ -1,7 +1,7 @@
 """A collection of HTML template functions."""
 
-from jfddns._version import get_versions
-from jfddns.config import get_config
+from dyndns._version import get_versions
+from dyndns.config import get_config
 import docutils.core
 import flask
 import os
@@ -47,11 +47,11 @@ def template_usage(remove_heading=False):
 
     usage = RestructuredText.read('usage.rst')
 
-    if config and 'jfddns_domain' in config:
+    if config and 'dyndns_domain' in config:
         usage = re.sub(r'``(<your-domain>.*)``', r'`\1 <\1>`_', usage)
         usage = usage.replace(
             '<your-domain>',
-            'http://{}'.format(config['jfddns_domain'])
+            'http://{}'.format(config['dyndns_domain'])
         )
     return RestructuredText.to_html(usage, remove_heading)
 
