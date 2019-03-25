@@ -73,13 +73,13 @@ class DnsUpdate(object):
         try:
             dns.query.tcp(dns_update, where=self.nameserver,
                           timeout=5)
-        except dns.tsig.PeerBadKey as error:
+        except dns.tsig.PeerBadKey:
             raise DNSServerError('The peer "{}" didn\'t know the tsig key '
                                  'we used for the zone "{}".'.format(
                                     self.nameserver,
                                     self.names.zone_name,
                                  ))
-        except dns.exception.Timeout as error:
+        except dns.exception.Timeout:
             raise DNSServerError('The DNS operation to the nameserver '
                                  '"{}" timed out.'.format(self.nameserver))
 

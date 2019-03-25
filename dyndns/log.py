@@ -53,7 +53,7 @@ class UpdatesDB(object):
         fqdns = self.cursor.fetchall()
         out = []
         for fqdn in fqdns:
-                out.append(fqdn[0])
+            out.append(fqdn[0])
         out.sort()
         return out
 
