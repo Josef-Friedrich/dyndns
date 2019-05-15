@@ -9,7 +9,7 @@ import sqlite3
 log_file = os.path.join(os.getcwd(), 'dyndns.log')
 
 
-class DateTime(object):
+class DateTime:
 
     def __init__(self, date_time_string=None):
         if not date_time_string:
@@ -25,7 +25,7 @@ class DateTime(object):
         return self.datetime.strftime('%Y-%m-%d %H:%M:%S')
 
 
-class UpdatesDB(object):
+class UpdatesDB:
 
     def __init__(self):
         self.db_file = os.path.join(os.getcwd(), 'dyndns.db')
@@ -99,7 +99,7 @@ class UpdatesDB(object):
         self.connection.commit()
 
 
-class Message(object):
+class Message:
 
     # CRITICAL 	50
     # ERROR 	40

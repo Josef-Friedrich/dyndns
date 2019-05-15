@@ -35,7 +35,6 @@ setup(
         'flask',
         'Pygments',
         'PyYAML',
-        'sphinx-argparse',
     ],
     tests_require=[
         'beautifulsoup4',
