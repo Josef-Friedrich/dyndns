@@ -1,12 +1,14 @@
 """Load and validate the configuration."""
 
-from dyndns.names import Zones, validate_hostname
-from dyndns.exceptions import ConfigurationError, NamesError, IpAddressesError
-from dyndns.ipaddresses import validate as validate_ip
-
+# standard imports
 import os
 import re
 import yaml
+
+# third party imports
+from dyndns.names import Zones, validate_hostname
+from dyndns.exceptions import ConfigurationError, NamesError, IpAddressesError
+from dyndns.ipaddresses import validate as validate_ip
 
 
 def load_config(config_file=None):
@@ -36,10 +38,9 @@ def validate_secret(secret):
     secret = str(secret)
     if re.match('^[a-zA-Z0-9]+$', secret) and len(secret) >= 8:
         return secret
-    else:
-        raise ConfigurationError('The secret must be at least 8 characters '
-                                 'long and may not contain any '
-                                 'non-alpha-numeric characters.')
+    raise ConfigurationError('The secret must be at least 8 characters '
+                             'long and may not contain any '
+                             'non-alpha-numeric characters.')
 
 
 def validate_config(config=None):
@@ -84,7 +85,7 @@ def validate_config(config=None):
         raise ConfigurationError('Your "zones" key must contain a list of '
                                  'zones.')
 
-    if len(config['zones']) < 1:
+    if not config['zones']:
         raise ConfigurationError('You must have at least one zone configured, '
                                  'for example: "- name: example.com" and '
                                  '"tsig_key: tPyvZA=="')

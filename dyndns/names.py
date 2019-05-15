@@ -5,11 +5,14 @@ record and zone names)
 
 """
 
-from dyndns.exceptions import NamesError
+# standard imports
 import binascii
+import re
+
+# third party imports
 import dns.name
 import dns.tsigkeyring
-import re
+from dyndns.exceptions import NamesError
 
 
 def validate_hostname(hostname):
@@ -52,7 +55,7 @@ def validate_tsig_key(tsig_key):
         raise NamesError('Invalid tsig key: "{}".'.format(tsig_key))
 
 
-class Zone(object):
+class Zone:
 
     def __init__(self, zone_name, tsig_key):
         self.zone_name = validate_hostname(zone_name)
@@ -64,17 +67,16 @@ class Zone(object):
         """
         fqdn = validate_hostname(fqdn)
         record_name = fqdn.replace(self.zone_name, '')
-        if len(record_name) > 0 and len(record_name) < len(fqdn):
+        if record_name and len(record_name) < len(fqdn):
             return (record_name, self.zone_name)
-        else:
-            raise NamesError('FQDN "{}" is not splitable by zone "{}".')
+        raise NamesError('FQDN "{}" is not splitable by zone "{}".')
 
     def build_fqdn(self, record_name):
         record_name = validate_hostname(record_name)
         return record_name + self.zone_name
 
 
-class Zones(object):
+class Zones:
 
     def __init__(self, zones_config):
         self.zones = {}
@@ -89,8 +91,7 @@ class Zones(object):
         zone_name = validate_hostname(zone_name)
         if zone_name in self.zones:
             return self.zones[validate_hostname(zone_name)]
-        else:
-            raise NamesError('Unkown zone "{}".'.format(zone_name))
+        raise NamesError('Unkown zone "{}".'.format(zone_name))
 
     def split_fqdn(self, fqdn):
         """Split hostname into record_name and zone_name
@@ -99,16 +100,16 @@ class Zones(object):
         fqdn = validate_hostname(fqdn)
         # To handle subzones (example.com and dyndns.example.com)
         results = {}
-        for zone_name, zone in self.zones.items():
+        for _, zone in self.zones.items():
             record_name = fqdn.replace(zone.zone_name, '')
-            if len(record_name) > 0 and len(record_name) < len(fqdn):
+            if record_name and len(record_name) < len(fqdn):
                 results[len(record_name)] = (record_name, zone.zone_name)
         for key in sorted(results):
             return results[key]
         return False
 
 
-class Names(object):
+class Names:
 
     def __init__(self, zones, fqdn=None, zone_name=None, record_name=None):
         self.fqdn = None
