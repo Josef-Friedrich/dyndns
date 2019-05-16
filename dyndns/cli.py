@@ -1,8 +1,11 @@
 """Command line interface for the command dyndns-debug"""
 
+# standard import
+import argparse
+
+# local imports
 from dyndns._version import get_versions
 from dyndns.webapp import app
-import argparse
 
 
 def get_argparser():

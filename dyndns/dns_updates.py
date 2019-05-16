@@ -1,5 +1,8 @@
 """Interface for DNS updates."""
 
+# third party imports
+import flask
+
 from dyndns.config import get_config
 from dyndns.exceptions import \
     ConfigurationError, \
@@ -10,7 +13,6 @@ from dyndns.exceptions import \
 from dyndns.ipaddresses import IpAddresses
 from dyndns.log import msg
 from dyndns.names import Names
-import flask
 import dyndns.dns as jf_dns
 
 
@@ -101,9 +103,8 @@ def delete_dns_record(secret=None, fqdn=None, config=None):
 
     if delete.delete():
         return msg('Deleted "{}".'.format(names.fqdn), 'UPDATED')
-    else:
-        return msg('Deletion not successful "{}".'.format(names.fqdn),
-                   'UNCHANGED')
+    return msg('Deletion not successful "{}".'.format(names.fqdn),
+               'UNCHANGED')
 
 
 def catch_errors(function, **kwargs):

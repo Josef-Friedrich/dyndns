@@ -1,7 +1,6 @@
 """Query the DSN server using the package “dnspython”."""
 
-from dyndns.exceptions import DNSServerError
-from dyndns.log import UpdatesDB
+# third party imports
 import dns.exception
 import dns.name
 import dns.query
@@ -10,8 +9,12 @@ import dns.tsig
 import dns.tsigkeyring
 import dns.update
 
+# local imports
+from dyndns.exceptions import DNSServerError
+from dyndns.log import UpdatesDB
 
-class DnsUpdate(object):
+
+class DnsUpdate:
     """
     Update the DNS server
     """
@@ -76,8 +79,8 @@ class DnsUpdate(object):
         except dns.tsig.PeerBadKey:
             raise DNSServerError('The peer "{}" didn\'t know the tsig key '
                                  'we used for the zone "{}".'.format(
-                                    self.nameserver,
-                                    self.names.zone_name,
+                                     self.nameserver,
+                                     self.names.zone_name,
                                  ))
         except dns.exception.Timeout:
             raise DNSServerError('The DNS operation to the nameserver '
@@ -124,9 +127,9 @@ class DnsUpdate(object):
         results = []
         if self.ipaddresses.ipv4:
             results.append(self._set_record(new_ip=self.ipaddresses.ipv4,
-                           ip_version=4))
+                                            ip_version=4))
         if self.ipaddresses.ipv6:
             results.append(self._set_record(new_ip=self.ipaddresses.ipv6,
-                           ip_version=6))
+                                            ip_version=6))
 
         return results

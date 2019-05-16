@@ -1,16 +1,21 @@
 """A collection of HTML template functions."""
 
-from dyndns._version import get_versions
-from dyndns.config import get_config
-import docutils.core
-import flask
+# standard imports
 import os
 import re
 
-version = get_versions()['version']
+# third party imports
+import docutils.core
+import flask
+
+# local imports
+from dyndns._version import get_versions
+from dyndns.config import get_config
+
+VERSION = get_versions()['version']
 
 
-class RestructuredText(object):
+class RestructuredText:
 
     @staticmethod
     def read(file_name):
@@ -61,5 +66,5 @@ def template_base(title, content):
         'base.html',
         title=title,
         content=content,
-        version=version,
+        version=VERSION,
     )
