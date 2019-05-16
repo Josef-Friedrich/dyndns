@@ -29,7 +29,7 @@ def load_config(config_file=None):
         raise ConfigurationError('The configuration file could not be found.')
 
     stream = open(config_file, 'r')
-    config = yaml.load(stream)
+    config = yaml.safe_load(stream)
     stream.close()
     return config
 
