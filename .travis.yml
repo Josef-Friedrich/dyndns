@@ -22,6 +22,6 @@ jobs:
               provider: pypi
               user: JosefFriedrich
               password:
-                  secure: JLvS6oWOmCMwyrfRxNrlusdyuVjw9H7bt723kNCPEam9zqLmqiYP1AhEa8Qd7atIiM9KKAj9E4LfUKciI1ZBmdqpFOJuVacjhU9C/X1pz4R3hz0ZKGALoHzMUPcOeVSi4N2e5kopXFgDngKokj3u0vCOh9y0Gc2FaShX1hI0+ejiwKonfvfMX/I/AaL098VtFFGE0YHLMEJsmHvk62mqcyxRCHL02S0koSWJbwUltGUihtigW0k6ytVhuXPjD7xM7gZ5enjtPoBNWK6LGnp8vYGIGmLfBHepnfQccztUTXoz8/WyHi7W3aJr3rpoA/yMSD+sR72vsibqg8oITogonnYo89pshKobP+ji9ExIJ+Y/3bGESIPfnEWXgI6o6M463Ot3EP6bTAqAgfUv/Kc4Kxbal7gQDwAFZCsbrrkVgP41Qbl9yeruI8AW4KjDwCHIIS/XdWPWI1nHxtCi1NkzLfc7zfQGMxNrfeLXIzYu/cS/89jMNGkNRjgVfl4/+JUMFbZFOXzm+CIdRtsaVvnwaqvotuiCfGyBmTQ2l3wkQyssGiBqFAeV940lZGJbPaYsHI/9rTAxvNqv1E9OL5H2UOUSqfJLO+XRZNFxuDCFaBvJVlkaUhcJTS9oJvCjA8U42zfPAwmEpydHKFrkxleMJlr2ZjUflh9jQ4rj4g6RoJM=
+                  secure: "b2h7/y0unyEE4XmuGtrRusDcg6hVfz4VCdpJUBTf8am6YpSEEGwX9h6zLj99FJsWBanQtMxh7DhDA6Alhiu3MunmznhZgLgDWxkH5/Y+Yk+xwNdoHtakHYB0dDF95q697nuxuqxvbFaLPBsSKIf0F/G8PI19+NLkO6g24/aOm9iSsMvg0uhuBINvSswBrkDw5qNvJnQTh7No5i4ntLb1/0Qg8yp7UrGiVLnNwAqIyQsOrZlsmm6U0XrMNDS3jKxcEyCquc9g9lvVuvRoVpykLadqqzPcGSRkybNyi5s4rjH2pH1kjukon2pCajDQ+Z89TisxiiIOY/ioklcSxUxvQAB9rh5TEi454BYO3tQSQ8xfiQIsTmFd5H7f2LZWX2AvfZoL5kBAvzspI0ex6rhbRDMdVNg7IF27hLKbzDWjKQi9Qlg6toOGEape/9IIY9998QDgIVj16xqqTSicjHkw2r9kvdxuoKmWtbmBBMCU7tnsSzOu7rdOraKzXqHZiJCRyroQ3cfg6hSXAPtKkhGpq9pQs9TDytj6+zflBNoSWov6ZyKNjHPlmbNGQ6N6cBLRS3/BOR6HgZW0QOBiNxkn/dXe0QNubtXCVw+1RVbXZ1eoDkmQzVYqzH68fInV+4iDhWESHsnBCHWYF1yKrngrCGfia/JwewmO+Y7qinYMclc="
               on:
                   tags: true
