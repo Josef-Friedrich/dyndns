@@ -33,7 +33,7 @@ environment.
 
 The working directory of our flask web API is in the directory
 ``/var/www/dyndns.example.com``. Create a file
-``/var/www/dyndns.example.com/dyndns.ini``.
+``/var/www/dyndns.example.com/uwsgi.ini``.
 
 .. code-block:: ini
 
