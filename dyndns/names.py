@@ -12,6 +12,7 @@ import re
 # third party imports
 import dns.name
 import dns.tsigkeyring
+import dns.tsig
 from dyndns.exceptions import NamesError
 
 
