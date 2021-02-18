@@ -13,7 +13,7 @@ from dyndns.exceptions import \
 from dyndns.ipaddresses import IpAddresses
 from dyndns.log import msg
 from dyndns.names import Names
-import dyndns.dns as jf_dns
+from dyndns.dns import DnsUpdate
 
 
 def authenticate(secret, config):
@@ -67,7 +67,7 @@ def update_dns_record(secret=None, fqdn=None, zone_name=None, record_name=None,
                                 ip_2=ip_2, ipv4=ipv4, ipv6=ipv6,
                                 request=flask.request)
 
-    update = jf_dns.DnsUpdate(
+    update = DnsUpdate(
         nameserver=config['nameserver'],
         names=names,
         ipaddresses=ipaddresses,
@@ -96,7 +96,7 @@ def delete_dns_record(secret=None, fqdn=None, config=None):
 
     names = parameter_err(Names, NamesError, zones, fqdn=fqdn)
 
-    delete = jf_dns.DnsUpdate(
+    delete = DnsUpdate(
         nameserver=config['nameserver'],
         names=names,
     )

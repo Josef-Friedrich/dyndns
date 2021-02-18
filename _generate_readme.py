@@ -19,11 +19,7 @@ def read_rst_file(file_name, ):
 
 def main():
     readme = open_file(['README.rst'], 'a', clean=True)
-
     header = open_file(['README_header.rst'], 'r')
-    installation = read_rst_file('installation.rst')
-    configuration = read_rst_file('configuration.rst')
-    usage = read_rst_file('usage.rst')
 
     for line in header.readlines():
         readme.write(str(line))
