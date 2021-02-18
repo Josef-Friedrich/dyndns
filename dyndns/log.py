@@ -48,6 +48,15 @@ class UpdatesDB:
                 fqdn TEXT
         );""")
 
+        self.cursor.execute("""
+            CREATE INDEX IF NOT EXISTS update_time ON
+            updates(update_time);
+        """)
+
+        self.cursor.execute("""
+            CREATE INDEX IF NOT EXISTS fqdn_updated ON updates(fqdn, updated);
+        """)
+
     def get_fqdns(self):
         self.cursor.execute('SELECT fqdn FROM fqdns;')
         fqdns = self.cursor.fetchall()
@@ -95,6 +104,10 @@ class UpdatesDB:
         self.cursor.execute(
             'INSERT INTO updates VALUES (?, ?, ?, ?, ?);',
             (DateTime().iso8601(), int(updated), fqdn, record_type, ip),
+        )
+        self.cursor.execute(
+            "DELETE FROM updates WHERE update_time < "
+            "DATETIME('NOW', '-30 day');"
         )
         self.connection.commit()
 
