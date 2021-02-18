@@ -34,7 +34,8 @@ class DnsUpdate:
             self.names.tsig_key,
         )
         self._dns_update = dns.update.Update(self.names.zone_name,
-                                             keyring=self._tsigkeyring)
+                                             keyring=self._tsigkeyring,
+                                             keyalgorithm=dns.tsig.HMAC_SHA512)
         self._updates_db = UpdatesDB()
         self.log_update = self._updates_db.log_update
 

@@ -118,7 +118,7 @@ first existing configuration file and ignores the later in this order:
     nameserver: 127.0.0.1
     dyndns_domain: dyndns.example.com
     zones:
-      - name: example.com
+      - name: dyndns.example.com
         tsig_key: tPyvZA==
 
 * ``secret``: A password like secret string. The secret string has to
@@ -130,6 +130,11 @@ first existing configuration file and ignores the later in this order:
 * ``dyndns_domain``: The domain to serve the ``dyndns`` HTTP API. This
   key is only used in the usage page. Can be omitted.
 * ``zones``: At least one zone specified as a list.
+  * ``name``: The name of the zone for example ``dyndns.example.com``.
+    It is the fully qualified domain name you want to manage using
+    ``dyndns``.
+  * ``tsig_key``: The tsig-key. Use the ``hmac-sha512`` algorithm to
+    generate the key: ``tsig-keygen -a hmac-sha512 dyndns.example.com``
 
 Usage
 -----
