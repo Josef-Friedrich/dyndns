@@ -130,11 +130,11 @@ first existing configuration file and ignores the later in this order:
 * ``dyndns_domain``: The domain to serve the ``dyndns`` HTTP API. This
   key is only used in the usage page. Can be omitted.
 * ``zones``: At least one zone specified as a list.
-  * ``name``: The name of the zone for example ``dyndns.example.com``.
-    It is the fully qualified domain name you want to manage using
-    ``dyndns``.
-  * ``tsig_key``: The tsig-key. Use the ``hmac-sha512`` algorithm to
-    generate the key: ``tsig-keygen -a hmac-sha512 dyndns.example.com``
+    * ``name``: The domain name of the zone, for example
+      ``dyndns.example.com``.
+    * ``tsig_key``: The tsig-key. Use the ``hmac-sha512`` algorithm to
+      generate the key:
+      ``tsig-keygen -a hmac-sha512 dyndns.example.com``
 
 Usage
 -----
