@@ -6,6 +6,7 @@ upload:
 	pip3 install twine
 	twine upload --skip-existing dist/*
 
+readme
+	./_generate_readme.py
 
 .PHONY: build upload
-	

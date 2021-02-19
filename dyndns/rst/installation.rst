@@ -39,23 +39,23 @@ Example configuration file for nginx:
 .. code-block:: text
 
     server {
-    	server_name dyndns.example.com;
-    	listen 80;
-    	listen [::]:80;
-    	return 301 https://$host$request_uri;
+      server_name dyndns.example.com;
+      listen 80;
+      listen [::]:80;
+      return 301 https://$host$request_uri;
     }
 
     server {
-    	listen 443 ssl;
-    	listen [::]:443 ssl;
-    	server_name dyndns.example.com;
-    	ssl_certificate /etc/letsencrypt/live/dyndns.example.com/fullchain.pem;
-    	ssl_certificate_key /etc/letsencrypt/live/dyndns.example.com/privkey.pem;
+      listen 443 ssl;
+      listen [::]:443 ssl;
+      server_name dyndns.example.com;
+      ssl_certificate /etc/letsencrypt/live/dyndns.example.com/fullchain.pem;
+      ssl_certificate_key /etc/letsencrypt/live/dyndns.example.com/privkey.pem;
 
-    	location / {
-    			include uwsgi_params;
-    			uwsgi_pass unix:/var/www/dyndns.example.com/dyndns.sock;
-    	}
+      location / {
+        include uwsgi_params;
+        uwsgi_pass unix:/var/www/dyndns.example.com/dyndns.sock;
+      }
 
     }
 
