@@ -16,7 +16,7 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 project = u'dyndns'
-copyright = u'2018, Josef Friedrich'
+copyright = u'2018-2021, Josef Friedrich'
 author = u'Josef Friedrich'
 version = dyndns.__version__
 release = dyndns.__version__

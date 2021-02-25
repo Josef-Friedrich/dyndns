@@ -3,11 +3,11 @@ import _helper
 import unittest
 import ipaddress
 from unittest import mock
-from dyndns.ipaddresses import IpAddresses
+from dyndns.ipaddresses import IpAddressContainer
 from dyndns.names import Names
 import copy
 
-ipaddresses = IpAddresses(ipv4='1.2.3.4')
+ipaddresses = IpAddressContainer(ipv4='1.2.3.4')
 zones = _helper.zones
 names = Names(zones, fqdn='www.example.com')
 

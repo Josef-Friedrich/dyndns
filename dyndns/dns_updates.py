@@ -10,7 +10,7 @@ from dyndns.exceptions import \
     IpAddressesError, \
     NamesError, \
     ParameterError
-from dyndns.ipaddresses import IpAddresses
+from dyndns.ipaddresses import IpAddressContainer
 from dyndns.log import msg
 from dyndns.names import Names
 from dyndns.dns import DnsUpdate
@@ -21,7 +21,7 @@ def authenticate(secret, config):
         raise ParameterError('You specified a wrong secret key.')
 
 
-def parameter_err(function, exception, *args, **kwargs):
+def raise_parameter_error(function, exception, *args, **kwargs):
     try:
         return function(*args, **kwargs)
     except exception as e:
@@ -61,16 +61,17 @@ def update_dns_record(secret=None, fqdn=None, zone_name=None, record_name=None,
 
     authenticate(secret, config)
 
-    names = parameter_err(Names, NamesError, zones, fqdn=fqdn,
-                          zone_name=zone_name, record_name=record_name)
-    ipaddresses = parameter_err(IpAddresses, IpAddressesError, ip_1=ip_1,
-                                ip_2=ip_2, ipv4=ipv4, ipv6=ipv6,
-                                request=flask.request)
+    names = raise_parameter_error(
+        Names, NamesError, zones, fqdn=fqdn, zone_name=zone_name,
+        record_name=record_name)
+    ip_addresses = raise_parameter_error(
+        IpAddressContainer, IpAddressesError, ip_1=ip_1, ip_2=ip_2, ipv4=ipv4,
+        ipv6=ipv6, request=flask.request)
 
     update = DnsUpdate(
         nameserver=config['nameserver'],
         names=names,
-        ipaddresses=ipaddresses,
+        ipaddresses=ip_addresses,
         ttl=ttl,
     )
     results = update.update()
@@ -94,7 +95,7 @@ def delete_dns_record(secret=None, fqdn=None, config=None):
 
     authenticate(secret, config)
 
-    names = parameter_err(Names, NamesError, zones, fqdn=fqdn)
+    names = raise_parameter_error(Names, NamesError, zones, fqdn=fqdn)
 
     delete = DnsUpdate(
         nameserver=config['nameserver'],

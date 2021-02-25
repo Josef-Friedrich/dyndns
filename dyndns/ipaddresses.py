@@ -19,8 +19,16 @@ def format_attr(ip_version):
     return 'ipv{}'.format(ip_version)
 
 
-class IpAddresses(object):
+class IpAddressContainer(object):
+    """
+    A container class to store and detect IP addresses in both versions
+    (ipv4 and ipv6).
 
+    :param str ip_1: Am IP address of unkown version.
+    :param str ip_2: An IP address of unkown version.
+    :param str ipv4: An ipv4 IP address.
+    :param str ipv6: An ipv6 IP address.
+    """
     def __init__(self, ip_1=None, ip_2=None, ipv4=None, ipv6=None,
                  request=None):
 
@@ -28,12 +36,12 @@ class IpAddresses(object):
             self.request = request
 
         self.ipv4 = None
-        """The ipv4 address to update DNS record with."""
+        """The ipv4 address to update the DNS record with."""
         if ipv4:
             self.ipv4, ipv4_version = validate(ipv4, 4)
 
         self.ipv6 = None
-        """The ipv6 address to update DNS record with."""
+        """The ipv6 address to update the DNS record with."""
         if ipv6:
             self.ipv6, ipv6_version = validate(ipv6, 6)
 

@@ -14,4 +14,8 @@ readme:
 test:
 	tox
 
-.PHONY: build upload test readme
+doc:
+	tox -e docs
+	xdg-open .tox/docs/tmp/html/index.html
+
+.PHONY: build upload test readme doc

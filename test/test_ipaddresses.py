@@ -1,4 +1,4 @@
-from dyndns.ipaddresses import IpAddresses
+from dyndns.ipaddresses import IpAddressContainer
 from dyndns.exceptions import IpAddressesError
 import unittest
 
@@ -7,7 +7,7 @@ class TestClassIpAddresses(unittest.TestCase):
 
     def assertRaisesMsg(self, kwargs, msg):
         with self.assertRaises(IpAddressesError) as cm:
-            IpAddresses(**kwargs)
+            IpAddressContainer(**kwargs)
         self.assertEqual(str(cm.exception), msg)
 
     def test_invalid_ipv4(self):
@@ -44,31 +44,31 @@ class TestClassIpAddresses(unittest.TestCase):
         )
 
     def test_valid_ipv4(self):
-        ips = IpAddresses(ipv4='1.2.3.4')
+        ips = IpAddressContainer(ipv4='1.2.3.4')
         self.assertEqual(ips.ipv4, '1.2.3.4')
 
     def test_valid_ipv4_set_1(self):
-        ips = IpAddresses(ip_1='1.2.3.4')
+        ips = IpAddressContainer(ip_1='1.2.3.4')
         self.assertEqual(ips.ipv4, '1.2.3.4')
 
     def test_valid_ipv4_set_2(self):
-        ips = IpAddresses(ip_2='1.2.3.4')
+        ips = IpAddressContainer(ip_2='1.2.3.4')
         self.assertEqual(ips.ipv4, '1.2.3.4')
 
     def test_valid_ipv6(self):
-        ips = IpAddresses(ipv6='1::2')
+        ips = IpAddressContainer(ipv6='1::2')
         self.assertEqual(ips.ipv6, '1::2')
 
     def test_valid_ipv6_set_1(self):
-        ips = IpAddresses(ip_1='1::2')
+        ips = IpAddressContainer(ip_1='1::2')
         self.assertEqual(ips.ipv6, '1::2')
 
     def test_valid_ipv6_set_2(self):
-        ips = IpAddresses(ip_2='1::2')
+        ips = IpAddressContainer(ip_2='1::2')
         self.assertEqual(ips.ipv6, '1::2')
 
     def test_valid_ipv4_ipv6(self):
-        ips = IpAddresses(ipv4='1.2.3.4', ipv6='1::2')
+        ips = IpAddressContainer(ipv4='1.2.3.4', ipv6='1::2')
         self.assertEqual(ips.ipv4, '1.2.3.4')
         self.assertEqual(ips.ipv6, '1::2')
 
