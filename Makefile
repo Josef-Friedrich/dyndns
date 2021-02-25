@@ -11,4 +11,7 @@ upload:
 readme:
 	./_generate_readme.py
 
-.PHONY: build upload
+test:
+	tox
+
+.PHONY: build upload test readme

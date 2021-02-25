@@ -1,6 +1,83 @@
 Installation
 ------------
 
+Bind9 installation
+^^^^^^^^^^^^^^^^^^
+
+``apt install bind9``
+
+``vim /etc/bind/named.conf``
+
+.. code-block:: text
+
+    zone "dyndns.example.com" {
+      type master;
+      file "/var/cache/bind/dyndns.example.com.db";
+      allow-update { key "dyndns.example.com."; };
+    };
+
+``tsig-keygen -a hmac-sha512 dyndns.example.com``
+
+``vim /etc/bind/named.conf.local``
+
+.. code-block:: text
+
+    key "dyndns.example.com." {
+      algorithm hmac-sha512;
+      secret "nbB5i/5pyFywRPaUpEkzxtS0she1JOuZlASceu0lLU8Pe7dYpzuVDn9vbGvof2wjGkVsSZBG2DlaM3RwPHkd9g==";
+    };
+
+``vim /var/cache/bind/dyndns.example.com.db``
+
+.. code-block:: text
+
+
+    $ORIGIN dyndns.example.com.
+    $TTL 300 ; 5 minutes
+
+    ;; NAME IN SOA MNAME RNAME
+    ; NAME: name of the zone
+    ; IN: zone class (usually IN for internet)
+    ; SOA: abbreviation for Start of Authority
+    ; MNAME: Primary master name server for this zone
+    ; RNAME: Email address of the administrator responsible for this zone. address is encoded as a name. (john\.doe.example.com.)
+
+    @	IN SOA	ns1.example.com. admin.example.com. (
+        1  ; SERIAL: Serial number for this zone.
+        3600       ; REFRESH: number of seconds after which secondary name servers should query
+        1000       ; RETRY: number of seconds after which secondary name servers should retry to request
+        3600000    ; EXPIRE: number of seconds after which secondary name servers should stop answering request
+        300        ; TTL: Time To Live for purposes of negative caching
+        )
+          NS	ns1.example.com.
+          NS	ns2.example.com.
+          A	185.11.138.33
+          AAAA	2a03:2900:7:96::2
+
+``systemctl enable named.service``
+
+``systemctl start named.service``
+
+Test Bind9 setup
+^^^^^^^^^^^^^^^^
+
+.. code-block:: text
+
+    echo "server ns1.example.com
+    debug
+    update add debug.dyndns.example.com. 10 IN TXT \"$(date)\"
+    send
+    quit
+    " | nsupdate -y 'hmac-sha512:dyndns.example.com:nbB5i/5pyFywRPaUpEkzxtS0she1JOuZlASceu0lLU8Pe7dYpzuVDn9vbGvof2wjGkVsSZBG2DlaM3RwPHkd9g=='
+
+Show all records of the zone ``dyndns.example.com``
+
+``dig @ns1.example.com. dyndns.example.com. axfr``
+(axfr = Asynchronous Xfer Full Range)
+
+dyndns installation
+^^^^^^^^^^^^^^^^^^^
+
 Install ``dyndns`` into the directory
 ``/usr/local/share/python-virtualenv/dyndns`` using a virtual
 environment.
@@ -60,7 +137,7 @@ Example configuration file for nginx:
     }
 
 
-``/etc/systemd/system/dyndns-uwsgi.service``
+``vim /etc/systemd/system/dyndns-uwsgi.service``
 
 .. code-block:: text
 
@@ -77,3 +154,7 @@ Example configuration file for nginx:
 
     [Install]
     WantedBy=multi-user.target
+
+``systemctl enable dyndns-uwsgi.service``
+
+``systemctl start dyndns-uwsgi.service``
