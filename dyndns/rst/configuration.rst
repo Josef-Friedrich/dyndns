@@ -28,8 +28,8 @@ first existing configuration file and ignores the later in this order:
 * ``nameserver``: The IP address of your nameserver. Version 4 or
   version 6 are allowed. Use ``127.0.0.1`` to communicate with your
   nameserver on the same machine.
-* ``dyndns_domain``: The domain to serve the ``dyndns`` HTTP API. This
-  key is only used in the usage page. Can be omitted.
+* ``dyndns_domain``: The domain over which the ``dyndns`` HTTP API is
+  provided. This key is only used in the usage page and can be omitted.
 * ``zones``: At least one zone specified as a list.
     * ``name``: The domain name of the zone, for example
       ``dyndns.example.com``.
