@@ -31,7 +31,6 @@ Bind9 installation
 
 .. code-block:: text
 
-
     $ORIGIN dyndns.example.com.
     $TTL 300 ; 5 minutes
 

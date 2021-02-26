@@ -50,7 +50,6 @@ Bind9 installation
 
 .. code-block:: text
 
-
     $ORIGIN dyndns.example.com.
     $TTL 300 ; 5 minutes
 
@@ -220,9 +219,14 @@ first existing configuration file and ignores the later in this order:
 Usage
 -----
 
-``dyndns`` offers two HTTP web APIs to update DNS records. A simple
-and a more restricted one using only path segments and a more flexible
-using query strings.
+``dyndns`` offers two HTTP web APIs to update DNS records: A simple API
+and a more flexible API.
+
+The simple API uses path segments
+(``<your-domain>/update-by-path/secret/fqdn/ip_1`` see section “Update
+by path”) and the more flexible API uses query strings
+(``<your-domain>/update-by-query?secret=secret&fqdn=fqdn&ip_1=1.2.3.4``
+see section “Update by query”).
 
 Update by path
 ^^^^^^^^^^^^^^
@@ -263,4 +267,33 @@ Hit this url to delete a DNS record corresponding to the ``fqdn``.
 Both ipv4 and ipv6 entries are deleted.
 
 ``<your-domain>/delete-by-path/secret/fqdn``
+
+Update script
+^^^^^^^^^^^^^
+
+To update the ``dyndns`` server you can use the corresponding shell
+script `dyndns-update-script.sh
+<https://github.com/Josef-Friedrich/dyndns-update-script.sh>`_.
+
+
+Edit the top of the shell script to fit your needs:
+
+.. code-block:: text
+
+    #! /bin/sh
+
+    VALUE_DYNDNS_DOMAIN='dyndns.example.com'
+    VALUE_SECRET='123'
+    VALUE_ZONE_NAME='sub.example.com'
+
+This update shell script is designed to work on OpenWRT. The only
+dependency you have to install is `curl`.
+
+Use cron jobs (``crontab -e``) to periodically push updates to the
+``dyndns`` server:
+
+.. code-block:: text
+
+    */2 * * * * /usr/bin/dyndns-update-script.sh -S 5 -d br-lan -4 nrouter
+    */2 * * * * /usr/bin/dyndns-update-script.sh -d br-lan -4 nuernberg
 

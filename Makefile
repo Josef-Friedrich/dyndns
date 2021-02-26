@@ -12,6 +12,12 @@ readme:
 	./_generate_readme.py
 
 test:
+	pyenv update
+	pyenv install --skip-existing 3.6.13
+	pyenv install --skip-existing 3.7.10
+	pyenv install --skip-existing 3.9.2
+	pyenv local 3.6.13 3.7.10 3.9.2
+	pip3 install tox
 	tox
 
 doc:
