@@ -21,7 +21,7 @@ copyright = u'2018-2021, Josef Friedrich'
 author = u'Josef Friedrich'
 version = dyndns.__version__
 release = dyndns.__version__
-language = None
+language = 'en'
 exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
 pygments_style = 'sphinx'
 
