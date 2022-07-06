@@ -1,7 +1,8 @@
-from dyndns.log import UpdatesDB
-from dyndns.names import Zones
 import os
 import socket
+
+from dyndns.log import UpdatesDB
+from dyndns.names import Zones
 
 
 def check_internet_connectifity(host="8.8.8.8", port=53, timeout=3):

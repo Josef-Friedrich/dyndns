@@ -1,9 +1,11 @@
-from dyndns.webapp import app
-from unittest import mock
-import _helper
 import os
 import unittest
+from unittest import mock
+
+import _helper
 from bs4 import BeautifulSoup
+
+from dyndns.webapp import app
 
 
 class Integration(unittest.TestCase):

@@ -253,11 +253,11 @@ Arguments for the query string
   specify the argument ``record_name``.
 * ``record_name``: The record name (e. g. ``www``). You have to
   specify the argument ``zone_name``.
-* ``ip_1``: A IP address, can be version 4 or version 6.
+* ``ip_1``: An IP address, can be version 4 or version 6.
 * ``ip_2``: A second IP address, can be version 4 or version 6. Must
   be a different version than ``ip_1``.
-* ``ipv4``: A IP address version 4.
-* ``ipv6``: A IP address version 6.
+* ``ipv4``: A version 4 IP address.
+* ``ipv6``: A version 6 IP address.
 * ``ttl``: Time to live. The default value is 300.
 
 Delete by path
@@ -274,7 +274,6 @@ Update script
 To update the ``dyndns`` server you can use the corresponding shell
 script `dyndns-update-script.sh
 <https://github.com/Josef-Friedrich/dyndns-update-script.sh>`_.
-
 
 Edit the top of the shell script to fit your needs:
 

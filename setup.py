@@ -1,7 +1,7 @@
 import os
 
-from setuptools import setup, find_packages
 import versioneer
+from setuptools import find_packages, setup
 
 
 def read(file_name):
@@ -32,7 +32,7 @@ setup(
     install_requires=[
         'dnspython==2.1.0',
         'docutils==0.16',
-        'flask==1.1.2',
+        'flask==2.1.2',
         'Pygments==2.7.4',
         'PyYAML==5.4.1',
     ],

@@ -1,9 +1,11 @@
-from dyndns.config import validate_config, load_config, validate_secret
-from dyndns.exceptions import ConfigurationError
 import os
 import unittest
 from unittest import mock
+
 import _helper
+
+from dyndns.config import load_config, validate_config, validate_secret
+from dyndns.exceptions import ConfigurationError
 
 
 class TestConfig(unittest.TestCase):

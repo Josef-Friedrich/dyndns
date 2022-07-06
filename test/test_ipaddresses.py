@@ -1,6 +1,7 @@
-from dyndns.ipaddresses import IpAddressContainer
-from dyndns.exceptions import IpAddressesError
 import unittest
+
+from dyndns.exceptions import IpAddressesError
+from dyndns.ipaddresses import IpAddressContainer
 
 
 class TestClassIpAddresses(unittest.TestCase):

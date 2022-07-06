@@ -1,11 +1,13 @@
-from dyndns.dns import DnsUpdate
-import _helper
-import unittest
+import copy
 import ipaddress
+import unittest
 from unittest import mock
+
+import _helper
+
+from dyndns.dns import DnsUpdate
 from dyndns.ipaddresses import IpAddressContainer
 from dyndns.names import Names
-import copy
 
 ipaddresses = IpAddressContainer(ipv4='1.2.3.4')
 zones = _helper.zones

@@ -1,17 +1,15 @@
 """Initialize the Flask app."""
 
-from dyndns.config import get_config
-from dyndns.dns_updates import \
-    catch_errors, \
-    delete_dns_record, \
-    update_dns_record
-from dyndns.html_template import \
-    RestructuredText, \
-    template_base, \
-    template_usage
-from dyndns.log import msg, UpdatesDB
-import flask
 import inspect
+
+import flask
+
+from dyndns.config import get_config
+from dyndns.dns_updates import (catch_errors, delete_dns_record,
+                                update_dns_record)
+from dyndns.html_template import (RestructuredText, template_base,
+                                  template_usage)
+from dyndns.log import UpdatesDB, msg
 
 app = flask.Flask(__name__)
 

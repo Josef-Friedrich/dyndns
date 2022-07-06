@@ -5,7 +5,6 @@ import logging
 import os
 import sqlite3
 
-
 log_file = os.path.join(os.getcwd(), 'dyndns.log')
 
 

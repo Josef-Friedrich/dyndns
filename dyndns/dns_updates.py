@@ -4,16 +4,12 @@
 import flask
 
 from dyndns.config import get_config
-from dyndns.exceptions import \
-    ConfigurationError, \
-    DNSServerError, \
-    IpAddressesError, \
-    NamesError, \
-    ParameterError
+from dyndns.dns import DnsUpdate
+from dyndns.exceptions import (ConfigurationError, DNSServerError,
+                               IpAddressesError, NamesError, ParameterError)
 from dyndns.ipaddresses import IpAddressContainer
 from dyndns.log import msg
 from dyndns.names import Names
-from dyndns.dns import DnsUpdate
 
 
 def authenticate(secret, config):

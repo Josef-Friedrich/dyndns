@@ -1,9 +1,11 @@
-from dyndns.dns_updates import update_dns_record
-from dyndns.exceptions import ParameterError
 import os
 import unittest
 from unittest import mock
+
 import _helper
+
+from dyndns.dns_updates import update_dns_record
+from dyndns.exceptions import ParameterError
 
 
 class TestFunctionUpdateDnsRecord(unittest.TestCase):

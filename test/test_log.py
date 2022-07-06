@@ -1,8 +1,10 @@
-from dyndns import log
-from dyndns.log import UpdatesDB, DateTime
-import _helper
 import datetime
 import unittest
+
+import _helper
+
+from dyndns import log
+from dyndns.log import DateTime, UpdatesDB
 
 
 def clean_log_file(log_file_path):

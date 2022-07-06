@@ -1,6 +1,7 @@
 """Deal with ipv4 and ipv6 IP addresses."""
 
 import ipaddress
+
 from dyndns.exceptions import IpAddressesError
 
 

@@ -3,12 +3,13 @@
 # standard imports
 import os
 import re
+
 import yaml
 
+from dyndns.exceptions import ConfigurationError, IpAddressesError, NamesError
+from dyndns.ipaddresses import validate as validate_ip
 # third party imports
 from dyndns.names import Zones, validate_hostname
-from dyndns.exceptions import ConfigurationError, NamesError, IpAddressesError
-from dyndns.ipaddresses import validate as validate_ip
 
 
 def load_config(config_file=None):
