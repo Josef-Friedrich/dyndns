@@ -4,7 +4,7 @@
 import argparse
 
 # local imports
-from dyndns._version import get_versions
+from dyndns import __version__
 from dyndns.webapp import app
 
 
@@ -14,7 +14,7 @@ def get_argparser():
     parser.add_argument(
         '-v', '--version',
         action='version',
-        version=get_versions()['version'],
+        version=__version__,
     )
 
     subcommand = parser.add_subparsers(

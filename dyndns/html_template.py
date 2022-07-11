@@ -9,10 +9,10 @@ import docutils.core
 import flask
 
 # local imports
-from dyndns._version import get_versions
+from dyndns import __version__
 from dyndns.config import get_config
 
-VERSION = get_versions()['version']
+VERSION = __version__
 
 
 class RestructuredText:

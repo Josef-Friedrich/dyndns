@@ -1,6 +1,5 @@
 import os
 
-import versioneer
 from setuptools import find_packages, setup
 
 
@@ -23,8 +22,7 @@ setup(
     name="dyndns",
     author="Josef Friedrich",
     author_email="josef@friedrich.rocks",
-    version=versioneer.get_version(),
-    cmdclass=versioneer.get_cmdclass(),
+    version='0.0.0',
     description="A simple dynamic DNS HTTP based update API using Python and the Flask web framework.",
     long_description=read('README.rst'),
     url="https://github.com/Josef-Friedrich/dyndns",
