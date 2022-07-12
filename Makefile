@@ -1,6 +1,5 @@
 build:
 	rm -rf dist
-  # No bdist_wheel: problems with versioneer. Version nummer is not
 	# replaced in the dyndns-1.1.0+4.gbe56337-py3-none-any.whl file
 	python3 setup.py sdist
 

@@ -1,5 +1,3 @@
-include versioneer.py
-include dyndns/_version.py
 include dyndns/*.rst
 include dyndns/*.html
 include dyndns/*.css
