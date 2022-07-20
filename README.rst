@@ -1,10 +1,10 @@
 .. image:: http://img.shields.io/pypi/v/dyndns.svg
-    :target: https://pypi.python.org/pypi/dyndns
+    :target: https://pypi.org/project/dyndns
     :alt: This package on the Python Package Index
 
-.. image:: https://travis-ci.org/Josef-Friedrich/dyndns.svg?branch=master
-    :target: https://travis-ci.org/Josef-Friedrich/dyndns
-    :alt: Continuous integration
+.. image:: https://github.com/Josef-Friedrich/dyndns/actions/workflows/tests.yml/badge.svg
+    :target: https://github.com/Josef-Friedrich/dyndns/actions/workflows/tests.yml
+    :alt: Tests
 
 .. image:: https://readthedocs.org/projects/dyndns/badge/?version=latest
     :target: https://dyndns.readthedocs.io/en/latest/?badge=latest
@@ -106,7 +106,6 @@ environment.
     source /usr/local/share/python-virtualenv/dyndns/bin/activate
     pip3 install dyndns
 
-
 The working directory of our flask web API is in the directory
 ``/var/www/dyndns.example.com``. Create a file
 ``/var/www/dyndns.example.com/dyndns.ini``.
@@ -126,7 +125,6 @@ The working directory of our flask web API is in the directory
     vacuum = true
 
     die-on-term = true
-
 
 Example configuration file for nginx:
 ``/etc/nginx/sites-available/dyndns.example.com.``
@@ -153,7 +151,6 @@ Example configuration file for nginx:
       }
 
     }
-
 
 ``vim /etc/systemd/system/dyndns-uwsgi.service``
 
