@@ -22,8 +22,8 @@ PyYAML = "^6.0"
 
 [tool.poetry.dev-dependencies]
 beautifulsoup4 = "^4.11.1"
-# readme-patcher = "^0.3.0"
-readme-patcher = { path = "../readme_patcher", develop = true }
+readme-patcher = "^0.3.0"
+# readme-patcher = { path = "../readme_patcher", develop = true }
 
 [build-system]
 requires = ["poetry>=1.2.0b2"]
