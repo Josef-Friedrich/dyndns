@@ -16,26 +16,22 @@ VERSION = __version__
 
 
 class RestructuredText:
-
     @staticmethod
     def read(file_name):
-        path = os.path.join(os.path.dirname(__file__), 'rst', file_name)
-        rst = open(path, 'r')
+        path = os.path.join(os.path.dirname(__file__), "rst", file_name)
+        rst = open(path, "r")
         return rst.read()
 
     @staticmethod
     def remove_heading(restructured_text):
-        return re.sub('^.*\n.*\n.*\n', '', restructured_text)
+        return re.sub("^.*\n.*\n.*\n", "", restructured_text)
 
     @staticmethod
     def to_html(restructured_text, remove_heading=False):
         if remove_heading:
-            restructured_text = RestructuredText.remove_heading(
-                restructured_text
-            )
-        html = docutils.core.publish_parts(restructured_text,
-                                           writer_name='html')
-        return html['html_body']
+            restructured_text = RestructuredText.remove_heading(restructured_text)
+        html = docutils.core.publish_parts(restructured_text, writer_name="html")
+        return html["html_body"]
 
     @staticmethod
     def read_to_html(file_name, remove_heading=False):
@@ -50,20 +46,19 @@ def template_usage(remove_heading=False):
     except Exception:
         pass
 
-    usage = RestructuredText.read('usage.rst')
+    usage = RestructuredText.read("usage.rst")
 
-    if config and 'dyndns_domain' in config:
-        usage = re.sub(r'``(<your-domain>.*)``', r'`\1 <\1>`_', usage)
+    if config and "dyndns_domain" in config:
+        usage = re.sub(r"``(<your-domain>.*)``", r"`\1 <\1>`_", usage)
         usage = usage.replace(
-            '<your-domain>',
-            'http://{}'.format(config['dyndns_domain'])
+            "<your-domain>", "http://{}".format(config["dyndns_domain"])
         )
     return RestructuredText.to_html(usage, remove_heading)
 
 
 def template_base(title, content):
     return flask.render_template(
-        'base.html',
+        "base.html",
         title=title,
         content=content,
         version=VERSION,

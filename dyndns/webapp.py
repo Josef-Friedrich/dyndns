@@ -5,24 +5,23 @@ import inspect
 import flask
 
 from dyndns.config import get_config
-from dyndns.dns_updates import (catch_errors, delete_dns_record,
-                                update_dns_record)
-from dyndns.html_template import (RestructuredText, template_base,
-                                  template_usage)
+from dyndns.dns_updates import catch_errors, delete_dns_record, update_dns_record
+from dyndns.html_template import RestructuredText, template_base, template_usage
 from dyndns.log import UpdatesDB, msg
 
 app = flask.Flask(__name__)
 
 
-@app.route('/update-by-path/<secret>/<fqdn>')
-@app.route('/update-by-path/<secret>/<fqdn>/<ip_1>')
-@app.route('/update-by-path/<secret>/<fqdn>/<ip_1>/<ip_2>')
+@app.route("/update-by-path/<secret>/<fqdn>")
+@app.route("/update-by-path/<secret>/<fqdn>/<ip_1>")
+@app.route("/update-by-path/<secret>/<fqdn>/<ip_1>/<ip_2>")
 def update_by_path(secret, fqdn, ip_1=None, ip_2=None):
-    return catch_errors(update_dns_record, secret=secret, fqdn=fqdn, ip_1=ip_1,
-                        ip_2=ip_2)
+    return catch_errors(
+        update_dns_record, secret=secret, fqdn=fqdn, ip_1=ip_1, ip_2=ip_2
+    )
 
 
-@app.route('/update-by-query')
+@app.route("/update-by-query")
 def update_by_query_string():
     args = flask.request.args
     # Returns ImmutableMultiDict([('secret', '12345678'), ...])
@@ -38,18 +37,18 @@ def update_by_query_string():
         if key not in kwargs:
             return msg(
                 'Unknown query string argument: "{}"'.format(key),
-                'PARAMETER_ERROR',
+                "PARAMETER_ERROR",
             )
 
     return catch_errors(update_dns_record, **input_args)
 
 
-@app.route('/delete-by-path/<secret>/<fqdn>')
+@app.route("/delete-by-path/<secret>/<fqdn>")
 def delete_by_path(secret, fqdn, ip_1=None, ip_2=None):
     return catch_errors(delete_dns_record, secret=secret, fqdn=fqdn)
 
 
-@app.route('/')
+@app.route("/")
 def home():
     config = False
     try:
@@ -58,77 +57,75 @@ def home():
         pass
 
     if not config:
-        configuration = RestructuredText.read_to_html('configuration.rst')
+        configuration = RestructuredText.read_to_html("configuration.rst")
     else:
-        configuration = ''
+        configuration = ""
 
     content = flask.render_template(
-        'home.html',
+        "home.html",
         usage=template_usage(),
         configuration=configuration,
-        about=RestructuredText.read_to_html('about.rst'),
+        about=RestructuredText.read_to_html("about.rst"),
     )
-    return template_base('dyndns', content)
+    return template_base("dyndns", content)
 
 
-@app.route('/about')
+@app.route("/about")
 def about():
     return template_base(
-        'About',
-        RestructuredText.read_to_html('about.rst', remove_heading=True),
+        "About",
+        RestructuredText.read_to_html("about.rst", remove_heading=True),
     )
 
 
-@app.route('/docs/installation')
+@app.route("/docs/installation")
 def docs_installation():
     return template_base(
-        'Installation',
-        RestructuredText.read_to_html('installation.rst', remove_heading=True),
+        "Installation",
+        RestructuredText.read_to_html("installation.rst", remove_heading=True),
     )
 
 
-@app.route('/docs/configuration')
+@app.route("/docs/configuration")
 def docs_configuration():
     return template_base(
-        'Configuration',
-        RestructuredText.read_to_html('configuration.rst',
-                                      remove_heading=True),
+        "Configuration",
+        RestructuredText.read_to_html("configuration.rst", remove_heading=True),
     )
 
 
-@app.route('/docs/usage')
+@app.route("/docs/usage")
 def docs_usage():
-    return template_base('Usage', template_usage(remove_heading=True))
+    return template_base("Usage", template_usage(remove_heading=True))
 
 
-@app.route('/statistics/updates-by-fqdn')
+@app.route("/statistics/updates-by-fqdn")
 def statistics_updates_by_fqdn():
     db = UpdatesDB()
 
     out = []
     for fqdn in db.get_fqdns():
         rows = db.get_updates_by_fqdn(fqdn)
-        table = flask.render_template('table-updates-by-fqdn.html', fqdn=fqdn,
-                                      rows=rows)
+        table = flask.render_template(
+            "table-updates-by-fqdn.html", fqdn=fqdn, rows=rows
+        )
         out.append(table)
 
-    return template_base('Updates by FQDN', '\n'.join(out))
+    return template_base("Updates by FQDN", "\n".join(out))
 
 
-@app.route('/statistics/latest-submissions')
+@app.route("/statistics/latest-submissions")
 def statistics_latest_submissions():
     db = UpdatesDB()
     results = []
-    db.cursor.execute('SELECT * FROM updates ORDER BY update_time DESC '
-                      'LIMIT 50;')
+    db.cursor.execute("SELECT * FROM updates ORDER BY update_time DESC " "LIMIT 50;")
     rows = db.cursor.fetchall()
 
     for row in rows:
         results.append(db.normalize_row(row))
 
-    content = flask.render_template('table-latest-submissions.html',
-                                    rows=results)
-    return template_base('Latest submissions', content)
+    content = flask.render_template("table-latest-submissions.html", rows=results)
+    return template_base("Latest submissions", content)
 
 
 if __name__ == "__main__":

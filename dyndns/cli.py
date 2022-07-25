@@ -12,21 +12,23 @@ def get_argparser():
     parser = argparse.ArgumentParser()
 
     parser.add_argument(
-        '-v', '--version',
-        action='version',
+        "-v",
+        "--version",
+        action="version",
         version=__version__,
     )
 
     subcommand = parser.add_subparsers(
-        dest='subcommand',
-        help='Subcommand',
+        dest="subcommand",
+        help="Subcommand",
     )
     subcommand.required = True
 
-    serve_parser = subcommand.add_parser('serve')
+    serve_parser = subcommand.add_parser("serve")
 
     serve_parser.add_argument(
-        '-p', '--port',
+        "-p",
+        "--port",
         type=int,
         default=54321,
     )
@@ -36,7 +38,7 @@ def get_argparser():
 
 def main():
     args = get_argparser().parse_args()
-    if args.subcommand == 'serve':
+    if args.subcommand == "serve":
         app.run(debug=True, port=args.port)
 
 

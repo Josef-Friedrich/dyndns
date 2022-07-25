@@ -23,8 +23,7 @@ def validate_hostname(hostname):
         hostname = hostname[:-1]
     if len(hostname) > 253:
         raise NamesError(
-            'The hostname "{}..." is longer than 253 characters.'
-            .format(hostname[:10])
+            'The hostname "{}..." is longer than 253 characters.'.format(hostname[:10])
         )
 
     labels = hostname.split(".")
@@ -32,16 +31,18 @@ def validate_hostname(hostname):
     tld = labels[-1]
     if re.match(r"[0-9]+$", tld):
         raise NamesError(
-            'The TLD "{}" of the hostname "{}" must be not all-numeric.'
-            .format(tld, hostname)
+            'The TLD "{}" of the hostname "{}" must be not all-numeric.'.format(
+                tld, hostname
+            )
         )
 
     allowed = re.compile(r"(?!-)[a-z0-9-]{1,63}(?<!-)$", re.IGNORECASE)
     for label in labels:
         if not allowed.match(label):
             raise NamesError(
-                'The label "{}" of the hostname "{}" is invalid.'
-                .format(label, hostname)
+                'The label "{}" of the hostname "{}" is invalid.'.format(
+                    label, hostname
+                )
             )
 
     return str(dns.name.from_text(hostname))
@@ -51,14 +52,13 @@ def validate_tsig_key(tsig_key):
     if not tsig_key:
         raise NamesError('Invalid tsig key: "{}".'.format(tsig_key))
     try:
-        dns.tsigkeyring.from_text({'tmp.org.': tsig_key})
+        dns.tsigkeyring.from_text({"tmp.org.": tsig_key})
         return tsig_key
     except binascii.Error:
         raise NamesError('Invalid tsig key: "{}".'.format(tsig_key))
 
 
 class Zone:
-
     def __init__(self, zone_name, tsig_key):
         self.zone_name = validate_hostname(zone_name)
         self.tsig_key = validate_tsig_key(tsig_key)
@@ -68,7 +68,7 @@ class Zone:
         for example: www.example.com -> www. example.com.
         """
         fqdn = validate_hostname(fqdn)
-        record_name = fqdn.replace(self.zone_name, '')
+        record_name = fqdn.replace(self.zone_name, "")
         if record_name and len(record_name) < len(fqdn):
             return (record_name, self.zone_name)
         raise NamesError('FQDN "{}" is not splitable by zone "{}".')
@@ -79,14 +79,10 @@ class Zone:
 
 
 class Zones:
-
     def __init__(self, zones_config):
         self.zones = {}
         for zone_config in zones_config:
-            zone = Zone(
-                zone_name=zone_config['name'],
-                tsig_key=zone_config['tsig_key']
-            )
+            zone = Zone(zone_name=zone_config["name"], tsig_key=zone_config["tsig_key"])
             self.zones[zone.zone_name] = zone
 
     def get_zone_by_name(self, zone_name):
@@ -103,7 +99,7 @@ class Zones:
         # To handle subzones (example.com and dyndns.example.com)
         results = {}
         for _, zone in self.zones.items():
-            record_name = fqdn.replace(zone.zone_name, '')
+            record_name = fqdn.replace(zone.zone_name, "")
             if record_name and len(record_name) < len(fqdn):
                 results[len(record_name)] = (record_name, zone.zone_name)
         for key in sorted(results):
@@ -112,7 +108,6 @@ class Zones:
 
 
 class Names:
-
     def __init__(self, zones, fqdn=None, zone_name=None, record_name=None):
         self.fqdn = None
         """The Fully Qualified Domain Name (e. g. ``www.example.com.``)"""
@@ -124,8 +119,7 @@ class Names:
         """The name resource record (e. g. ``www.``)"""
 
         if fqdn and zone_name and record_name:
-            raise NamesError('Specify "fqdn" or "zone_name" and '
-                             '"record_name".')
+            raise NamesError('Specify "fqdn" or "zone_name" and ' '"record_name".')
 
         self._zones = zones
 
