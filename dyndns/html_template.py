@@ -1,14 +1,13 @@
 """A collection of HTML template functions."""
 
-# standard imports
+from __future__ import annotations
+
 import os
 import re
 
-# third party imports
 import docutils.core
 import flask
 
-# local imports
 from dyndns import __version__
 from dyndns.config import get_config
 

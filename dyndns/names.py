@@ -5,6 +5,8 @@ record and zone names)
 
 """
 
+from __future__ import annotations
+
 import binascii
 import re
 

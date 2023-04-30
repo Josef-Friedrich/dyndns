@@ -1,5 +1,7 @@
 """Interface for DNS updates."""
 
+from __future__ import annotations
+
 import flask
 
 from dyndns.config import get_config

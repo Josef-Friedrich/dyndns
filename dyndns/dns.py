@@ -1,6 +1,7 @@
 """Query the DSN server using the package “dnspython”."""
 
-# third party imports
+from __future__ import annotations
+
 import dns.exception
 import dns.name
 import dns.query
@@ -9,7 +10,6 @@ import dns.tsig
 import dns.tsigkeyring
 import dns.update
 
-# local imports
 from dyndns.exceptions import DNSServerError
 from dyndns.log import UpdatesDB
 

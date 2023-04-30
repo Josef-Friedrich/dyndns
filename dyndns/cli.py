@@ -1,9 +1,9 @@
 """Command line interface for the command dyndns-debug"""
 
-# standard import
+from __future__ import annotations
+
 import argparse
 
-# local imports
 from dyndns import __version__
 from dyndns.webapp import app
 

@@ -1,5 +1,7 @@
 """A collection of exceptions."""
 
+from __future__ import annotations
+
 
 class DyndnsError(Exception):
     """Base exception of the package ``dyndns``."""

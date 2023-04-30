@@ -1,5 +1,7 @@
 """Initialize the Flask app."""
 
+from __future__ import annotations
+
 import inspect
 
 import flask
