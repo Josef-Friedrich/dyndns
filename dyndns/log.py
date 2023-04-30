@@ -1,15 +1,18 @@
 """Bundle the logging functionality."""
 
+from __future__ import annotations
+
 import datetime
 import logging
 import os
 import sqlite3
+from sqlite3 import Connection, Cursor
 
-log_file = os.path.join(os.getcwd(), "dyndns.log")
+log_file: str = os.path.join(os.getcwd(), "dyndns.log")
 
 
 class DateTime:
-    def __init__(self, date_time_string=None):
+    def __init__(self, date_time_string: str | None = None):
         if not date_time_string:
             self.datetime = datetime.datetime.now()
         else:
@@ -17,21 +20,26 @@ class DateTime:
                 date_time_string, "%Y-%m-%d %H:%M:%S.%f"
             )
 
-    def iso8601(self):
+    def iso8601(self) -> str:
         return self.datetime.isoformat(" ")
 
-    def iso8601_short(self):
+    def iso8601_short(self) -> str:
         return self.datetime.strftime("%Y-%m-%d %H:%M:%S")
 
 
 class UpdatesDB:
-    def __init__(self):
+
+    db_file: str
+    connection: Connection
+    cursor: Cursor
+
+    def __init__(self) -> None:
         self.db_file = os.path.join(os.getcwd(), "dyndns.db")
         self.connection = sqlite3.connect(self.db_file)
         self.cursor = self.connection.cursor()
         self._create_tables()
 
-    def _create_tables(self):
+    def _create_tables(self) -> None:
         self.cursor.execute(
             """
             CREATE TABLE IF NOT EXISTS updates (
@@ -63,17 +71,17 @@ class UpdatesDB:
         """
         )
 
-    def get_fqdns(self):
+    def get_fqdns(self) -> list[str]:
         self.cursor.execute("SELECT fqdn FROM fqdns;")
         fqdns = self.cursor.fetchall()
-        out = []
+        out: list[str] = []
         for fqdn in fqdns:
             out.append(fqdn[0])
         out.sort()
         return out
 
     @staticmethod
-    def normalize_row(row):
+    def normalize_row(row: list[str]):
         return {
             "update_time": DateTime(row[0]).iso8601_short(),
             "updated": bool(row[1]),
@@ -82,7 +90,7 @@ class UpdatesDB:
             "ip": row[4],
         }
 
-    def get_updates_by_fqdn(self, fqdn):
+    def get_updates_by_fqdn(self, fqdn: str):
         self.cursor.execute(
             "SELECT * FROM updates WHERE updated = 1 AND" " fqdn = ?;", (fqdn,)
         )
@@ -93,7 +101,7 @@ class UpdatesDB:
             out.append(row_dict)
         return out
 
-    def _is_fqdn_stored(self, fqdn):
+    def _is_fqdn_stored(self, fqdn: str):
         self.cursor.execute("SELECT fqdn FROM fqdns WHERE fqdn = ?;", (fqdn,))
         return bool(self.cursor.fetchone())
 
@@ -120,7 +128,7 @@ class Message:
     # DEBUG 	10
     # NOTSET 	0
 
-    log_levels = {
+    log_levels: dict[str, int] = {
         "CONFIGURATION_ERROR": 51,
         "DNS_SERVER_ERROR": 51,
         "PARAMETER_ERROR": 41,

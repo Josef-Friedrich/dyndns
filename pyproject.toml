@@ -25,6 +25,9 @@ beautifulsoup4 = "^4.11.1"
 readme-patcher = "^0.5.0"
 # readme-patcher = { path = "../readme_patcher", develop = true }
 
+[tool.poetry.group.dev.dependencies]
+black = "^23.3.0"
+
 [build-system]
 requires = ["poetry>=1.2.0b2"]
 build-backend = "poetry.masonry.api"
