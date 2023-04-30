@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import os
 import re
-
+from typing import Any
 import yaml
 
 from dyndns.exceptions import ConfigurationError, IpAddressesError, NamesError
@@ -12,8 +12,8 @@ from dyndns.ipaddresses import validate as validate_ip
 from dyndns.names import Zones, validate_hostname
 
 
-def load_config(config_file=None):
-    config_files = []
+def load_config(config_file: str | None = None):
+    config_files: list[str] = []
     if config_file:
         config_files.append(config_file)
     if "dyndns_CONFIG_FILE" in os.environ:
@@ -35,7 +35,7 @@ def load_config(config_file=None):
     return config
 
 
-def validate_secret(secret):
+def validate_secret(secret: Any) -> str:
     secret = str(secret)
     if re.match("^[a-zA-Z0-9]+$", secret) and len(secret) >= 8:
         return secret
@@ -46,17 +46,19 @@ def validate_secret(secret):
     )
 
 
-def validate_config(config=None):
-
+def validate_config(config: dict[str, Any] | None = None):
     if not config:
         try:
             config = load_config()
         except IOError:
-            raise ConfigurationError("The configuration file could not be " "found.")
+            raise ConfigurationError("The configuration file could not be found.")
         except yaml.error.YAMLError:
             raise ConfigurationError(
-                "The configuration file is in a invalid " "YAML format."
+                "The configuration file is in a invalid YAML format."
             )
+
+    if not config:
+        raise ConfigurationError("The configuration file could not be " "found.")
 
     if "secret" not in config:
         raise ConfigurationError(
@@ -119,5 +121,5 @@ def validate_config(config=None):
     return config
 
 
-def get_config(config_file=None):
+def get_config(config_file: str | None = None):
     return validate_config(load_config(config_file))

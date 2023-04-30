@@ -8,7 +8,7 @@ from dyndns import __version__
 from dyndns.webapp import app
 
 
-def get_argparser():
+def get_argparser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser()
 
     parser.add_argument(
@@ -24,7 +24,7 @@ def get_argparser():
     )
     subcommand.required = True
 
-    serve_parser = subcommand.add_parser("serve")
+    serve_parser: argparse.ArgumentParser = subcommand.add_parser("serve")
 
     serve_parser.add_argument(
         "-p",
@@ -36,8 +36,8 @@ def get_argparser():
     return parser
 
 
-def main():
-    args = get_argparser().parse_args()
+def main() -> None:
+    args: argparse.Namespace = get_argparser().parse_args()
     if args.subcommand == "serve":
         app.run(debug=True, port=args.port)
 

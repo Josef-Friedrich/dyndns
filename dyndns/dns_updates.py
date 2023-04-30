@@ -31,15 +31,15 @@ def raise_parameter_error(function, exception, *args, **kwargs):
 
 
 def update_dns_record(
-    secret=None,
-    fqdn=None,
-    zone_name=None,
-    record_name=None,
-    ip_1=None,
-    ip_2=None,
-    ipv4=None,
-    ipv6=None,
-    ttl=None,
+    secret: str | None = None,
+    fqdn: str | None = None,
+    zone_name: str | None = None,
+    record_name: str | None = None,
+    ip_1: str | None = None,
+    ip_2: str | None = None,
+    ipv4: str | None = None,
+    ipv6: str | None = None,
+    ttl: int | None = None,
     config=None,
 ):
     """
