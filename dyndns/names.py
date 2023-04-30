@@ -5,11 +5,9 @@ record and zone names)
 
 """
 
-# standard imports
 import binascii
 import re
 
-# third party imports
 import dns.name
 import dns.tsig
 import dns.tsigkeyring
@@ -17,7 +15,7 @@ import dns.tsigkeyring
 from dyndns.exceptions import NamesError
 
 
-def validate_hostname(hostname):
+def validate_hostname(hostname: str) -> str:
     if hostname[-1] == ".":
         # strip exactly one dot from the right, if present
         hostname = hostname[:-1]
@@ -26,9 +24,9 @@ def validate_hostname(hostname):
             'The hostname "{}..." is longer than 253 characters.'.format(hostname[:10])
         )
 
-    labels = hostname.split(".")
+    labels: list[str] = hostname.split(".")
 
-    tld = labels[-1]
+    tld: str = labels[-1]
     if re.match(r"[0-9]+$", tld):
         raise NamesError(
             'The TLD "{}" of the hostname "{}" must be not all-numeric.'.format(
@@ -36,7 +34,7 @@ def validate_hostname(hostname):
             )
         )
 
-    allowed = re.compile(r"(?!-)[a-z0-9-]{1,63}(?<!-)$", re.IGNORECASE)
+    allowed: re.Pattern[str] = re.compile(r"(?!-)[a-z0-9-]{1,63}(?<!-)$", re.IGNORECASE)
     for label in labels:
         if not allowed.match(label):
             raise NamesError(
@@ -48,7 +46,7 @@ def validate_hostname(hostname):
     return str(dns.name.from_text(hostname))
 
 
-def validate_tsig_key(tsig_key):
+def validate_tsig_key(tsig_key: str) -> str:
     if not tsig_key:
         raise NamesError('Invalid tsig key: "{}".'.format(tsig_key))
     try:
@@ -59,21 +57,24 @@ def validate_tsig_key(tsig_key):
 
 
 class Zone:
-    def __init__(self, zone_name, tsig_key):
+    zone_name: str
+    tsig_key: str
+
+    def __init__(self, zone_name: str, tsig_key: str) -> None:
         self.zone_name = validate_hostname(zone_name)
         self.tsig_key = validate_tsig_key(tsig_key)
 
-    def split_fqdn(self, fqdn):
+    def split_fqdn(self, fqdn: str) -> tuple[str, str]:
         """Split hostname into record_name and zone_name
         for example: www.example.com -> www. example.com.
         """
         fqdn = validate_hostname(fqdn)
-        record_name = fqdn.replace(self.zone_name, "")
+        record_name: str = fqdn.replace(self.zone_name, "")
         if record_name and len(record_name) < len(fqdn):
             return (record_name, self.zone_name)
         raise NamesError('FQDN "{}" is not splitable by zone "{}".')
 
-    def build_fqdn(self, record_name):
+    def build_fqdn(self, record_name: str) -> str:
         record_name = validate_hostname(record_name)
         return record_name + self.zone_name
 
@@ -108,16 +109,22 @@ class Zones:
 
 
 class Names:
-    def __init__(self, zones, fqdn=None, zone_name=None, record_name=None):
-        self.fqdn = None
-        """The Fully Qualified Domain Name (e. g. ``www.example.com.``)"""
+    fqdn: str | None = None
+    """The Fully Qualified Domain Name (e. g. ``www.example.com.``)"""
 
-        self.zone_name = None
-        """The zone name (e. g. ``example.com.``)"""
+    zone_name: str | None = None
+    """The zone name (e. g. ``example.com.``)"""
 
-        self.record_name = None
-        """The name resource record (e. g. ``www.``)"""
+    record_name: str | None = None
+    """The name resource record (e. g. ``www.``)"""
 
+    def __init__(
+        self,
+        zones: Zones,
+        fqdn: str | None = None,
+        zone_name: str | None = None,
+        record_name: str | None = None,
+    ):
         if fqdn and zone_name and record_name:
             raise NamesError('Specify "fqdn" or "zone_name" and ' '"record_name".')
 

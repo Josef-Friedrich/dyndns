@@ -1,11 +1,18 @@
 """Deal with ipv4 and ipv6 IP addresses."""
 
+from __future__ import annotations
+
 import ipaddress
+from typing import Any, Literal
+
+from flask import Request
 
 from dyndns.exceptions import IpAddressesError
 
 
-def validate(address, ip_version=None):
+def validate(
+    address: Any, ip_version: Literal[4, 6] | None = None
+) -> tuple[str, Literal[4, 6]]:
     try:
         address = ipaddress.ip_address(address)
         if ip_version and ip_version != address.version:
@@ -15,11 +22,11 @@ def validate(address, ip_version=None):
         raise IpAddressesError('Invalid ip address "{}"'.format(address))
 
 
-def format_attr(ip_version):
+def format_attr(ip_version: Literal[4, 6]) -> str:
     return "ipv{}".format(ip_version)
 
 
-class IpAddressContainer(object):
+class IpAddressContainer:
     """
     A container class to store and detect IP addresses in both versions
     (ipv4 and ipv6).
@@ -30,20 +37,32 @@ class IpAddressContainer(object):
     :param str ipv6: An ipv6 IP address.
     """
 
-    def __init__(self, ip_1=None, ip_2=None, ipv4=None, ipv6=None, request=None):
+    ipv4: str | None
+    """The ipv4 address to update the DNS record with."""
 
+    ipv6: str | None
+    """The ipv6 address to update the DNS record with."""
+
+    request: Request
+
+    def __init__(
+        self,
+        ip_1: str | None = None,
+        ip_2: str | None = None,
+        ipv4: str | None = None,
+        ipv6: str | None = None,
+        request: Request | None = None,
+    ) -> None:
         if request:
             self.request = request
 
         self.ipv4 = None
-        """The ipv4 address to update the DNS record with."""
         if ipv4:
-            self.ipv4, ipv4_version = validate(ipv4, 4)
+            self.ipv4, _ = validate(ipv4, 4)
 
         self.ipv6 = None
-        """The ipv6 address to update the DNS record with."""
         if ipv6:
-            self.ipv6, ipv6_version = validate(ipv6, 6)
+            self.ipv6, _ = validate(ipv6, 6)
 
         if ip_1:
             self._set_ip(ip_1)
@@ -57,26 +76,29 @@ class IpAddressContainer(object):
         if not self.ipv4 and not self.ipv6:
             raise IpAddressesError("No ip address set.")
 
-    def _get_ip(self, ip_version):
+    def _get_ip(self, ip_version: Literal[4, 6]) -> str:
         return getattr(self, format_attr(ip_version))
 
-    def _setattr(self, ip_version, value):
+    def _setattr(self, ip_version: Literal[4, 6], value: str):
         return setattr(self, format_attr(ip_version), value)
 
-    def _get_client_ip(self):
+    def _get_client_ip(self) -> str | None:
         # request.environ['REMOTE_ADDR']
         if hasattr(self, "request"):
-            remote_addr = self.request.remote_addr
-            self._set_ip(remote_addr)
-            return remote_addr
+            remote_addr: str | None = self.request.remote_addr
+            if remote_addr:
+                self._set_ip(remote_addr)
+                return remote_addr
 
-    def _set_ip(self, address):
+    def _set_ip(self, address: str) -> None:
         ip, ip_version = validate(address)
-        old_ip = self._get_ip(ip_version)
+        old_ip: str = self._get_ip(ip_version)
         if old_ip:
-            msg = 'The attribute "{}" is already set and has the value "{}".'.format(
-                format_attr(ip_version),
-                old_ip,
+            msg: str = (
+                'The attribute "{}" is already set and has the value "{}".'.format(
+                    format_attr(ip_version),
+                    old_ip,
+                )
             )
             raise IpAddressesError(msg)
 

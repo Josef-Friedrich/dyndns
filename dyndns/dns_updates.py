@@ -1,6 +1,5 @@
 """Interface for DNS updates."""
 
-# third party imports
 import flask
 
 from dyndns.config import get_config
