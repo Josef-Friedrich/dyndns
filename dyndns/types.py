@@ -41,3 +41,10 @@ class Config(TypedDict):
 
     zones: list[ZoneConfig]
     """At least one zone specified as a list."""
+
+
+class UpdateRecord(TypedDict):
+    ip_version: IpVersion
+    new_ip: str
+    old_ip: str
+    status: LogLevel

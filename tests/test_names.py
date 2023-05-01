@@ -3,8 +3,7 @@ import unittest
 from _helper import zones
 
 from dyndns.exceptions import NamesError
-from dyndns.names import (Names, Zone, Zones, validate_hostname,
-                          validate_tsig_key)
+from dyndns.names import Names, Zone, Zones, validate_hostname, validate_tsig_key
 
 
 class TestFunctionValidateHostname(unittest.TestCase):

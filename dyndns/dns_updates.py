@@ -8,11 +8,17 @@ import flask
 
 from dyndns.config import Config, get_config
 from dyndns.dns import DnsUpdate
-from dyndns.exceptions import (ConfigurationError, DNSServerError,
-                               IpAddressesError, NamesError, ParameterError)
+from dyndns.exceptions import (
+    ConfigurationError,
+    DNSServerError,
+    IpAddressesError,
+    NamesError,
+    ParameterError,
+)
 from dyndns.ipaddresses import IpAddressContainer
 from dyndns.log import msg
 from dyndns.names import Names
+from dyndns.types import UpdateRecord
 
 
 def authenticate(secret: Any, config: Config):
@@ -38,26 +44,26 @@ def update_dns_record(
     ipv6: str | None = None,
     ttl: int | None = None,
     config: Config | None = None,
-):
+) -> str:
     """
     Update a DNS record.
 
-    :param str secret: A password like secret string. The secret string has to
+    :param secret: A password like secret string. The secret string has to
       be at least 8 characters long and only alphnumeric characters are
       allowed.
-    :param str fqdn: The Fully-Qualified Domain Name
+    :param fqdn: The Fully-Qualified Domain Name
       (e. g. ``www.example.com``). If you specify the argument ``fqdn``, you
       don’t have to specify the arguments ``zone_name`` and ``record_name``.
-    :param str zone_name: The zone name (e. g. ``example.com``). You have to
+    :param zone_name: The zone name (e. g. ``example.com``). You have to
       specify the argument ``record_name``.
-    :param str record_name: The record name (e. g. ``www``). You have to
+    :param record_name: The record name (e. g. ``www``). You have to
       specify the argument ``zone_name``.
-    :param str ip_1: A IP address, can be version 4 or version 6.
-    :param str ip_2: A second IP address, can be version 4 or version 6. Must
+    :param ip_1: An IP address, can be version 4 or version 6.
+    :param ip_2: A second IP address, can be version 4 or version 6. Must
       be a different version than ``ip_1``.
-    :param str ipv4: A IP address version 4.
-    :param str ipv6: A IP address version 6.
-    :param int ttl: Time to live.
+    :param ipv4: An IP address version 4.
+    :param ipv6: An IP address version 6.
+    :param ttl: Time to live.
     :param dict config: The configuration in the Python dictionary format
       (as returned by the function ``validate_config()``).
     """
@@ -93,9 +99,9 @@ def update_dns_record(
         ipaddresses=ip_addresses,
         ttl=ttl,
     )
-    results = update.update()
+    results: list[UpdateRecord] = update.update()
 
-    messages = []
+    messages: list[str] = []
     for result in results:
         message = "fqdn: {} old_ip: {} new_ip: {}".format(
             names.fqdn,

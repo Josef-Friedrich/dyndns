@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import typing
+
 import dns.exception
 import dns.name
 import dns.query
@@ -10,11 +12,11 @@ import dns.tsig
 import dns.tsigkeyring
 import dns.update
 
-from dyndns.exceptions import DNSServerError
+from dyndns.exceptions import DNSServerError, DyndnsError
 from dyndns.ipaddresses import IpAddressContainer
 from dyndns.log import UpdatesDB
 from dyndns.names import Names
-from dyndns.types import IpVersion, RecordType
+from dyndns.types import IpVersion, RecordType, UpdateRecord
 
 
 class DnsUpdate:
@@ -89,7 +91,7 @@ class DnsUpdate:
         except dns.exception.DNSException:
             return ""
 
-    def _query_tcp(self, dns_update):
+    def _query_tcp(self, dns_update: dns.update.Update) -> None:
         """Catch some errors and convert this errors to dyndns specific
         errors."""
         try:
@@ -108,11 +110,11 @@ class DnsUpdate:
                 '"{}" timed out.'.format(self.nameserver)
             )
 
-    def _set_record(self, new_ip, ip_version: IpVersion = 4):
+    def _set_record(self, new_ip: str, ip_version: IpVersion = 4) -> UpdateRecord:
         out = {}
         out["ip_version"] = ip_version
         out["new_ip"] = new_ip
-        old_ip = self._resolve(ip_version)
+        old_ip: str = self._resolve(ip_version)
         out["old_ip"] = old_ip
         rdtype = self._convert_record_type(ip_version)
 
@@ -137,7 +139,7 @@ class DnsUpdate:
             else:
                 out["status"] = "DNS_SERVER_ERROR"
 
-        return out
+        return typing.cast(UpdateRecord, out)
 
     def delete(self):
         self._dns_update.delete(self.names.fqdn, "a")
@@ -145,8 +147,10 @@ class DnsUpdate:
         self._query_tcp(self._dns_update)
         return True
 
-    def update(self):
-        results = []
+    def update(self) -> list[UpdateRecord]:
+        results: list[UpdateRecord] = []
+        if not self.ipaddresses:
+            raise DyndnsError("No ip addresses set.")
         if self.ipaddresses.ipv4:
             results.append(self._set_record(new_ip=self.ipaddresses.ipv4, ip_version=4))
         if self.ipaddresses.ipv6:
