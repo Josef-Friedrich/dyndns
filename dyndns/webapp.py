@@ -9,7 +9,7 @@ import flask
 from dyndns.config import get_config
 from dyndns.dns_updates import catch_errors, delete_dns_record, update_dns_record
 from dyndns.html_template import RestructuredText, template_base, template_usage
-from dyndns.log import UpdatesDB, msg
+from dyndns.log import Update, UpdatesDB, msg
 
 app = flask.Flask(__name__)
 
@@ -17,14 +17,16 @@ app = flask.Flask(__name__)
 @app.route("/update-by-path/<secret>/<fqdn>")
 @app.route("/update-by-path/<secret>/<fqdn>/<ip_1>")
 @app.route("/update-by-path/<secret>/<fqdn>/<ip_1>/<ip_2>")
-def update_by_path(secret, fqdn, ip_1=None, ip_2=None):
+def update_by_path(
+    secret: str, fqdn: str, ip_1: str | None = None, ip_2: str | None = None
+) -> str:
     return catch_errors(
         update_dns_record, secret=secret, fqdn=fqdn, ip_1=ip_1, ip_2=ip_2
     )
 
 
 @app.route("/update-by-query")
-def update_by_query_string():
+def update_by_query_string() -> str:
     args = flask.request.args
     # Returns ImmutableMultiDict([('secret', '12345678'), ...])
     # dict(args):
@@ -46,7 +48,7 @@ def update_by_query_string():
 
 
 @app.route("/delete-by-path/<secret>/<fqdn>")
-def delete_by_path(secret, fqdn, ip_1=None, ip_2=None):
+def delete_by_path(secret: str, fqdn: str) -> str:
     return catch_errors(delete_dns_record, secret=secret, fqdn=fqdn)
 
 
@@ -73,7 +75,7 @@ def home():
 
 
 @app.route("/about")
-def about():
+def about() -> str:
     return template_base(
         "About",
         RestructuredText.read_to_html("about.rst", remove_heading=True),
@@ -81,7 +83,7 @@ def about():
 
 
 @app.route("/docs/installation")
-def docs_installation():
+def docs_installation() -> str:
     return template_base(
         "Installation",
         RestructuredText.read_to_html("installation.rst", remove_heading=True),
@@ -89,7 +91,7 @@ def docs_installation():
 
 
 @app.route("/docs/configuration")
-def docs_configuration():
+def docs_configuration() -> str:
     return template_base(
         "Configuration",
         RestructuredText.read_to_html("configuration.rst", remove_heading=True),
@@ -97,18 +99,18 @@ def docs_configuration():
 
 
 @app.route("/docs/usage")
-def docs_usage():
+def docs_usage() -> str:
     return template_base("Usage", template_usage(remove_heading=True))
 
 
 @app.route("/statistics/updates-by-fqdn")
-def statistics_updates_by_fqdn():
+def statistics_updates_by_fqdn() -> str:
     db = UpdatesDB()
 
-    out = []
+    out: list[str] = []
     for fqdn in db.get_fqdns():
         rows = db.get_updates_by_fqdn(fqdn)
-        table = flask.render_template(
+        table: str = flask.render_template(
             "table-updates-by-fqdn.html", fqdn=fqdn, rows=rows
         )
         out.append(table)
@@ -117,16 +119,16 @@ def statistics_updates_by_fqdn():
 
 
 @app.route("/statistics/latest-submissions")
-def statistics_latest_submissions():
+def statistics_latest_submissions() -> str:
     db = UpdatesDB()
-    results = []
+    results: list[Update] = []
     db.cursor.execute("SELECT * FROM updates ORDER BY update_time DESC " "LIMIT 50;")
     rows = db.cursor.fetchall()
 
     for row in rows:
         results.append(db.normalize_row(row))
 
-    content = flask.render_template("table-latest-submissions.html", rows=results)
+    content: str = flask.render_template("table-latest-submissions.html", rows=results)
     return template_base("Latest submissions", content)
 
 

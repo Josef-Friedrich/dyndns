@@ -21,7 +21,7 @@ from dyndns.names import Names
 from dyndns.types import UpdateRecord
 
 
-def authenticate(secret: Any, config: Config):
+def authenticate(secret: Any, config: Config) -> None:
     if str(secret) != str(config["secret"]):
         raise ParameterError("You specified a wrong secret key.")
 
@@ -115,7 +115,7 @@ def update_dns_record(
 
 def delete_dns_record(
     secret: str | None = None, fqdn: str | None = None, config: Config | None = None
-):
+) -> str:
     if not config:
         config = get_config()
     zones = config["zones"]
