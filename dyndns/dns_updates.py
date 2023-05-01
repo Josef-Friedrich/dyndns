@@ -2,9 +2,11 @@
 
 from __future__ import annotations
 
+from typing import Any
+
 import flask
 
-from dyndns.config import get_config
+from dyndns.config import Config, get_config
 from dyndns.dns import DnsUpdate
 from dyndns.exceptions import (
     ConfigurationError,
@@ -18,7 +20,7 @@ from dyndns.log import msg
 from dyndns.names import Names
 
 
-def authenticate(secret, config):
+def authenticate(secret: Any, config: Config):
     if str(secret) != str(config["secret"]):
         raise ParameterError("You specified a wrong secret key.")
 
@@ -40,7 +42,7 @@ def update_dns_record(
     ipv4: str | None = None,
     ipv6: str | None = None,
     ttl: int | None = None,
-    config=None,
+    config: Config | None = None,
 ):
     """
     Update a DNS record.
@@ -110,7 +112,9 @@ def update_dns_record(
     return "".join(messages)
 
 
-def delete_dns_record(secret=None, fqdn=None, config=None):
+def delete_dns_record(
+    secret: str | None = None, fqdn: str | None = None, config: Config | None = None
+):
     if not config:
         config = get_config()
     zones = config["zones"]

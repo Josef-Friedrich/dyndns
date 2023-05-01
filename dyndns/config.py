@@ -4,15 +4,48 @@ from __future__ import annotations
 
 import os
 import re
+from io import TextIOWrapper
 from typing import Any
+
 import yaml
+from typing_extensions import NotRequired, TypedDict
 
 from dyndns.exceptions import ConfigurationError, IpAddressesError, NamesError
 from dyndns.ipaddresses import validate as validate_ip
 from dyndns.names import Zones, validate_hostname
 
 
-def load_config(config_file: str | None = None):
+class ZoneConfig(TypedDict):
+    name: str
+    """The domain name of the zone, for example
+      ``dyndns.example.com``."""
+
+    tsig_key: str
+    """The tsig-key. Use the ``hmac-sha512`` algorithm to
+      generate the key:
+      ``tsig-keygen -a hmac-sha512 dyndns.example.com``"""
+
+
+class Config(TypedDict):
+    secret: str
+    """A password-like secret string. The secret string has to
+  be at least 8 characters long and only alphnumeric characters are
+  allowed."""
+
+    nameserver: str
+    """The IP address of your nameserver. Version 4 or
+  version 6 are allowed. Use ``127.0.0.1`` to communicate with your
+  nameserver on the same machine."""
+
+    dyndns_domain: NotRequired[str]
+    """The domain through which the ``dyndns`` HTTP API is
+  provided. This key is only used in the usage page and can be omitted."""
+
+    zones: list[ZoneConfig] | Zones
+    """At least one zone specified as a list."""
+
+
+def load_config(config_file: str | None = None) -> Config:
     config_files: list[str] = []
     if config_file:
         config_files.append(config_file)
@@ -29,8 +62,8 @@ def load_config(config_file: str | None = None):
     if not config_file:
         raise ConfigurationError("The configuration file could not be found.")
 
-    stream = open(config_file, "r")
-    config = yaml.safe_load(stream)
+    stream: TextIOWrapper = open(config_file, "r")
+    config: Config = yaml.safe_load(stream)
     stream.close()
     return config
 
@@ -46,7 +79,7 @@ def validate_secret(secret: Any) -> str:
     )
 
 
-def validate_config(config: dict[str, Any] | None = None):
+def validate_config(config: Config | None = None) -> Config:
     if not config:
         try:
             config = load_config()
@@ -77,7 +110,7 @@ def validate_config(config: dict[str, Any] | None = None):
     try:
         validate_ip(config["nameserver"])
     except IpAddressesError:
-        msg = (
+        msg: str = (
             'The "nameserver" entry in your configuration is not a valid '
             'IP address: "{}".'.format(config["nameserver"])
         )
@@ -121,5 +154,5 @@ def validate_config(config: dict[str, Any] | None = None):
     return config
 
 
-def get_config(config_file: str | None = None):
+def get_config(config_file: str | None = None) -> Config:
     return validate_config(load_config(config_file))

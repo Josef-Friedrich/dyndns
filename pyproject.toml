@@ -19,6 +19,7 @@ docutils = "^0.19"
 Flask = "^2.1.2"
 Pygments = "^2.12.0"
 PyYAML = "^6.0"
+typing-extensions = "^4.5.0"
 
 [tool.poetry.dev-dependencies]
 beautifulsoup4 = "^4.11.1"
