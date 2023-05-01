@@ -11,7 +11,10 @@ import dns.tsigkeyring
 import dns.update
 
 from dyndns.exceptions import DNSServerError
+from dyndns.ipaddresses import IpAddressContainer
 from dyndns.log import UpdatesDB
+from dyndns.names import Names
+from dyndns.types import IpVersion, RecordType
 
 
 class DnsUpdate:
@@ -19,12 +22,26 @@ class DnsUpdate:
     Update the DNS server
     """
 
-    def __init__(self, nameserver, names, ipaddresses=None, ttl=None):
+    nameserver: str
+    """for example ``127.0.0.1``"""
+
+    names: Names
+
+    ipaddresses: IpAddressContainer | None
+
+    ttl: int
+
+    def __init__(
+        self,
+        nameserver: str,
+        names: Names,
+        ipaddresses: IpAddressContainer | None = None,
+        ttl: str | int | None = None,
+    ) -> None:
         self.nameserver = nameserver  #: The nameserver
         self.names = names
         self.ipaddresses = ipaddresses
-        self.ttl = ttl
-        if not self.ttl:
+        if not ttl:
             self.ttl = 300
         else:
             self.ttl = int(ttl)
@@ -33,7 +50,7 @@ class DnsUpdate:
             self.names.zone_name,
             self.names.tsig_key,
         )
-        self._dns_update = dns.update.Update(
+        self._dns_update: dns.update.Update = dns.update.Update(
             self.names.zone_name,
             keyring=self._tsigkeyring,
             keyalgorithm=dns.tsig.HMAC_SHA512,
@@ -42,18 +59,17 @@ class DnsUpdate:
         self.log_update = self._updates_db.log_update
 
     @staticmethod
-    def _build_tsigkeyring(zone_name, tsig_key):
+    def _build_tsigkeyring(zone_name: str, tsig_key: str):
         """
         :param zone: A zone name object
-        :type dns.name.Name: A instance of a dns.name.Name class
-        :param str tsig_key: A TSIG key
+        :param tsig_key: A TSIG key
         """
-        keyring = {}
+        keyring: dict[str, str] = {}
         keyring[zone_name] = tsig_key
         return dns.tsigkeyring.from_text(keyring)
 
     @staticmethod
-    def _convert_record_type(ip_version=4):
+    def _convert_record_type(ip_version: IpVersion = 4) -> RecordType:
         if ip_version == 4:
             return "a"
         elif ip_version == 6:
@@ -61,11 +77,11 @@ class DnsUpdate:
         else:
             raise ValueError("“ip_version” must be 4 or 6")
 
-    def _resolve(self, ip_version=4):
+    def _resolve(self, ip_version: IpVersion = 4):
         resolver = dns.resolver.Resolver()
         resolver.nameservers = [self.nameserver]
         try:
-            ip = resolver.query(
+            ip: dns.resolver.Answer = resolver.query(
                 self.names.fqdn,
                 self._convert_record_type(ip_version),
             )
@@ -74,7 +90,7 @@ class DnsUpdate:
             return ""
 
     def _query_tcp(self, dns_update):
-        """Catch some error and convert this error to dyndns specific
+        """Catch some errors and convert this errors to dyndns specific
         errors."""
         try:
             dns.query.tcp(dns_update, where=self.nameserver, timeout=5)
@@ -92,7 +108,7 @@ class DnsUpdate:
                 '"{}" timed out.'.format(self.nameserver)
             )
 
-    def _set_record(self, new_ip, ip_version=4):
+    def _set_record(self, new_ip, ip_version: IpVersion = 4):
         out = {}
         out["ip_version"] = ip_version
         out["new_ip"] = new_ip

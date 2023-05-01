@@ -9,12 +9,14 @@ from __future__ import annotations
 
 import binascii
 import re
+import typing
 
 import dns.name
 import dns.tsig
 import dns.tsigkeyring
 
 from dyndns.exceptions import NamesError
+from dyndns.types import ZoneConfig
 
 
 def validate_hostname(hostname: str) -> str:
@@ -82,27 +84,29 @@ class Zone:
 
 
 class Zones:
-    def __init__(self, zones_config):
+    zones: dict[str, Zone]
+
+    def __init__(self, zones_config: ZoneConfig) -> None:
         self.zones = {}
         for zone_config in zones_config:
             zone = Zone(zone_name=zone_config["name"], tsig_key=zone_config["tsig_key"])
             self.zones[zone.zone_name] = zone
 
-    def get_zone_by_name(self, zone_name):
+    def get_zone_by_name(self, zone_name: str):
         zone_name = validate_hostname(zone_name)
         if zone_name in self.zones:
             return self.zones[validate_hostname(zone_name)]
         raise NamesError('Unkown zone "{}".'.format(zone_name))
 
-    def split_fqdn(self, fqdn):
+    def split_fqdn(self, fqdn: str) -> tuple[str, str] | typing.Literal[False]:
         """Split hostname into record_name and zone_name
         for example: www.example.com -> www. example.com.
         """
         fqdn = validate_hostname(fqdn)
         # To handle subzones (example.com and dyndns.example.com)
-        results = {}
+        results: dict[int, tuple[str, str]] = {}
         for _, zone in self.zones.items():
-            record_name = fqdn.replace(zone.zone_name, "")
+            record_name: str = fqdn.replace(zone.zone_name, "")
             if record_name and len(record_name) < len(fqdn):
                 results[len(record_name)] = (record_name, zone.zone_name)
         for key in sorted(results):
@@ -111,14 +115,16 @@ class Zones:
 
 
 class Names:
-    fqdn: str | None = None
-    """The Fully Qualified Domain Name (e. g. ``www.example.com.``)"""
+    fqdn: str
+    """The Fully Qualified Domain Name (e. g. ``www.example.com.``)."""
 
-    zone_name: str | None = None
-    """The zone name (e. g. ``example.com.``)"""
+    zone_name: str
+    """The zone name (e. g. ``example.com.``)."""
 
-    record_name: str | None = None
-    """The name resource record (e. g. ``www.``)"""
+    record_name: str
+    """The name of the resource record (e. g. ``www.``)."""
+
+    tsig_key: str
 
     def __init__(
         self,
@@ -126,11 +132,11 @@ class Names:
         fqdn: str | None = None,
         zone_name: str | None = None,
         record_name: str | None = None,
-    ):
+    ) -> None:
         if fqdn and zone_name and record_name:
-            raise NamesError('Specify "fqdn" or "zone_name" and ' '"record_name".')
+            raise NamesError('Specify "fqdn" or "zone_name" and "record_name".')
 
-        self._zones = zones
+        self._zones: Zones = zones
 
         if fqdn:
             self.fqdn = validate_hostname(fqdn)

@@ -8,11 +8,15 @@ import os
 import sqlite3
 from sqlite3 import Connection, Cursor
 
+from typing_extensions import TypedDict
+
+from dyndns.types import LogLevel, RecordType
+
 log_file: str = os.path.join(os.getcwd(), "dyndns.log")
 
 
 class DateTime:
-    def __init__(self, date_time_string: str | None = None):
+    def __init__(self, date_time_string: str | None = None) -> None:
         if not date_time_string:
             self.datetime = datetime.datetime.now()
         else:
@@ -28,7 +32,6 @@ class DateTime:
 
 
 class UpdatesDB:
-
     db_file: str
     connection: Connection
     cursor: Cursor
@@ -81,7 +84,7 @@ class UpdatesDB:
         return out
 
     @staticmethod
-    def normalize_row(row: list[str]):
+    def normalize_row(row: list[str]) -> Update:
         return {
             "update_time": DateTime(row[0]).iso8601_short(),
             "updated": bool(row[1]),
@@ -90,22 +93,24 @@ class UpdatesDB:
             "ip": row[4],
         }
 
-    def get_updates_by_fqdn(self, fqdn: str):
+    def get_updates_by_fqdn(self, fqdn: str) -> list[Update]:
         self.cursor.execute(
             "SELECT * FROM updates WHERE updated = 1 AND" " fqdn = ?;", (fqdn,)
         )
         rows = self.cursor.fetchall()
-        out = []
+        out: list[Update] = []
         for row in rows:
-            row_dict = self.normalize_row(row)
+            row_dict: Update = self.normalize_row(row)
             out.append(row_dict)
         return out
 
-    def _is_fqdn_stored(self, fqdn: str):
+    def _is_fqdn_stored(self, fqdn: str) -> bool:
         self.cursor.execute("SELECT fqdn FROM fqdns WHERE fqdn = ?;", (fqdn,))
         return bool(self.cursor.fetchone())
 
-    def log_update(self, updated, fqdn, record_type, ip):
+    def log_update(
+        self, updated: bool, fqdn: str, record_type: RecordType, ip: str
+    ) -> None:
         if not self._is_fqdn_stored(fqdn):
             self.cursor.execute("INSERT INTO fqdns VALUES (?);", (fqdn,))
 
@@ -119,8 +124,15 @@ class UpdatesDB:
         self.connection.commit()
 
 
-class Message:
+class Update(TypedDict):
+    update_time: str
+    updated: bool
+    fqdn: str
+    record_type: str
+    ip: str
 
+
+class Message:
     # CRITICAL 	50
     # ERROR 	40
     # WARNING 	30
@@ -136,13 +148,13 @@ class Message:
         "UNCHANGED": 11,
     }
 
-    def __init__(self):
+    def __init__(self) -> None:
         self._setup_logging()
 
-    def _log_level_num(self, log_level):
+    def _log_level_num(self, log_level: LogLevel) -> int:
         return self.log_levels[log_level]
 
-    def _setup_logging(self):
+    def _setup_logging(self) -> None:
         for log_level, log_level_num in self.log_levels.items():
             logging.addLevelName(log_level_num, log_level)
 
@@ -153,7 +165,7 @@ class Message:
         self.logger.addHandler(handler)
         self.logger.setLevel(logging.DEBUG)
 
-    def message(self, msg, log_level):
+    def message(self, msg: str, log_level: LogLevel) -> str:
         self.logger.log(self._log_level_num(log_level), msg)
         return "{}: {}\n".format(log_level, msg)
 
