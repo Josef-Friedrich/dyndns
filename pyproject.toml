@@ -26,6 +26,8 @@ types-docutils = "^0"
 ruff = "^0"
 beautifulsoup4 = "^4"
 readme-patcher = "^0"
+Sphinx = "^7"
+sphinx-rtd-theme = "^2"
 
 [build-system]
 requires = ["poetry-core"]
