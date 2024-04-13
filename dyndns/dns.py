@@ -106,8 +106,9 @@ class DnsUpdate:
             )
         except dns.exception.Timeout:
             raise DNSServerError(
-                "The DNS operation to the nameserver "
-                '"{}" timed out.'.format(self.nameserver)
+                "The DNS operation to the nameserver " '"{}" timed out.'.format(
+                    self.nameserver
+                )
             )
 
     def _set_record(self, new_ip: str, ip_version: IpVersion = 4) -> UpdateRecord:

@@ -89,6 +89,7 @@ class IpAddressContainer:
             if remote_addr:
                 self._set_ip(remote_addr)
                 return remote_addr
+        return None
 
     def _set_ip(self, address: str) -> None:
         ip, ip_version = validate(address)
