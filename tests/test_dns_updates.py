@@ -70,7 +70,7 @@ class TestFunctionUpdateDnsRecord:
         self, Resolver: mock.Mock, Update: mock.Mock, tcp: mock.Mock
     ) -> None:
         resolver = Resolver.return_value
-        resolver.query.side_effect = [["1.2.3.4"], ["1.2.3.5"]]
+        resolver.resolve.side_effect = [["1.2.3.4"], ["1.2.3.5"]]
         update = Update.return_value
         result = update_dns_record(
             secret="12345678", fqdn="www.example.com", ip_1="1.2.3.5"

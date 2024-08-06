@@ -41,7 +41,7 @@ class TestClassDnsUpdate:
     @mock.patch("dns.resolver.Resolver")
     def test_method_resolve_patched(self, Resolver: mock.Mock) -> None:
         resolver = Resolver.return_value
-        resolver.query.return_value = ["1.2.3.4"]
+        resolver.resolve.return_value = ["1.2.3.4"]
         dns_update = DnsUpdate("8.8.8.8", names, ipaddresses)
         ip = dns_update._resolve(4)  # type: ignore
         ipaddress.ip_address(ip)
@@ -54,7 +54,7 @@ class TestClassDnsUpdate:
         self, Resolver: mock.Mock, Update: mock.Mock, tcp: mock.Mock
     ) -> None:
         resolver = Resolver.return_value
-        resolver.query.side_effect = [["1.2.3.4"], ["1.2.3.5"]]
+        resolver.resolve.side_effect = [["1.2.3.4"], ["1.2.3.5"]]
         update = Update.return_value
 
         dns = DnsUpdate("127.0.0.1", names, ipaddresses)
@@ -84,7 +84,7 @@ class TestClassDnsUpdate:
         self, Resolver: mock.Mock, Update: mock.Mock, tcp: mock.Mock
     ) -> None:
         resolver = Resolver.return_value
-        resolver.query.return_value = ["1.2.3.4"]
+        resolver.resolve.return_value = ["1.2.3.4"]
         update = Update.return_value
 
         dns_update = DnsUpdate("127.0.0.1", names, ipaddresses)
@@ -107,7 +107,7 @@ class TestClassDnsUpdate:
         self, Resolver: mock.Mock, Update: mock.Mock, tcp: mock.Mock
     ) -> None:
         resolver = Resolver.return_value
-        resolver.query.return_value = ["1.2.3.4"]
+        resolver.resolve.return_value = ["1.2.3.4"]
 
         dns_update = DnsUpdate("127.0.0.1", names, ipaddresses)
         result = dns_update._set_record("1.2.3.5", 4)  # type: ignore

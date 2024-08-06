@@ -20,7 +20,7 @@ class TestIntegration:
                     self.mock_Resolver = Resolver
                     self.mock_resolver = self.mock_Resolver.return_value
                     if side_effect:
-                        self.mock_resolver.query.side_effect = side_effect
+                        self.mock_resolver.resolve.side_effect = side_effect
                     self.response = self.app.get(path)
                     self.data = self.response.data.decode("utf-8")
                     self.mock_update = Update.return_value

@@ -83,7 +83,7 @@ class DnsUpdate:
         resolver = dns.resolver.Resolver()
         resolver.nameservers = [self.nameserver]
         try:
-            ip: dns.resolver.Answer = resolver.query(
+            ip: dns.resolver.Answer = resolver.resolve(
                 self.names.fqdn,
                 self._convert_record_type(ip_version),
             )
