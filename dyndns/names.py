@@ -86,7 +86,7 @@ class Zone:
 class Zones:
     zones: dict[str, Zone]
 
-    def __init__(self, zones_config: ZoneConfig) -> None:
+    def __init__(self, zones_config: list[ZoneConfig]) -> None:
         self.zones = {}
         for zone_config in zones_config:
             zone = Zone(zone_name=zone_config["name"], tsig_key=zone_config["tsig_key"])
