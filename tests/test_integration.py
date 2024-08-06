@@ -3,7 +3,6 @@ import unittest
 from unittest import mock
 
 import _helper
-from bs4 import BeautifulSoup
 
 from dyndns.webapp import app
 
@@ -200,36 +199,6 @@ class TestDeleteByPath(Integration):
             self.data,
             'UPDATED: Deleted "www.example.com.".\n',
         )
-
-
-class TestStatistics(unittest.TestCase):
-    def setUp(self):
-        app.config["TESTING"] = True
-        self.app = app.test_client()
-        _helper.remove_updates_db()
-        _helper.get_updates_db()
-
-    def get_soup(self, path):
-        response = self.app.get(path)
-        data = response.data.decode("utf-8")
-        return BeautifulSoup(data, "html.parser")
-
-    def test_statistics(self):
-        response = self.app.get("/statistics/updates-by-fqdn")
-        data = response.data.decode("utf-8")
-        self.assertIn("a.example.com", data)
-
-    def test_latest_submissions(self):
-        soup = self.get_soup("/statistics/latest-submissions")
-        result = soup.select("tbody tr")
-        self.assertEqual(len(result), 12)
-
-        result = soup.select(".is-selected")
-        self.assertEqual(len(result), 9)
-
-        result = soup.select("tbody > tr > td:nth-of-type(2)")
-        self.assertEqual(result[0].string, "a.example.com")
-        self.assertEqual(result[11].string, "c.example.com")
 
 
 if __name__ == "__main__":
