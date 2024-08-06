@@ -34,11 +34,6 @@ dyndns.exceptions module
 
 .. automodule:: dyndns.exceptions
 
-dyndns.html_template module
-^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-.. automodule:: dyndns.html_template
-
 dyndns.ipaddresses module
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 

@@ -15,12 +15,9 @@ classifiers = [
 [tool.poetry.dependencies]
 python = "^3.10"
 dnspython = "^2"
-docutils = "^0"
 Flask = "^3"
-Pygments = "^2"
 PyYAML = "^6"
 typing-extensions = "^4"
-types-docutils = "^0"
 
 [tool.poetry.group.dev.dependencies]
 ruff = "^0"
