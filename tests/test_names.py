@@ -1,8 +1,8 @@
 import pytest
-from _helper import zones
 
 from dyndns.exceptions import NamesError
 from dyndns.names import Names, Zone, Zones, validate_hostname, validate_tsig_key
+from tests._helper import zones
 
 
 class TestFunctionValidateHostname:

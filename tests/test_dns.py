@@ -2,12 +2,12 @@ import copy
 import ipaddress
 from unittest import mock
 
-import _helper
 import pytest
 
 from dyndns.dns import DnsUpdate
 from dyndns.ipaddresses import IpAddressContainer
 from dyndns.names import Names
+from tests import _helper
 
 ipaddresses = IpAddressContainer(ipv4="1.2.3.4")
 zones = _helper.zones

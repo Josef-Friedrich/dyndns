@@ -2,18 +2,18 @@ import os
 import unittest
 from unittest import mock
 
-import _helper
 import pytest
 
 from dyndns.dns_updates import update_dns_record
 from dyndns.exceptions import ParameterError
+from tests import _helper
 
 
 class TestFunctionUpdateDnsRecord:
     def setup_method(self):
         os.environ["dyndns_CONFIG_FILE"] = _helper.config_file
 
-    def assert_raises_msg(self, kwargs, error, msg) -> None:
+    def assert_raises_msg(self, kwargs, error, msg: str) -> None:
         with pytest.raises(error) as e:
             update_dns_record(**kwargs)
         assert e.value.args[0] == msg

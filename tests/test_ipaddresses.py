@@ -1,11 +1,20 @@
+from typing import TypedDict
+
 import pytest
 
 from dyndns.exceptions import IpAddressesError
 from dyndns.ipaddresses import IpAddressContainer
 
 
+class IpAddressContainerKwargs(TypedDict, total=False):
+    ip_1: str
+    ip_2: str
+    ipv4: str
+    ipv6: str
+
+
 class TestClassIpAddresses:
-    def assert_raises_msg(self, kwargs, msg) -> None:
+    def assert_raises_msg(self, kwargs: IpAddressContainerKwargs, msg: str) -> None:
         with pytest.raises(IpAddressesError) as e:
             IpAddressContainer(**kwargs)
         assert e.value.args[0] == msg

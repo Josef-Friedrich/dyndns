@@ -5,7 +5,9 @@ from dyndns.log import UpdatesDB
 from dyndns.names import Zones
 
 
-def check_internet_connectifity(host="8.8.8.8", port=53, timeout=3) -> bool:
+def check_internet_connectifity(
+    host: str = "8.8.8.8", port: int = 53, timeout: int = 3
+) -> bool:
     """
     https://stackoverflow.com/a/33117579
     Host: 8.8.8.8 (google-public-dns-a.google.com)

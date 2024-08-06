@@ -1,9 +1,8 @@
 import os
 from unittest import mock
 
-import _helper
-
 from dyndns.webapp import app
+from tests import _helper
 
 
 class TestIntegration:
