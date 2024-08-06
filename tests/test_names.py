@@ -1,106 +1,103 @@
 import unittest
 
+import pytest
 from _helper import zones
 
 from dyndns.exceptions import NamesError
 from dyndns.names import Names, Zone, Zones, validate_hostname, validate_tsig_key
 
 
-class TestFunctionValidateHostname(unittest.TestCase):
-    def assertRaisesMsg(self, hostname, msg):
-        with self.assertRaises(NamesError) as cm:
+class TestFunctionValidateHostname:
+    def assert_raises_msg(self, hostname, msg):
+        with pytest.raises(NamesError) as e:
             validate_hostname(hostname)
-        self.assertEqual(str(cm.exception), msg)
+        assert e.value.args[0] == msg
 
     def test_valid(self):
-        self.assertEqual(
-            validate_hostname("www.example.com"),
-            "www.example.com.",
-        )
+        assert validate_hostname("www.example.com") == "www.example.com."
 
     def test_invalid_tld(self):
-        self.assertRaisesMsg(
+        self.assert_raises_msg(
             "www.example.777",
             'The TLD "777" of the hostname "www.example.777" must be not '
             "all-numeric.",
         )
 
     def test_invalid_to_long(self):
-        self.assertRaisesMsg(
+        self.assert_raises_msg(
             "a" * 300,
             'The hostname "aaaaaaaaaa..." is longer than 253 characters.',
         )
 
     def test_invalid_characters(self):
-        self.assertRaisesMsg(
+        self.assert_raises_msg(
             "www.exämple.com",
             'The label "exämple" of the hostname "www.exämple.com" is ' "invalid.",
         )
 
 
-class TestFunctionValidateTsigKey(unittest.TestCase):
-    def assertRaisesMsg(self, tsig_key, msg):
-        with self.assertRaises(NamesError) as cm:
+class TestFunctionValidateTsigKey:
+    def assert_raises_msg(self, tsig_key, msg):
+        with pytest.raises(NamesError) as e:
             validate_tsig_key(tsig_key)
-        self.assertEqual(str(cm.exception), msg)
+        assert e.value.args[0] == msg
 
     def test_valid(self):
-        self.assertEqual(validate_tsig_key("tPyvZA=="), "tPyvZA==")
+        assert validate_tsig_key("tPyvZA==") == "tPyvZA=="
 
     def test_invalid_empty(self):
-        self.assertRaisesMsg("", 'Invalid tsig key: "".')
+        self.assert_raises_msg("", 'Invalid tsig key: "".')
 
     def test_invalid_string(self):
-        self.assertRaisesMsg("xxx", 'Invalid tsig key: "xxx".')
+        self.assert_raises_msg("xxx", 'Invalid tsig key: "xxx".')
 
 
-class TestClassZone(unittest.TestCase):
+class TestClassZone:
     def test_init(self):
         zone = Zone("example.com", "tPyvZA==")
-        self.assertEqual(zone.zone_name, "example.com.")
-        self.assertEqual(zone.tsig_key, "tPyvZA==")
+        assert zone.zone_name == "example.com."
+        assert zone.tsig_key == "tPyvZA=="
 
     def test_method_split_fqdn(self):
         zone = Zone("example.com", "tPyvZA==")
         record_name, zone_name = zone.split_fqdn("www.example.com")
-        self.assertEqual(record_name, "www.")
-        self.assertEqual(zone_name, "example.com.")
+        assert record_name == "www."
+        assert zone_name == "example.com."
 
     def test_method_build_fqdn(self):
         zone = Zone("example.com", "tPyvZA==")
         fqdn = zone.build_fqdn("www")
-        self.assertEqual(fqdn, "www.example.com.")
+        assert fqdn == "www.example.com."
 
 
-class TestClassZones(unittest.TestCase):
+class TestClassZones:
     def test_init(self):
         zone = zones.zones["example.org."]
-        self.assertEqual(zone.zone_name, "example.org.")
-        self.assertEqual(zone.tsig_key, "tPyvZA==")
+        assert zone.zone_name == "example.org."
+        assert zone.tsig_key == "tPyvZA=="
 
     def test_method_get_zone_by_name(self):
         zone = zones.get_zone_by_name("example.org")
-        self.assertEqual(zone.zone_name, "example.org.")
-        self.assertEqual(zone.tsig_key, "tPyvZA==")
+        assert zone.zone_name == "example.org."
+        assert zone.tsig_key == "tPyvZA=="
 
     def test_method_get_zone_by_name_raises(self):
-        with self.assertRaises(NamesError) as cm:
+        with pytest.raises(NamesError, match='Unkown zone "lol.org.".'):
             zones.get_zone_by_name("lol.org")
-        self.assertEqual(str(cm.exception), 'Unkown zone "lol.org.".')
 
 
-class TestClassZonesMethodSplitNames(unittest.TestCase):
+class TestClassZonesMethodSplitNames:
     def test_with_dot(self):
         result = zones.split_fqdn("www.example.com")
-        self.assertEqual(result, ("www.", "example.com."))
+        assert result == ("www.", "example.com.")
 
     def test_with_org(self):
         result = zones.split_fqdn("www.example.org")
-        self.assertEqual(result, ("www.", "example.org."))
+        assert result == ("www.", "example.org.")
 
     def test_unkown_zone(self):
         result = zones.split_fqdn("www.xx.org")
-        self.assertEqual(result, False)
+        assert result == False
 
     def test_subzones(self):
         zones = Zones(
@@ -110,24 +107,24 @@ class TestClassZonesMethodSplitNames(unittest.TestCase):
             ]
         )
         result = zones.split_fqdn("lol.dyndns.example.com")
-        self.assertEqual(result, ("lol.", "dyndns.example.com."))
+        assert result == ("lol.", "dyndns.example.com.")
 
 
-class TestClassNames(unittest.TestCase):
-    def setUp(self):
+class TestClassNames:
+    def setup_method(self):
         self.names = Names(zones=zones, fqdn="www.example.com")
 
     def test_attribute_fqdn(self):
-        self.assertEqual(self.names.fqdn, "www.example.com.")
+        assert self.names.fqdn == "www.example.com."
 
     def test_attribute_zone_name(self):
-        self.assertEqual(self.names.zone_name, "example.com.")
+        assert self.names.zone_name == "example.com."
 
     def test_attribute_record_name(self):
-        self.assertEqual(self.names.record_name, "www.")
+        assert self.names.record_name == "www."
 
     def test_attribute_tsig_key(self):
-        self.assertEqual(self.names.tsig_key, "tPyvZA==")
+        assert self.names.tsig_key == "tPyvZA=="
 
 
 # class TestClassNamesRaises(unittest.TestCase):

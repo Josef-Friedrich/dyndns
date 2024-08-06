@@ -3,43 +3,44 @@ import unittest
 from unittest import mock
 
 import _helper
+import pytest
 
 from dyndns.dns_updates import update_dns_record
 from dyndns.exceptions import ParameterError
 
 
-class TestFunctionUpdateDnsRecord(unittest.TestCase):
-    def setUp(self):
+class TestFunctionUpdateDnsRecord:
+    def setup_method(self):
         os.environ["dyndns_CONFIG_FILE"] = _helper.config_file
 
-    def assertRaisesMsg(self, kwargs, error, msg):
-        with self.assertRaises(error) as cm:
+    def assert_raises_msg(self, kwargs, error, msg):
+        with pytest.raises(error) as e:
             update_dns_record(**kwargs)
-        self.assertEqual(str(cm.exception), msg)
+        assert e.value.args[0] == msg
 
     def test_not_all_three_fqdn_etc(self):
-        self.assertRaisesMsg(
+        self.assert_raises_msg(
             {"secret": "12345678", "fqdn": "a", "zone_name": "b", "record_name": "c"},
             ParameterError,
             'Specify "fqdn" or "zone_name" and "record_name".',
         )
 
     def test_ip_1_invalid(self):
-        self.assertRaisesMsg(
+        self.assert_raises_msg(
             {"secret": "12345678", "fqdn": "www.example.com", "ip_1": "lol"},
             ParameterError,
             'Invalid ip address "lol"',
         )
 
     def test_ip_2_invalid(self):
-        self.assertRaisesMsg(
+        self.assert_raises_msg(
             {"secret": "12345678", "fqdn": "www.example.com", "ip_2": "lol"},
             ParameterError,
             'Invalid ip address "lol"',
         )
 
     def test_both_ip_same_version(self):
-        self.assertRaisesMsg(
+        self.assert_raises_msg(
             {
                 "secret": "12345678",
                 "fqdn": "www.example.com",
@@ -60,9 +61,9 @@ class TestFunctionUpdateDnsRecord(unittest.TestCase):
         result = update_dns_record(
             secret="12345678", fqdn="www.example.com", ip_1="1.2.3.5"
         )
-        self.assertEqual(
-            result,
-            "UPDATED: fqdn: www.example.com. old_ip: 1.2.3.4 new_ip: " "1.2.3.5\n",
+        assert (
+            result == "UPDATED: fqdn: www.example.com. old_ip: 1.2.3.4 new_ip: "
+            "1.2.3.5\n"
         )
         update.delete.assert_has_calls(
             [

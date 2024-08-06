@@ -4,6 +4,7 @@ import unittest
 from unittest import mock
 
 import _helper
+import pytest
 
 from dyndns.dns import DnsUpdate
 from dyndns.ipaddresses import IpAddressContainer
@@ -16,19 +17,19 @@ names = Names(zones, fqdn="www.example.com")
 NO_INTERNET_CONNECTIFITY = not _helper.check_internet_connectifity()
 
 
-class TestClassDnsUpdate(unittest.TestCase):
+class TestClassDnsUpdate:
     def test_method_build_tsigkeyring(self):
         du = DnsUpdate("127.0.0.1", names, ipaddresses)
         result = du._build_tsigkeyring(du.names.zone_name, du.names.tsig_key)
         for zone, tsig_key in result.items():
-            self.assertEqual(str(zone), "example.com.")
-            self.assertEqual(tsig_key, b"\xb4\xfc\xafd")
+            assert str(zone) == "example.com."
+            assert tsig_key == b"\xb4\xfc\xafd"
 
     def test_method_convert_record_type(self):
-        self.assertEqual(DnsUpdate._convert_record_type(4), "a")
-        self.assertEqual(DnsUpdate._convert_record_type(6), "aaaa")
+        assert DnsUpdate._convert_record_type(4) == "a"
+        assert DnsUpdate._convert_record_type(6) == "aaaa"
 
-    @unittest.skipIf(NO_INTERNET_CONNECTIFITY, "No uplink")
+    @pytest.mark.skipif(NO_INTERNET_CONNECTIFITY, reason="No uplink")
     def test_method_resolve_unpatched(self):
         _names = copy.deepcopy(names)
         _names.zone_name = "google.com."
@@ -43,7 +44,7 @@ class TestClassDnsUpdate(unittest.TestCase):
         dns = DnsUpdate("8.8.8.8", names, ipaddresses)
         ip = dns._resolve(4)
         ipaddress.ip_address(ip)
-        self.assertEqual(ip, "1.2.3.4")
+        assert ip == "1.2.3.4"
 
     @mock.patch("dns.query.tcp")
     @mock.patch("dns.update.Update")
@@ -64,18 +65,15 @@ class TestClassDnsUpdate(unittest.TestCase):
             ]
         )
         update.add.assert_called_with("www.example.com.", 300, "a", "1.2.3.5")
-        self.assertEqual(tcp.call_args[1]["where"], "127.0.0.1")
+        assert tcp.call_args[1]["where"] == "127.0.0.1"
         Update.assert_called()
 
-        self.assertEqual(
-            result,
-            {
-                "ip_version": 4,
-                "new_ip": "1.2.3.5",
-                "old_ip": "1.2.3.4",
-                "status": "UPDATED",
-            },
-        )
+        assert result == {
+            "ip_version": 4,
+            "new_ip": "1.2.3.5",
+            "old_ip": "1.2.3.4",
+            "status": "UPDATED",
+        }
 
     @mock.patch("dns.query.tcp")
     @mock.patch("dns.update.Update")
@@ -92,15 +90,12 @@ class TestClassDnsUpdate(unittest.TestCase):
         update.delete.assert_not_called()
         update.add.assert_not_called()
 
-        self.assertEqual(
-            result,
-            {
-                "ip_version": 4,
-                "new_ip": "1.2.3.4",
-                "old_ip": "1.2.3.4",
-                "status": "UNCHANGED",
-            },
-        )
+        assert result == {
+            "ip_version": 4,
+            "new_ip": "1.2.3.4",
+            "old_ip": "1.2.3.4",
+            "status": "UNCHANGED",
+        }
 
     @mock.patch("dns.query.tcp")
     @mock.patch("dns.update.Update")
@@ -113,12 +108,9 @@ class TestClassDnsUpdate(unittest.TestCase):
         dns.record_name = "www"
         result = dns._set_record("1.2.3.5", 4)
 
-        self.assertEqual(
-            result,
-            {
-                "ip_version": 4,
-                "new_ip": "1.2.3.5",
-                "old_ip": "1.2.3.4",
-                "status": "DNS_SERVER_ERROR",
-            },
-        )
+        assert result == {
+            "ip_version": 4,
+            "new_ip": "1.2.3.5",
+            "old_ip": "1.2.3.4",
+            "status": "DNS_SERVER_ERROR",
+        }
