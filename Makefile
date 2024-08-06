@@ -2,7 +2,7 @@ test:
 	poetry run tox
 
 test_quick:
-	poetry run tox -e py310
+	poetry run tox -e py312
 
 install: update
 

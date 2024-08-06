@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-import typing
+from typing import Any
 
 import dns.exception
 import dns.name
@@ -16,7 +16,7 @@ from dyndns.exceptions import DNSServerError, DyndnsError
 from dyndns.ipaddresses import IpAddressContainer
 from dyndns.log import UpdatesDB
 from dyndns.names import Names
-from dyndns.types import IpVersion, RecordType, UpdateRecord
+from dyndns.types import IpVersion, LogLevel, RecordType, UpdateRecord
 
 
 class DnsUpdate:
@@ -71,7 +71,7 @@ class DnsUpdate:
         return dns.tsigkeyring.from_text(keyring)
 
     @staticmethod
-    def _convert_record_type(ip_version: IpVersion = 4) -> RecordType:
+    def _convert_record_type(ip_version: Any = 4) -> RecordType:
         if ip_version == 4:
             return "a"
         elif ip_version == 6:
@@ -79,7 +79,7 @@ class DnsUpdate:
         else:
             raise ValueError("“ip_version” must be 4 or 6")
 
-    def _resolve(self, ip_version: IpVersion = 4):
+    def _resolve(self, ip_version: IpVersion = 4) -> str:
         resolver = dns.resolver.Resolver()
         resolver.nameservers = [self.nameserver]
         try:
@@ -112,15 +112,13 @@ class DnsUpdate:
             )
 
     def _set_record(self, new_ip: str, ip_version: IpVersion = 4) -> UpdateRecord:
-        out = {}
-        out["ip_version"] = ip_version
-        out["new_ip"] = new_ip
         old_ip: str = self._resolve(ip_version)
-        out["old_ip"] = old_ip
         rdtype = self._convert_record_type(ip_version)
 
+        status: LogLevel
+
         if new_ip == old_ip:
-            out["status"] = "UNCHANGED"
+            status = "UNCHANGED"
             self.log_update(False, self.names.fqdn, rdtype, new_ip)
         else:
             self._dns_update.delete(self.names.fqdn, rdtype)
@@ -135,12 +133,17 @@ class DnsUpdate:
             checked_ip = self._resolve(ip_version)
 
             if new_ip == checked_ip:
-                out["status"] = "UPDATED"
+                status = "UPDATED"
                 self.log_update(True, self.names.fqdn, rdtype, new_ip)
             else:
-                out["status"] = "DNS_SERVER_ERROR"
+                status = "DNS_SERVER_ERROR"
 
-        return typing.cast(UpdateRecord, out)
+        return {
+            "ip_version": ip_version,
+            "new_ip": new_ip,
+            "old_ip": old_ip,
+            "status": status,
+        }
 
     def delete(self):
         self._dns_update.delete(self.names.fqdn, "a")
