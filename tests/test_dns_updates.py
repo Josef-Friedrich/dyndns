@@ -1,5 +1,6 @@
 import os
 import unittest
+from typing import TypedDict
 from unittest import mock
 
 import pytest
@@ -9,11 +10,22 @@ from dyndns.exceptions import ParameterError
 from tests import _helper
 
 
+class UpdateDnsRecordKwargs(TypedDict, total=False):
+    secret: str
+    fqdn: str
+    zone_name: str
+    record_name: str
+    ip_1: str
+    ip_2: str
+
+
 class TestFunctionUpdateDnsRecord:
     def setup_method(self):
         os.environ["dyndns_CONFIG_FILE"] = _helper.config_file
 
-    def assert_raises_msg(self, kwargs, error, msg: str) -> None:
+    def assert_raises_msg(
+        self, kwargs: UpdateDnsRecordKwargs, error: type[Exception], msg: str
+    ) -> None:
         with pytest.raises(error) as e:
             update_dns_record(**kwargs)
         assert e.value.args[0] == msg
@@ -54,7 +66,9 @@ class TestFunctionUpdateDnsRecord:
     @mock.patch("dns.query.tcp")
     @mock.patch("dns.update.Update")
     @mock.patch("dns.resolver.Resolver")
-    def test_ipv4_update(self, Resolver, Update, tcp) -> None:
+    def test_ipv4_update(
+        self, Resolver: mock.Mock, Update: mock.Mock, tcp: mock.Mock
+    ) -> None:
         resolver = Resolver.return_value
         resolver.query.side_effect = [["1.2.3.4"], ["1.2.3.5"]]
         update = Update.return_value

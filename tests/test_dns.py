@@ -18,44 +18,47 @@ NO_INTERNET_CONNECTIFITY = not _helper.check_internet_connectifity()
 
 class TestClassDnsUpdate:
     def test_method_build_tsigkeyring(self) -> None:
-        du = DnsUpdate("127.0.0.1", names, ipaddresses)
-        result = du._build_tsigkeyring(du.names.zone_name, du.names.tsig_key)
+        dns_update = DnsUpdate("127.0.0.1", names, ipaddresses)
+        result = dns_update._build_tsigkeyring(  # type: ignore
+            dns_update.names.zone_name, dns_update.names.tsig_key
+        )
         for zone, tsig_key in result.items():
             assert str(zone) == "example.com."
             assert tsig_key == b"\xb4\xfc\xafd"
 
     def test_method_convert_record_type(self) -> None:
-        assert DnsUpdate._convert_record_type(4) == "a"
-        assert DnsUpdate._convert_record_type(6) == "aaaa"
+        assert DnsUpdate._convert_record_type(4) == "a"  # type: ignore
+        assert DnsUpdate._convert_record_type(6) == "aaaa"  # type: ignore
 
     @pytest.mark.skipif(NO_INTERNET_CONNECTIFITY, reason="No uplink")
     def test_method_resolve_unpatched(self) -> None:
         _names = copy.deepcopy(names)
         _names.zone_name = "google.com."
         dns = DnsUpdate("8.8.8.8", _names, ipaddresses)
-        ip = dns._resolve(4)
+        ip = dns._resolve(4)  # type: ignore
         ipaddress.ip_address(ip)
 
     @mock.patch("dns.resolver.Resolver")
-    def test_method_resolve_patched(self, Resolver) -> None:
+    def test_method_resolve_patched(self, Resolver: mock.Mock) -> None:
         resolver = Resolver.return_value
         resolver.query.return_value = ["1.2.3.4"]
-        dns = DnsUpdate("8.8.8.8", names, ipaddresses)
-        ip = dns._resolve(4)
+        dns_update = DnsUpdate("8.8.8.8", names, ipaddresses)
+        ip = dns_update._resolve(4)  # type: ignore
         ipaddress.ip_address(ip)
         assert ip == "1.2.3.4"
 
     @mock.patch("dns.query.tcp")
     @mock.patch("dns.update.Update")
     @mock.patch("dns.resolver.Resolver")
-    def test_method_set_record_updated(self, Resolver, Update, tcp) -> None:
+    def test_method_set_record_updated(
+        self, Resolver: mock.Mock, Update: mock.Mock, tcp: mock.Mock
+    ) -> None:
         resolver = Resolver.return_value
         resolver.query.side_effect = [["1.2.3.4"], ["1.2.3.5"]]
         update = Update.return_value
 
         dns = DnsUpdate("127.0.0.1", names, ipaddresses)
-        dns.record_name = "www"
-        result = dns._set_record("1.2.3.5", 4)
+        result = dns._set_record("1.2.3.5", 4)  # type: ignore
 
         update.delete.assert_has_calls(
             [
@@ -77,14 +80,15 @@ class TestClassDnsUpdate:
     @mock.patch("dns.query.tcp")
     @mock.patch("dns.update.Update")
     @mock.patch("dns.resolver.Resolver")
-    def test_method_set_record_unchanged(self, Resolver, Update, tcp) -> None:
+    def test_method_set_record_unchanged(
+        self, Resolver: mock.Mock, Update: mock.Mock, tcp: mock.Mock
+    ) -> None:
         resolver = Resolver.return_value
         resolver.query.return_value = ["1.2.3.4"]
         update = Update.return_value
 
-        dns = DnsUpdate("127.0.0.1", names, ipaddresses)
-        dns.record_name = "www"
-        result = dns._set_record("1.2.3.4", 4)
+        dns_update = DnsUpdate("127.0.0.1", names, ipaddresses)
+        result = dns_update._set_record("1.2.3.4", 4)  # type: ignore
 
         update.delete.assert_not_called()
         update.add.assert_not_called()
@@ -99,13 +103,14 @@ class TestClassDnsUpdate:
     @mock.patch("dns.query.tcp")
     @mock.patch("dns.update.Update")
     @mock.patch("dns.resolver.Resolver")
-    def test_method_set_record_error(self, Resolver, Update, tcp) -> None:
+    def test_method_set_record_error(
+        self, Resolver: mock.Mock, Update: mock.Mock, tcp: mock.Mock
+    ) -> None:
         resolver = Resolver.return_value
         resolver.query.return_value = ["1.2.3.4"]
 
-        dns = DnsUpdate("127.0.0.1", names, ipaddresses)
-        dns.record_name = "www"
-        result = dns._set_record("1.2.3.5", 4)
+        dns_update = DnsUpdate("127.0.0.1", names, ipaddresses)
+        result = dns_update._set_record("1.2.3.5", 4)  # type: ignore
 
         assert result == {
             "ip_version": 4,
