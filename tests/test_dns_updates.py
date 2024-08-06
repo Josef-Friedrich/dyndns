@@ -13,33 +13,33 @@ class TestFunctionUpdateDnsRecord:
     def setup_method(self):
         os.environ["dyndns_CONFIG_FILE"] = _helper.config_file
 
-    def assert_raises_msg(self, kwargs, error, msg):
+    def assert_raises_msg(self, kwargs, error, msg) -> None:
         with pytest.raises(error) as e:
             update_dns_record(**kwargs)
         assert e.value.args[0] == msg
 
-    def test_not_all_three_fqdn_etc(self):
+    def test_not_all_three_fqdn_etc(self) -> None:
         self.assert_raises_msg(
             {"secret": "12345678", "fqdn": "a", "zone_name": "b", "record_name": "c"},
             ParameterError,
             'Specify "fqdn" or "zone_name" and "record_name".',
         )
 
-    def test_ip_1_invalid(self):
+    def test_ip_1_invalid(self) -> None:
         self.assert_raises_msg(
             {"secret": "12345678", "fqdn": "www.example.com", "ip_1": "lol"},
             ParameterError,
             'Invalid ip address "lol"',
         )
 
-    def test_ip_2_invalid(self):
+    def test_ip_2_invalid(self) -> None:
         self.assert_raises_msg(
             {"secret": "12345678", "fqdn": "www.example.com", "ip_2": "lol"},
             ParameterError,
             'Invalid ip address "lol"',
         )
 
-    def test_both_ip_same_version(self):
+    def test_both_ip_same_version(self) -> None:
         self.assert_raises_msg(
             {
                 "secret": "12345678",
@@ -54,7 +54,7 @@ class TestFunctionUpdateDnsRecord:
     @mock.patch("dns.query.tcp")
     @mock.patch("dns.update.Update")
     @mock.patch("dns.resolver.Resolver")
-    def test_ipv4_update(self, Resolver, Update, tcp):
+    def test_ipv4_update(self, Resolver, Update, tcp) -> None:
         resolver = Resolver.return_value
         resolver.query.side_effect = [["1.2.3.4"], ["1.2.3.5"]]
         update = Update.return_value

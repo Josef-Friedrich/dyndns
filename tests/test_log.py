@@ -81,17 +81,17 @@ class TestClassUpdateDB:
         rows = db.cursor.fetchall()
         assert len(rows) == 2
 
-    def test_method_get_fqdns(self):
+    def test_method_get_fqdns(self) -> None:
         db = _helper.get_updates_db()
         assert db.get_fqdns() == ["a.example.com", "b.example.com", "c.example.com"]
 
-    def test_method_is_fqdn_stored(self):
+    def test_method_is_fqdn_stored(self) -> None:
         db = UpdatesDB()
         assert not db._is_fqdn_stored("example.com")
         db.log_update(True, "example.com", "a", "1.2.3.2")
         assert db._is_fqdn_stored("example.com")
 
-    def test_method_get_updates_by_fqdn(self):
+    def test_method_get_updates_by_fqdn(self) -> None:
         db = _helper.get_updates_db()
         result = db.get_updates_by_fqdn("a.example.com")
         assert result[0]["update_time"]

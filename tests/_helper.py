@@ -5,7 +5,7 @@ from dyndns.log import UpdatesDB
 from dyndns.names import Zones
 
 
-def check_internet_connectifity(host="8.8.8.8", port=53, timeout=3):
+def check_internet_connectifity(host="8.8.8.8", port=53, timeout=3) -> bool:
     """
     https://stackoverflow.com/a/33117579
     Host: 8.8.8.8 (google-public-dns-a.google.com)
@@ -32,7 +32,7 @@ zones = Zones(
 )
 
 
-def get_updates_db():
+def get_updates_db() -> UpdatesDB:
     db = UpdatesDB()
     arguments_list = (
         (True, "c.example.com", "a", "1.2.3.4"),
@@ -53,7 +53,7 @@ def get_updates_db():
     return db
 
 
-def remove_updates_db():
+def remove_updates_db() -> None:
     db_file = os.path.join(os.getcwd(), "dyndns.db")
     if os.path.exists(db_file):
         os.remove(db_file)

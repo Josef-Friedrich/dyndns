@@ -1,5 +1,4 @@
 import os
-import unittest
 from unittest import mock
 
 import _helper
@@ -8,12 +7,12 @@ from dyndns.webapp import app
 
 
 class TestIntegration:
-    def setup_method(self):
+    def setup_method(self) -> None:
         os.environ["dyndns_CONFIG_FILE"] = _helper.config_file
         app.config["TESTING"] = True
         self.app = app.test_client()
 
-    def get(self, path, side_effect=None):
+    def get(self, path, side_effect=None) -> None:
         with mock.patch("dns.query.tcp") as tcp:
             with mock.patch("dns.update.Update") as Update:
                 with mock.patch("dns.resolver.Resolver") as Resolver:
@@ -29,24 +28,24 @@ class TestIntegration:
 
 
 class TestMethodUpdateByPath:
-    def setup_method(self):
+    def setup_method(self) -> None:
         app.config["TESTING"] = True
         self.app = app.test_client()
 
     @mock.patch("dyndns.webapp.update_dns_record")
-    def test_call_secret_fqdn(self, update):
+    def test_call_secret_fqdn(self, update) -> None:
         update.return_value = "ok"
         self.app.get("/update-by-path/secret/fqdn")
         update.assert_called_with(secret="secret", fqdn="fqdn", ip_1=None, ip_2=None)
 
     @mock.patch("dyndns.webapp.update_dns_record")
-    def test_call_secret_fqdn_ip_1(self, update):
+    def test_call_secret_fqdn_ip_1(self, update) -> None:
         update.return_value = "ok"
         self.app.get("/update-by-path/secret/fqdn/ip_1")
         update.assert_called_with(secret="secret", fqdn="fqdn", ip_1="ip_1", ip_2=None)
 
     @mock.patch("dyndns.webapp.update_dns_record")
-    def test_call_secret_fqdn_ip1_ip2(self, update):
+    def test_call_secret_fqdn_ip1_ip2(self, update) -> None:
         update.return_value = "ok"
         self.app.get("/update-by-path/secret/fqdn/ip_1/ip_2")
         update.assert_called_with(
@@ -56,10 +55,10 @@ class TestMethodUpdateByPath:
 
 class TestUpdateByPath(TestIntegration):
     @staticmethod
-    def _url(path):
+    def _url(path) -> str:
         return "/update-by-path/12345678/www.example.com/{}".format(path)
 
-    def test_ipv4_update(self):
+    def test_ipv4_update(self) -> None:
         self.get(self._url("1.2.3.5"), [["1.2.3.4"], ["1.2.3.5"]])
 
         self.mock_update.delete.assert_has_calls(
@@ -74,7 +73,7 @@ class TestUpdateByPath(TestIntegration):
             "1.2.3.5\n"
         )
 
-    def test_ipv6_update(self):
+    def test_ipv6_update(self) -> None:
         self.get(self._url("1::3"), [["1::2"], ["1::3"]])
         self.mock_update.delete.assert_called_with("www.example.com.", "aaaa")
         self.mock_update.add.assert_called_with("www.example.com.", 300, "aaaa", "1::3")
@@ -82,7 +81,7 @@ class TestUpdateByPath(TestIntegration):
             self.data == "UPDATED: fqdn: www.example.com. old_ip: 1::2 new_ip: 1::3\n"
         )
 
-    def test_ipv4_ipv6_update(self):
+    def test_ipv4_ipv6_update(self) -> None:
         self.get(
             self._url("1.2.3.5/1::3"), [["1.2.3.4"], ["1.2.3.5"], ["1::2"], ["1::3"]]
         )
@@ -94,7 +93,7 @@ class TestUpdateByPath(TestIntegration):
             "UPDATED: fqdn: www.example.com. old_ip: 1::2 new_ip: 1::3\n"
         )
 
-    def test_ipv6_ipv4_update(self):
+    def test_ipv6_ipv4_update(self) -> None:
         self.get(
             self._url("1::3/1.2.3.5"), [["1.2.3.4"], ["1.2.3.5"], ["1::2"], ["1::3"]]
         )
@@ -109,17 +108,17 @@ class TestUpdateByPath(TestIntegration):
 
 class TestUpdateByQuery(TestIntegration):
     @staticmethod
-    def _url(query_string):
+    def _url(query_string) -> str:
         return (
             "/update-by-query?secret=12345678&record_name=www&zone_name="
             "example.com&{}".format(query_string)
         )
 
-    def test_unkown_argument(self):
+    def test_unkown_argument(self) -> None:
         self.get("/update-by-query?lol=lol")
         assert self.data == 'PARAMETER_ERROR: Unknown query string argument: "lol"\n'
 
-    def test_ipv4_update(self):
+    def test_ipv4_update(self) -> None:
         side_effect = [["1.2.3.4"], ["1.2.3.5"]]
         self.get(self._url("ipv4=1.2.3.5"), side_effect)
 
@@ -135,7 +134,7 @@ class TestUpdateByQuery(TestIntegration):
             "1.2.3.5\n"
         )
 
-    def test_ipv6_update(self):
+    def test_ipv6_update(self) -> None:
         side_effect = [["1::2"], ["1::3"]]
         self.get(self._url("ipv6=1::3"), side_effect)
         self.mock_update.delete.assert_called_with("www.example.com.", "aaaa")
@@ -144,7 +143,7 @@ class TestUpdateByQuery(TestIntegration):
             self.data == "UPDATED: fqdn: www.example.com. old_ip: 1::2 new_ip: 1::3\n"
         )
 
-    def test_ipv4_ipv6_update(self):
+    def test_ipv4_ipv6_update(self) -> None:
         side_effect = [["1.2.3.4"], ["1.2.3.5"], ["1::2"], ["1::3"]]
         self.get(self._url("ipv4=1.2.3.5&ipv6=1::3"), side_effect)
         assert (
@@ -153,7 +152,7 @@ class TestUpdateByQuery(TestIntegration):
             "UPDATED: fqdn: www.example.com. old_ip: 1::2 new_ip: 1::3\n"
         )
 
-    def test_ip_1_ip_2_update(self):
+    def test_ip_1_ip_2_update(self) -> None:
         side_effect = [["1.2.3.4"], ["1.2.3.5"], ["1::2"], ["1::3"]]
         self.get(self._url("ip_1=1.2.3.5&ip_2=1::3"), side_effect)
         assert (
@@ -162,11 +161,11 @@ class TestUpdateByQuery(TestIntegration):
             "UPDATED: fqdn: www.example.com. old_ip: 1::2 new_ip: 1::3\n"
         )
 
-    def test_invalid_ipv4(self):
+    def test_invalid_ipv4(self) -> None:
         self.get(self._url("ipv4=lol"))
         assert self.data == 'PARAMETER_ERROR: Invalid ip address "lol"\n'
 
-    def test_ttl(self):
+    def test_ttl(self) -> None:
         side_effect = [["1.2.3.4"], ["1.2.3.5"]]
         self.get(self._url("ipv4=1.2.3.5&ttl=123"), side_effect)
         self.mock_update.add.assert_called_with("www.example.com.", 123, "a", "1.2.3.5")
@@ -174,7 +173,7 @@ class TestUpdateByQuery(TestIntegration):
 
 class TestDeleteByPath(TestIntegration):
     @staticmethod
-    def _url(fqdn):
+    def _url(fqdn) -> str:
         return "/delete-by-path/12345678/{}".format(fqdn)
 
     def test_deletion(self):
@@ -188,7 +187,3 @@ class TestDeleteByPath(TestIntegration):
         )
         self.mock_update.add.assert_not_called()
         assert self.data == 'UPDATED: Deleted "www.example.com.".\n'
-
-
-if __name__ == "__main__":
-    unittest.main()
