@@ -15,7 +15,7 @@ import dns.update
 from dyndns.exceptions import DNSServerError, DyndnsError
 from dyndns.ipaddresses import IpAddressContainer
 from dyndns.log import UpdatesDB
-from dyndns.names import Names
+from dyndns.names import DomainName
 from dyndns.types import IpVersion, LogLevel, RecordType, UpdateRecord
 
 
@@ -27,7 +27,7 @@ class DnsUpdate:
     nameserver: str
     """for example ``127.0.0.1``"""
 
-    names: Names
+    names: DomainName
 
     ipaddresses: IpAddressContainer | None
 
@@ -36,7 +36,7 @@ class DnsUpdate:
     def __init__(
         self,
         nameserver: str,
-        names: Names,
+        names: DomainName,
         ipaddresses: IpAddressContainer | None = None,
         ttl: str | int | None = None,
     ) -> None:

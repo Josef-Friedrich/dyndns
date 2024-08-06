@@ -1,7 +1,13 @@
 import pytest
 
 from dyndns.exceptions import NamesError
-from dyndns.names import Names, Zone, Zones, validate_hostname, validate_tsig_key
+from dyndns.names import (
+    DomainName,
+    Zone,
+    ZonesCollection,
+    validate_hostname,
+    validate_tsig_key,
+)
 from tests._helper import zones
 
 
@@ -98,7 +104,7 @@ class TestClassZonesMethodSplitNames:
         assert result is False
 
     def test_subzones(self) -> None:
-        zones = Zones(
+        zones = ZonesCollection(
             [
                 {"name": "example.com.", "tsig_key": "tPyvZA=="},
                 {"name": "dyndns.example.com", "tsig_key": "tPyvZA=="},
@@ -110,7 +116,7 @@ class TestClassZonesMethodSplitNames:
 
 class TestClassNames:
     def setup_method(self) -> None:
-        self.names = Names(zones=zones, fqdn="www.example.com")
+        self.names = DomainName(zones=zones, fqdn="www.example.com")
 
     def test_attribute_fqdn(self) -> None:
         assert self.names.fqdn == "www.example.com."

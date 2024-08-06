@@ -11,7 +11,7 @@ import yaml
 
 from dyndns.exceptions import ConfigurationError, IpAddressesError, NamesError
 from dyndns.ipaddresses import validate as validate_ip
-from dyndns.names import Zones, validate_hostname
+from dyndns.names import ZonesCollection, validate_hostname
 from dyndns.types import Config
 
 
@@ -117,7 +117,7 @@ def validate_config(config: Config | None = None) -> Config:
             )
 
     try:
-        config["zones"] = Zones(config["zones"])
+        config["zones"] = ZonesCollection(config["zones"])
     except NamesError as error:
         raise ConfigurationError(str(error))
 

@@ -20,7 +20,7 @@ class UpdateDnsRecordKwargs(TypedDict, total=False):
 
 
 class TestFunctionUpdateDnsRecord:
-    def setup_method(self):
+    def setup_method(self) -> None:
         os.environ["dyndns_CONFIG_FILE"] = _helper.config_file
 
     def assert_raises_msg(

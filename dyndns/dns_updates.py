@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Any
+from typing import Any, Callable
 
 import flask
 
@@ -17,7 +17,7 @@ from dyndns.exceptions import (
 )
 from dyndns.ipaddresses import IpAddressContainer
 from dyndns.log import msg
-from dyndns.names import Names
+from dyndns.names import DomainName
 from dyndns.types import UpdateRecord
 
 
@@ -76,7 +76,7 @@ def update_dns_record(
     authenticate(secret, config)
 
     names = raise_parameter_error(
-        Names,
+        DomainName,
         NamesError,
         zones,
         fqdn=fqdn,
@@ -122,7 +122,7 @@ def delete_dns_record(
 
     authenticate(secret, config)
 
-    names = raise_parameter_error(Names, NamesError, zones, fqdn=fqdn)
+    names = raise_parameter_error(DomainName, NamesError, zones, fqdn=fqdn)
 
     delete = DnsUpdate(
         nameserver=config["nameserver"],
@@ -134,7 +134,7 @@ def delete_dns_record(
     return msg('Deletion not successful "{}".'.format(names.fqdn), "UNCHANGED")
 
 
-def catch_errors(function, **kwargs):
+def catch_errors(function: Callable[..., Any], **kwargs: Any) -> str:
     try:
         return function(**kwargs)
     except ParameterError as error:

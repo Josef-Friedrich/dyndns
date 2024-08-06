@@ -2,7 +2,7 @@ import os
 import socket
 
 from dyndns.log import UpdatesDB
-from dyndns.names import Zones
+from dyndns.names import ZonesCollection
 
 
 def check_internet_connectifity(
@@ -26,7 +26,7 @@ files_dir = os.path.join(os.path.dirname(__file__), "files")
 config_file = os.path.join(files_dir, "config.yml")
 
 
-zones = Zones(
+zones = ZonesCollection(
     [
         {"name": "example.com.", "tsig_key": "tPyvZA=="},
         {"name": "example.org", "tsig_key": "tPyvZA=="},
