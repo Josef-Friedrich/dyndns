@@ -292,4 +292,3 @@ Use cron jobs (``crontab -e``) to periodically push updates to the
 
     */2 * * * * /usr/bin/dyndns-update-script.sh -S 5 -d br-lan -4 nrouter
     */2 * * * * /usr/bin/dyndns-update-script.sh -d br-lan -4 nuernberg
-

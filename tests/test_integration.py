@@ -202,47 +202,6 @@ class TestDeleteByPath(Integration):
         )
 
 
-class TestStaticPages(unittest.TestCase):
-    def setUp(self):
-        app.config["TESTING"] = True
-        self.app = app.test_client()
-
-    def get_soup(self, path):
-        response = self.app.get(path)
-        data = response.data.decode("utf-8")
-        return BeautifulSoup(data, "html.parser")
-
-    def test_index(self):
-        response = self.app.get("/")
-        data = response.data.decode("utf-8")
-        self.assertIn("Usage", data)
-        self.assertIn("About", data)
-        self.assertIn("https://pypi.org/project/dyndns", data)
-        self.assertIn("<!-- dyndns base template -->", data)
-
-    def test_about(self):
-        response = self.app.get("/about")
-        data = response.data.decode("utf-8")
-        self.assertIn("About", data)
-        self.assertIn("https://pypi.org/project/dyndns", data)
-        self.assertIn("<!-- dyndns base template -->", data)
-
-    def test_docs_installation(self):
-        soup = self.get_soup("/docs/installation")
-        self.assertEqual(soup.title.string, "dyndns: Installation")
-        response = self.app.get("/docs/installation")
-        data = response.data.decode("utf-8")
-        self.assertIn('<h1 class="title">Installation</h1>', data)
-
-    def test_docs_configuration(self):
-        soup = self.get_soup("/docs/configuration")
-        self.assertEqual(soup.title.string, "dyndns: Configuration")
-
-    def test_docs_usage(self):
-        soup = self.get_soup("/docs/usage")
-        self.assertEqual(soup.title.string, "dyndns: Usage")
-
-
 class TestStatistics(unittest.TestCase):
     def setUp(self):
         app.config["TESTING"] = True

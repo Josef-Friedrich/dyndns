@@ -6,9 +6,8 @@ import inspect
 
 import flask
 
-from dyndns.config import get_config
 from dyndns.dns_updates import catch_errors, delete_dns_record, update_dns_record
-from dyndns.html_template import RestructuredText, template_base, template_usage
+from dyndns.html_template import template_base
 from dyndns.log import Update, UpdatesDB, msg
 
 app = flask.Flask(__name__)
@@ -50,57 +49,6 @@ def update_by_query_string() -> str:
 @app.route("/delete-by-path/<secret>/<fqdn>")
 def delete_by_path(secret: str, fqdn: str) -> str:
     return catch_errors(delete_dns_record, secret=secret, fqdn=fqdn)
-
-
-@app.route("/")
-def home():
-    config = False
-    try:
-        config = get_config()
-    except Exception:
-        pass
-
-    if not config:
-        configuration = RestructuredText.read_to_html("configuration.rst")
-    else:
-        configuration = ""
-
-    content = flask.render_template(
-        "home.html",
-        usage=template_usage(),
-        configuration=configuration,
-        about=RestructuredText.read_to_html("about.rst"),
-    )
-    return template_base("dyndns", content)
-
-
-@app.route("/about")
-def about() -> str:
-    return template_base(
-        "About",
-        RestructuredText.read_to_html("about.rst", remove_heading=True),
-    )
-
-
-@app.route("/docs/installation")
-def docs_installation() -> str:
-    return template_base(
-        "Installation",
-        RestructuredText.read_to_html("installation.rst", remove_heading=True),
-    )
-
-
-@app.route("/docs/configuration")
-def docs_configuration() -> str:
-    return template_base(
-        "Configuration",
-        RestructuredText.read_to_html("configuration.rst", remove_heading=True),
-    )
-
-
-@app.route("/docs/usage")
-def docs_usage() -> str:
-    return template_base("Usage", template_usage(remove_heading=True))
 
 
 @app.route("/statistics/updates-by-fqdn")
