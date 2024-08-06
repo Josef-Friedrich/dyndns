@@ -28,6 +28,7 @@ beautifulsoup4 = "^4"
 readme-patcher = "^0"
 Sphinx = "^7"
 sphinx-rtd-theme = "^2"
+tox = "^4"
 
 [build-system]
 requires = ["poetry-core"]
