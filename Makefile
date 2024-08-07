@@ -1,8 +1,13 @@
-test:
-	poetry run tox
+all: test
+
+serve:
+	poetry run dyndns-debug serve
 
 test_quick:
 	poetry run tox -e py312
+
+test:
+	poetry run tox
 
 install: update
 

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import inspect
+import logging
 
 import flask
 
@@ -10,6 +11,16 @@ from dyndns.dns_updates import catch_errors, delete_dns_record, update_dns_recor
 from dyndns.log import logger
 
 app = flask.Flask(__name__)
+
+
+log = logging.getLogger("werkzeug")
+# log.disabled = True
+log.setLevel(logging.WARNING)
+
+
+@app.route("/")
+def home() -> str:
+    return "dyndns"
 
 
 @app.route("/update-by-path/<secret>/<fqdn>")

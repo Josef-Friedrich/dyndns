@@ -39,7 +39,7 @@ def get_argparser() -> argparse.ArgumentParser:
 def main() -> None:
     args: argparse.Namespace = get_argparser().parse_args()
     if args.subcommand == "serve":
-        app.run(debug=True, port=args.port)
+        app.run(debug=False, port=args.port)
 
 
 if __name__ == "__main__":
