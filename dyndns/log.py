@@ -132,13 +132,15 @@ class Update(TypedDict):
     ip: str
 
 
-class Message:
+class Logger:
     # CRITICAL 	50
     # ERROR 	40
     # WARNING 	30
     # INFO 	20
     # DEBUG 	10
     # NOTSET 	0
+
+    __logger: logging.Logger
 
     log_levels: dict[str, int] = {
         "CONFIGURATION_ERROR": 51,
@@ -149,26 +151,32 @@ class Message:
     }
 
     def __init__(self) -> None:
-        self._setup_logging()
+        for log_level, log_level_num in self.log_levels.items():
+            logging.addLevelName(log_level_num, log_level)
+
+        self.__logger = logging.getLogger("dyndns")
+        handler = logging.FileHandler(log_file)
+        formatter = logging.Formatter("%(asctime)s %(levelname)s: %(message)s")
+        handler.setFormatter(formatter)
+        self.__logger.addHandler(handler)
+        self.__logger.setLevel(logging.DEBUG)
 
     def _log_level_num(self, log_level: LogLevel) -> int:
         return self.log_levels[log_level]
 
-    def _setup_logging(self) -> None:
-        for log_level, log_level_num in self.log_levels.items():
-            logging.addLevelName(log_level_num, log_level)
-
-        self.logger = logging.getLogger("dyndns")
-        handler = logging.FileHandler(log_file)
-        formatter = logging.Formatter("%(asctime)s %(levelname)s: %(message)s")
-        handler.setFormatter(formatter)
-        self.logger.addHandler(handler)
-        self.logger.setLevel(logging.DEBUG)
-
-    def message(self, msg: str, log_level: LogLevel) -> str:
-        self.logger.log(self._log_level_num(log_level), msg)
+    def log(self, msg: str, log_level: LogLevel) -> str:
+        self.__logger.log(self._log_level_num(log_level), msg)
         return "{}: {}\n".format(log_level, msg)
 
+    def log_update(
+        self, updated: bool, fqdn: str, record_type: RecordType, ip: str
+    ) -> None:
+        message = f"{fqdn} {record_type} {ip}"
+        if updated:
+            self.log(message, "UPDATED")
+        else:
+            self.log(message, "UNCHANGED")
 
-message = Message()
-msg = message.message
+
+logger = Logger()
+msg = logger.log
