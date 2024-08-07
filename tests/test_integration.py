@@ -1,4 +1,5 @@
 import os
+from typing import Any
 from unittest import mock
 
 from dyndns.webapp import app
@@ -11,7 +12,7 @@ class TestIntegration:
         app.config["TESTING"] = True
         self.app = app.test_client()
 
-    def get(self, path, side_effect=None) -> None:
+    def get(self, path: str, side_effect: Any = None) -> None:
         with mock.patch("dns.query.tcp") as tcp:
             with mock.patch("dns.update.Update") as Update:
                 with mock.patch("dns.resolver.Resolver") as Resolver:
@@ -32,19 +33,19 @@ class TestMethodUpdateByPath:
         self.app = app.test_client()
 
     @mock.patch("dyndns.webapp.update_dns_record")
-    def test_call_secret_fqdn(self, update) -> None:
+    def test_call_secret_fqdn(self, update: mock.Mock) -> None:
         update.return_value = "ok"
         self.app.get("/update-by-path/secret/fqdn")
         update.assert_called_with(secret="secret", fqdn="fqdn", ip_1=None, ip_2=None)
 
     @mock.patch("dyndns.webapp.update_dns_record")
-    def test_call_secret_fqdn_ip_1(self, update) -> None:
+    def test_call_secret_fqdn_ip_1(self, update: mock.Mock) -> None:
         update.return_value = "ok"
         self.app.get("/update-by-path/secret/fqdn/ip_1")
         update.assert_called_with(secret="secret", fqdn="fqdn", ip_1="ip_1", ip_2=None)
 
     @mock.patch("dyndns.webapp.update_dns_record")
-    def test_call_secret_fqdn_ip1_ip2(self, update) -> None:
+    def test_call_secret_fqdn_ip1_ip2(self, update: mock.Mock) -> None:
         update.return_value = "ok"
         self.app.get("/update-by-path/secret/fqdn/ip_1/ip_2")
         update.assert_called_with(
@@ -54,7 +55,7 @@ class TestMethodUpdateByPath:
 
 class TestUpdateByPath(TestIntegration):
     @staticmethod
-    def _url(path) -> str:
+    def _url(path: str) -> str:
         return "/update-by-path/12345678/www.example.com/{}".format(path)
 
     def test_ipv4_update(self) -> None:
@@ -107,7 +108,7 @@ class TestUpdateByPath(TestIntegration):
 
 class TestUpdateByQuery(TestIntegration):
     @staticmethod
-    def _url(query_string) -> str:
+    def _url(query_string: str) -> str:
         return (
             "/update-by-query?secret=12345678&record_name=www&zone_name="
             "example.com&{}".format(query_string)
@@ -172,7 +173,7 @@ class TestUpdateByQuery(TestIntegration):
 
 class TestDeleteByPath(TestIntegration):
     @staticmethod
-    def _url(fqdn) -> str:
+    def _url(fqdn: str) -> str:
         return "/delete-by-path/12345678/{}".format(fqdn)
 
     def test_deletion(self):

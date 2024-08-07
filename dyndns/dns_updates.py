@@ -16,7 +16,7 @@ from dyndns.exceptions import (
     ParameterError,
 )
 from dyndns.ipaddresses import IpAddressContainer
-from dyndns.log import msg
+from dyndns.log import logger
 from dyndns.names import DomainName
 from dyndns.types import UpdateRecord
 
@@ -108,7 +108,7 @@ def update_dns_record(
             result["old_ip"],
             result["new_ip"],
         )
-        messages.append(msg(message, result["status"]))
+        messages.append(logger.log(message, result["status"]))
 
     return "".join(messages)
 
@@ -130,16 +130,16 @@ def delete_dns_record(
     )
 
     if delete.delete():
-        return msg('Deleted "{}".'.format(names.fqdn), "UPDATED")
-    return msg('Deletion not successful "{}".'.format(names.fqdn), "UNCHANGED")
+        return logger.log('Deleted "{}".'.format(names.fqdn), "UPDATED")
+    return logger.log('Deletion not successful "{}".'.format(names.fqdn), "UNCHANGED")
 
 
 def catch_errors(function: Callable[..., Any], **kwargs: Any) -> str:
     try:
         return function(**kwargs)
     except ParameterError as error:
-        return msg(str(error), "PARAMETER_ERROR")
+        return logger.log(str(error), "PARAMETER_ERROR")
     except ConfigurationError as error:
-        return msg(str(error), "CONFIGURATION_ERROR")
+        return logger.log(str(error), "CONFIGURATION_ERROR")
     except DNSServerError as error:
-        return msg(str(error), "DNS_SERVER_ERROR")
+        return logger.log(str(error), "DNS_SERVER_ERROR")

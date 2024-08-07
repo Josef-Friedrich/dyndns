@@ -14,7 +14,7 @@ import dns.update
 
 from dyndns.exceptions import DNSServerError, DyndnsError
 from dyndns.ipaddresses import IpAddressContainer
-from dyndns.log import UpdatesDB
+from dyndns.log import logger
 from dyndns.names import DomainName
 from dyndns.types import IpVersion, LogLevel, RecordType, UpdateRecord
 
@@ -57,8 +57,6 @@ class DnsUpdate:
             keyring=self._tsigkeyring,
             keyalgorithm=dns.tsig.HMAC_SHA512,
         )
-        self._updates_db = UpdatesDB()
-        self.log_update = self._updates_db.log_update
 
     @staticmethod
     def _build_tsigkeyring(zone_name: str, tsig_key: str):
@@ -87,7 +85,7 @@ class DnsUpdate:
                 self.names.fqdn,
                 self._convert_record_type(ip_version),
             )
-            return str(ip[0])
+            return str(ip[0])  # type: ignore
         except dns.exception.DNSException:
             return ""
 
@@ -119,7 +117,7 @@ class DnsUpdate:
 
         if new_ip == old_ip:
             status = "UNCHANGED"
-            self.log_update(False, self.names.fqdn, rdtype, new_ip)
+            logger.log_update(False, self.names.fqdn, rdtype, new_ip)
         else:
             self._dns_update.delete(self.names.fqdn, rdtype)
             # If the client (a notebook) moves in a network without ipv6
@@ -134,7 +132,7 @@ class DnsUpdate:
 
             if new_ip == checked_ip:
                 status = "UPDATED"
-                self.log_update(True, self.names.fqdn, rdtype, new_ip)
+                logger.log_update(True, self.names.fqdn, rdtype, new_ip)
             else:
                 status = "DNS_SERVER_ERROR"
 

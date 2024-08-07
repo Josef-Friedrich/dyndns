@@ -7,7 +7,7 @@ import inspect
 import flask
 
 from dyndns.dns_updates import catch_errors, delete_dns_record, update_dns_record
-from dyndns.log import msg
+from dyndns.log import logger
 
 app = flask.Flask(__name__)
 
@@ -37,7 +37,7 @@ def update_by_query_string() -> str:
         input_args[key] = arg
 
         if key not in kwargs:
-            return msg(
+            return logger.log(
                 'Unknown query string argument: "{}"'.format(key),
                 "PARAMETER_ERROR",
             )
