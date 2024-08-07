@@ -26,11 +26,24 @@ def authenticate(secret: Any, config: Config) -> None:
         raise ParameterError("You specified a wrong secret key.")
 
 
-def raise_parameter_error(function, exception, *args, **kwargs):
+def raise_parameter_error(
+    function: Callable[..., Any], exception: type[Exception], *args: Any, **kwargs: Any
+) -> Any:
     try:
         return function(*args, **kwargs)
     except exception as e:
         raise ParameterError(str(e))
+
+
+def catch_errors(function: Callable[..., Any], **kwargs: Any) -> str:
+    try:
+        return function(**kwargs)
+    except ParameterError as error:
+        return logger.log(str(error), "PARAMETER_ERROR")
+    except ConfigurationError as error:
+        return logger.log(str(error), "CONFIGURATION_ERROR")
+    except DNSServerError as error:
+        return logger.log(str(error), "DNS_SERVER_ERROR")
 
 
 def update_dns_record(
@@ -132,14 +145,3 @@ def delete_dns_record(
     if delete.delete():
         return logger.log('Deleted "{}".'.format(names.fqdn), "UPDATED")
     return logger.log('Deletion not successful "{}".'.format(names.fqdn), "UNCHANGED")
-
-
-def catch_errors(function: Callable[..., Any], **kwargs: Any) -> str:
-    try:
-        return function(**kwargs)
-    except ParameterError as error:
-        return logger.log(str(error), "PARAMETER_ERROR")
-    except ConfigurationError as error:
-        return logger.log(str(error), "CONFIGURATION_ERROR")
-    except DNSServerError as error:
-        return logger.log(str(error), "DNS_SERVER_ERROR")

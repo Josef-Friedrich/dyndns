@@ -49,7 +49,7 @@ def validate_secret(secret: Any) -> str:
     )
 
 
-def validate_config(config: Config | None = None) -> Config:
+def validate_config(config: Any = None) -> Config:
     if not config:
         try:
             config = load_config()
