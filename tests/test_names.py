@@ -12,7 +12,7 @@ from tests._helper import zones
 
 
 class TestFunctionValidateHostname:
-    def assert_raises_msg(self, hostname, msg) -> None:
+    def assert_raises_msg(self, hostname: str, msg: str) -> None:
         with pytest.raises(NamesError) as e:
             validate_hostname(hostname)
         assert e.value.args[0] == msg
@@ -41,7 +41,7 @@ class TestFunctionValidateHostname:
 
 
 class TestFunctionValidateTsigKey:
-    def assert_raises_msg(self, tsig_key, msg) -> None:
+    def assert_raises_msg(self, tsig_key: str, msg: str) -> None:
         with pytest.raises(NamesError) as e:
             validate_tsig_key(tsig_key)
         assert e.value.args[0] == msg
