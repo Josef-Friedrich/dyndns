@@ -64,6 +64,9 @@ class Logger:
         formatter = logging.Formatter("%(asctime)s %(levelname)s: %(message)s")
         handler.setFormatter(formatter)
         self.__logger.addHandler(handler)
+        stream_handler = logging.StreamHandler()
+        stream_handler.setFormatter(formatter)
+        self.__logger.addHandler(stream_handler)
         self.__logger.setLevel(logging.DEBUG)
 
     def _log_level_num(self, log_level: LogLevel) -> int:
