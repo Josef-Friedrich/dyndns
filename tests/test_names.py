@@ -13,9 +13,8 @@ from tests._helper import zones
 
 class TestFunctionValidateHostname:
     def assert_raises_msg(self, hostname: str, msg: str) -> None:
-        with pytest.raises(NamesError) as e:
+        with pytest.raises(NamesError, match=msg):
             validate_hostname(hostname)
-        assert e.value.args[0] == msg
 
     def test_valid(self) -> None:
         assert validate_hostname("www.example.com") == "www.example.com."
@@ -23,8 +22,7 @@ class TestFunctionValidateHostname:
     def test_invalid_tld(self) -> None:
         self.assert_raises_msg(
             "www.example.777",
-            'The TLD "777" of the hostname "www.example.777" must be not '
-            "all-numeric.",
+            'The TLD "777" of the hostname "www.example.777" must be not all-numeric.',
         )
 
     def test_invalid_to_long(self) -> None:
@@ -36,7 +34,7 @@ class TestFunctionValidateHostname:
     def test_invalid_characters(self) -> None:
         self.assert_raises_msg(
             "www.exämple.com",
-            'The label "exämple" of the hostname "www.exämple.com" is ' "invalid.",
+            'The label "exämple" of the hostname "www.exämple.com" is invalid.',
         )
 
 

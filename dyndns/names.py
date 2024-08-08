@@ -21,7 +21,7 @@ from dyndns.types import ZoneConfig
 
 def validate_hostname(hostname: str) -> str:
     """
-    Validates the given hostname.
+    Validate the given hostname.
 
     :param hostname: The hostname to be validated.
 
@@ -139,8 +139,10 @@ class ZonesCollection:
         raise NamesError('Unkown zone "{}".'.format(zone_name))
 
     def split_fqdn(self, fqdn: str) -> tuple[str, str] | typing.Literal[False]:
-        """Split hostname into record_name and zone_name
-        for example: www.example.com -> www. example.com.
+        """Split a fully qualified domain name into a record name and a zone name,
+        for example: ``www.example.com`` -> ``www.`` ``example.com.``
+
+        :param fqdn: The fully qualified domain name.
         """
         fqdn = validate_hostname(fqdn)
         # To handle subzones (example.com and dyndns.example.com)
