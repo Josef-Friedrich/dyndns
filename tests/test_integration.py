@@ -5,11 +5,12 @@ from unittest import mock
 from dyndns.webapp import app
 from tests import _helper
 
+app.config["TESTING"] = True
+
 
 class TestIntegration:
     def setup_method(self) -> None:
         os.environ["dyndns_CONFIG_FILE"] = _helper.config_file
-        app.config["TESTING"] = True
         self.app = app.test_client()
 
     def get(self, path: str, side_effect: Any = None) -> None:
@@ -29,7 +30,6 @@ class TestIntegration:
 
 class TestMethodUpdateByPath:
     def setup_method(self) -> None:
-        app.config["TESTING"] = True
         self.app = app.test_client()
 
     @mock.patch("dyndns.webapp.update_dns_record")

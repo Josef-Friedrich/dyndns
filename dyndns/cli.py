@@ -41,6 +41,7 @@ def get_argparser() -> argparse.ArgumentParser:
 def main() -> None:
     args: argparse.Namespace = get_argparser().parse_args()
     if args.subcommand == "serve":
+        print(f"Running the webapp on port {args.port}")
         app.run(debug=False, port=args.port)
     elif args.subcommand == "check":
         print("check")

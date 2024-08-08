@@ -8,6 +8,7 @@ import logging
 import flask
 
 from dyndns.dns_updates import catch_errors, delete_dns_record, update_dns_record
+from dyndns.exceptions import ConfigurationError
 from dyndns.log import logger
 
 app = flask.Flask(__name__)
@@ -21,6 +22,25 @@ log.setLevel(logging.WARNING)
 @app.route("/")
 def home() -> str:
     return "dyndns"
+
+
+@app.errorhandler(Exception)
+def handle_exception(e: Exception) -> tuple[str, int]:
+    # https://www.iana.org/assignments/http-status-codes/http-status-codes.xhtml
+    status_code: int = 500
+    if hasattr(e, "status_code"):
+        status_code = getattr(e, "status_code")
+    return f"{e.__class__.__name__}: {e}", status_code
+
+
+@app.route("/exception")
+def exception() -> str:
+    raise Exception("An intentionally generated Exception")
+
+
+@app.route("/configuration-error")
+def configuration_error() -> str:
+    raise ConfigurationError("an intentionally generated ConfigurationError")
 
 
 @app.route("/update-by-path/<secret>/<fqdn>")
