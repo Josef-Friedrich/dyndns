@@ -16,6 +16,15 @@ from dyndns.types import Config
 
 
 def load_config(config_file: str | None = None) -> Config:
+    """
+    Load the configuration from the specified file or from the default locations.
+
+    :param config_file: The path to the configuration file. If not provided, the function will search for the configuration file in the default locations.
+
+    :return: The loaded configuration as a dictionary.
+
+    :raises ConfigurationError: If the configuration file could not be found.
+    """
     config_files: list[str] = []
     if config_file:
         config_files.append(config_file)

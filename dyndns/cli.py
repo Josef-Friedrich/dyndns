@@ -33,6 +33,8 @@ def get_argparser() -> argparse.ArgumentParser:
         default=54321,
     )
 
+    subcommand.add_parser("check")
+
     return parser
 
 
@@ -40,6 +42,8 @@ def main() -> None:
     args: argparse.Namespace = get_argparser().parse_args()
     if args.subcommand == "serve":
         app.run(debug=False, port=args.port)
+    elif args.subcommand == "check":
+        print("check")
 
 
 if __name__ == "__main__":

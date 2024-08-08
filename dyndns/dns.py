@@ -25,13 +25,14 @@ class DnsUpdate:
     """
 
     nameserver: str
-    """for example ``127.0.0.1``"""
+    """The nameserver, for example ``127.0.0.1``"""
 
     names: DomainName
 
     ipaddresses: IpAddressContainer | None
 
     ttl: int
+    """time to live"""
 
     def __init__(
         self,
@@ -40,7 +41,7 @@ class DnsUpdate:
         ipaddresses: IpAddressContainer | None = None,
         ttl: str | int | None = None,
     ) -> None:
-        self.nameserver = nameserver  #: The nameserver
+        self.nameserver = nameserver
         self.names = names
         self.ipaddresses = ipaddresses
         if not ttl:

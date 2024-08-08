@@ -149,7 +149,7 @@ Example configuration file for nginx:
     }
 
 
-``vim /etc/systemd/system/dyndns-uwsgi.service``
+``vim /etc/systemd/system/dyndns.service``
 
 .. code-block:: text
 
@@ -167,9 +167,9 @@ Example configuration file for nginx:
     [Install]
     WantedBy=multi-user.target
 
-``systemctl enable dyndns-uwsgi.service``
+``systemctl enable dyndns.service``
 
-``systemctl start dyndns-uwsgi.service``
+``systemctl start dyndns.service``
 
 Configuration
 -------------

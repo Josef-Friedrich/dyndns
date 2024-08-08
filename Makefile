@@ -3,6 +3,9 @@ all: test
 serve:
 	poetry run dyndns-debug serve
 
+check:
+	poetry run dyndns-debug check
+
 test_quick:
 	poetry run tox -e py312
 
