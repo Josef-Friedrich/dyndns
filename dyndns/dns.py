@@ -15,19 +15,21 @@ import dns.update
 from dyndns.exceptions import DNSServerError, DyndnsError
 from dyndns.ipaddresses import IpAddressContainer
 from dyndns.log import logger
-from dyndns.names import DomainName
+from dyndns.names import FullyQualifiedDomainName
 from dyndns.types import IpVersion, LogLevel, RecordType, UpdateRecord
 
 
 class DnsUpdate:
     """
-    Update the DNS server
+    Update the DNS server.
+
+    :param nameserver: The ip address of the nameserver, for example ``127.0.0.1``.
     """
 
     nameserver: str
-    """The nameserver, for example ``127.0.0.1``"""
+    """The ip address of the nameserver, for example ``127.0.0.1``."""
 
-    names: DomainName
+    names: FullyQualifiedDomainName
 
     ipaddresses: IpAddressContainer | None
 
@@ -37,7 +39,7 @@ class DnsUpdate:
     def __init__(
         self,
         nameserver: str,
-        names: DomainName,
+        names: FullyQualifiedDomainName,
         ipaddresses: IpAddressContainer | None = None,
         ttl: str | int | None = None,
     ) -> None:

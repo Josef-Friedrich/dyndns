@@ -34,4 +34,14 @@ def test_wrong_secret(client: FlaskClient) -> None:
 
 def test_wrong_fqdn(client: FlaskClient) -> None:
     response = client.get("/update-by-path/12345678/test.wrong-domain.de/1.2.3.4")
-    assert response.status_code == 500
+    assert response.status_code == 456
+    assert (
+        b'ParameterError: The fully qualified domain name "test.wrong-domain.de." could not be split into a record and a zone name.'
+        in response.data
+    )
+
+
+def test_wrong_ip(client: FlaskClient) -> None:
+    response = client.get("/update-by-path/12345678/test.example.com/1.2.3")
+    assert response.status_code == 456
+    assert b'ParameterError: Invalid ip address "1.2.3"' in response.data

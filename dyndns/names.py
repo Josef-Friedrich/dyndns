@@ -77,6 +77,13 @@ def validate_tsig_key(tsig_key: str) -> str:
 
 
 class Zone:
+    """
+    Stores the zone name together with the corresponding TSIG (Transaction SIGnature) key.
+
+    :param zone_name: The zone name (e. g. ``example.com.``).
+    :param tsig_key: The TSIG (Transaction SIGnature) key (e. g. ``tPyvZA==``).
+    """
+
     zone_name: str
     """The zone name (e. g. ``example.com.``)."""
 
@@ -103,7 +110,6 @@ class Zone:
         :return: A tuple containing the record_name and zone_name.
 
         :raises NamesError: If the FQDN is not splitable by the zone.
-
         """
         fqdn = validate_hostname(fqdn)
         record_name: str = fqdn.replace(self.zone_name, "")
@@ -156,12 +162,21 @@ class ZonesCollection:
         return False
 
 
-class DomainName:
+class FullyQualifiedDomainName:
     """
     Stores a FQDN (Fully Qualified Domain Names),
     a zone name and a record along with the TSIG (Transaction SIGnature) key.
 
     ``record_name`` + ``zone_name`` = ``fqdn``
+
+    :param zones: The ZonesCollection object.
+    :param fqdn: The Fully Qualified Domain Name (e. g. ``www.example.com.``).
+    :param zone_name: The zone name (e. g. ``example.com.``).
+    :param record_name: The name of the resource record (e. g. ``www.``).
+
+    :raises NamesError: If both fqdn and zone_name/record_name are specified.
+    :raises NamesError: If record_name is not provided.
+    :raises NamesError: If zone_name is not provided.
     """
 
     fqdn: str
@@ -198,26 +213,35 @@ class DomainName:
         if fqdn and zone_name and record_name:
             raise NamesError('Specify "fqdn" or "zone_name" and "record_name".')
 
-        self._zones: ZonesCollection = zones
-
         if fqdn:
-            self.fqdn = validate_hostname(fqdn)
-            split = self._zones.split_fqdn(fqdn)
+            fqdn = validate_hostname(fqdn)
+            split = zones.split_fqdn(fqdn)
             if split:
-                self.record_name = split[0]
-                self.zone_name = split[1]
+                record_name = split[0]
+                zone_name = split[1]
+            else:
+                raise NamesError(
+                    f'The fully qualified domain name "{fqdn}" could not be split into a record and a zone name.'
+                )
 
         if not fqdn and zone_name and record_name:
-            self.record_name = validate_hostname(record_name)
-            self.zone_name = validate_hostname(zone_name)
-            zone = self._zones.get_zone_by_name(self.zone_name)
-            self.fqdn = zone.build_fqdn(self.record_name)
+            record_name = validate_hostname(record_name)
+            zone_name = validate_hostname(zone_name)
+            zone = zones.get_zone_by_name(zone_name)
+            fqdn = zone.build_fqdn(record_name)
 
-        if not self.record_name:
+        if not fqdn:
+            raise NamesError('Value "fqdn" is required.')
+
+        if not record_name:
             raise NamesError('Value "record_name" is required.')
 
-        if not self.zone_name:
+        if not zone_name:
             raise NamesError('Value "zone_name" is required.')
 
-        self._zone = self._zones.get_zone_by_name(self.zone_name)
-        self.tsig_key = self._zone.tsig_key
+        self.fqdn = fqdn
+        self.zone_name = zone_name
+        self.record_name = record_name
+
+        zone = zones.get_zone_by_name(self.zone_name)
+        self.tsig_key = zone.tsig_key

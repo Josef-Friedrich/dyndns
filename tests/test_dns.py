@@ -6,12 +6,12 @@ import pytest
 
 from dyndns.dns import DnsUpdate
 from dyndns.ipaddresses import IpAddressContainer
-from dyndns.names import DomainName
+from dyndns.names import FullyQualifiedDomainName
 from tests import _helper
 
 ipaddresses = IpAddressContainer(ipv4="1.2.3.4")
 zones = _helper.zones
-names = DomainName(zones, fqdn="www.example.com")
+names = FullyQualifiedDomainName(zones, fqdn="www.example.com")
 
 NO_INTERNET_CONNECTIFITY = not _helper.check_internet_connectifity()
 

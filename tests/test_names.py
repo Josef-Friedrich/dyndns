@@ -2,7 +2,7 @@ import pytest
 
 from dyndns.exceptions import NamesError
 from dyndns.names import (
-    DomainName,
+    FullyQualifiedDomainName,
     Zone,
     ZonesCollection,
     validate_hostname,
@@ -114,7 +114,7 @@ class TestClassZonesMethodSplitNames:
 
 class TestClassNames:
     def setup_method(self) -> None:
-        self.names = DomainName(zones=zones, fqdn="www.example.com")
+        self.names = FullyQualifiedDomainName(zones=zones, fqdn="www.example.com")
 
     def test_attribute_fqdn(self) -> None:
         assert self.names.fqdn == "www.example.com."
