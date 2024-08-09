@@ -5,3 +5,5 @@ dyndns_domain: example.com
 zones:
   - name: example.com
     tsig_key: tPyvZA==
+  - name: dyndns.de
+    tsig_key: tPyvZA==

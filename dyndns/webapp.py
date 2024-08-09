@@ -8,7 +8,6 @@ import logging
 import flask
 
 from dyndns.dns_updates import catch_errors, delete_dns_record, update_dns_record
-from dyndns.exceptions import ConfigurationError
 from dyndns.log import logger
 
 app = flask.Flask(__name__)
@@ -33,25 +32,13 @@ def handle_exception(e: Exception) -> tuple[str, int]:
     return f"{e.__class__.__name__}: {e}", status_code
 
 
-@app.route("/exception")
-def exception() -> str:
-    raise Exception("An intentionally generated Exception")
-
-
-@app.route("/configuration-error")
-def configuration_error() -> str:
-    raise ConfigurationError("an intentionally generated ConfigurationError")
-
-
 @app.route("/update-by-path/<secret>/<fqdn>")
 @app.route("/update-by-path/<secret>/<fqdn>/<ip_1>")
 @app.route("/update-by-path/<secret>/<fqdn>/<ip_1>/<ip_2>")
 def update_by_path(
     secret: str, fqdn: str, ip_1: str | None = None, ip_2: str | None = None
 ) -> str:
-    return catch_errors(
-        update_dns_record, secret=secret, fqdn=fqdn, ip_1=ip_1, ip_2=ip_2
-    )
+    return update_dns_record(secret=secret, fqdn=fqdn, ip_1=ip_1, ip_2=ip_2)
 
 
 @app.route("/update-by-query")
@@ -78,7 +65,7 @@ def update_by_query_string() -> str:
 
 @app.route("/delete-by-path/<secret>/<fqdn>")
 def delete_by_path(secret: str, fqdn: str) -> str:
-    return catch_errors(delete_dns_record, secret=secret, fqdn=fqdn)
+    return delete_dns_record(secret=secret, fqdn=fqdn)
 
 
 if __name__ == "__main__":
