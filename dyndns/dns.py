@@ -29,7 +29,7 @@ class DnsUpdate:
     nameserver: str
     """The ip address of the nameserver, for example ``127.0.0.1``."""
 
-    names: FullyQualifiedDomainName
+    fqdn: FullyQualifiedDomainName
 
     ipaddresses: IpAddressContainer | None
 
@@ -44,7 +44,7 @@ class DnsUpdate:
         ttl: str | int | None = None,
     ) -> None:
         self.nameserver = nameserver
-        self.names = names
+        self.fqdn = names
         self.ipaddresses = ipaddresses
         if not ttl:
             self.ttl = 300
@@ -52,11 +52,11 @@ class DnsUpdate:
             self.ttl = int(ttl)
 
         self._tsigkeyring = self._build_tsigkeyring(
-            self.names.zone_name,
-            self.names.tsig_key,
+            self.fqdn.zone_name,
+            self.fqdn.tsig_key,
         )
         self._dns_update: dns.update.Update = dns.update.Update(
-            self.names.zone_name,
+            self.fqdn.zone_name,
             keyring=self._tsigkeyring,
             keyalgorithm=dns.tsig.HMAC_SHA512,
         )
@@ -85,7 +85,7 @@ class DnsUpdate:
         resolver.nameservers = [self.nameserver]
         try:
             ip: dns.resolver.Answer = resolver.resolve(
-                self.names.fqdn,
+                self.fqdn.fqdn,
                 self._convert_record_type(ip_version),
             )
             return str(ip[0])  # type: ignore
@@ -102,7 +102,7 @@ class DnsUpdate:
                 'The peer "{}" didn\'t know the tsig key '
                 'we used for the zone "{}".'.format(
                     self.nameserver,
-                    self.names.zone_name,
+                    self.fqdn.zone_name,
                 )
             )
         except dns.exception.Timeout:
@@ -120,22 +120,22 @@ class DnsUpdate:
 
         if new_ip == old_ip:
             status = "UNCHANGED"
-            logger.log_update(False, self.names.fqdn, rdtype, new_ip)
+            logger.log_update(False, self.fqdn.fqdn, rdtype, new_ip)
         else:
-            self._dns_update.delete(self.names.fqdn, rdtype)
+            self._dns_update.delete(self.fqdn.fqdn, rdtype)
             # If the client (a notebook) moves in a network without ipv6
             # support, we have to delete the 'aaaa' record.
             if rdtype == "a":
-                self._dns_update.delete(self.names.fqdn, "aaaa")
+                self._dns_update.delete(self.fqdn.fqdn, "aaaa")
 
-            self._dns_update.add(self.names.fqdn, self.ttl, rdtype, new_ip)
+            self._dns_update.add(self.fqdn.fqdn, self.ttl, rdtype, new_ip)
             self._query_tcp(self._dns_update)
 
             checked_ip = self._resolve(ip_version)
 
             if new_ip == checked_ip:
                 status = "UPDATED"
-                logger.log_update(True, self.names.fqdn, rdtype, new_ip)
+                logger.log_update(True, self.fqdn.fqdn, rdtype, new_ip)
             else:
                 status = "DNS_SERVER_ERROR"
 
@@ -147,8 +147,8 @@ class DnsUpdate:
         }
 
     def delete(self):
-        self._dns_update.delete(self.names.fqdn, "a")
-        self._dns_update.delete(self.names.fqdn, "aaaa")
+        self._dns_update.delete(self.fqdn.fqdn, "a")
+        self._dns_update.delete(self.fqdn.fqdn, "aaaa")
         self._query_tcp(self._dns_update)
         return True
 

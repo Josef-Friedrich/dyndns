@@ -2,6 +2,9 @@ import os
 from typing import Any
 from unittest import mock
 
+from flask.testing import FlaskClient
+from werkzeug.test import TestResponse
+
 from dyndns.webapp import app
 from tests import _helper
 
@@ -9,6 +12,22 @@ app.config["TESTING"] = True
 
 
 class TestIntegration:
+    app: FlaskClient
+
+    mock_tcp: mock.Mock
+
+    mock_Update: mock.Mock
+
+    mock_Resolver: mock.Mock
+
+    mock_resolver: mock.Mock
+
+    response: TestResponse
+
+    data: str
+
+    mock_update: mock.Mock
+
     def setup_method(self) -> None:
         os.environ["dyndns_CONFIG_FILE"] = _helper.config_file
         self.app = app.test_client()

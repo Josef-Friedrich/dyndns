@@ -20,7 +20,7 @@ class TestClassDnsUpdate:
     def test_method_build_tsigkeyring(self) -> None:
         dns_update = DnsUpdate("127.0.0.1", names, ipaddresses)
         result = dns_update._build_tsigkeyring(  # type: ignore
-            dns_update.names.zone_name, dns_update.names.tsig_key
+            dns_update.fqdn.zone_name, dns_update.fqdn.tsig_key
         )
         for zone, tsig_key in result.items():
             assert str(zone) == "example.com."
