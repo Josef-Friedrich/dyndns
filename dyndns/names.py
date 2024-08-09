@@ -242,6 +242,4 @@ class FullyQualifiedDomainName:
         self.fqdn = fqdn
         self.zone_name = zone_name
         self.record_name = record_name
-
-        zone = zones.get_zone_by_name(self.zone_name)
-        self.tsig_key = zone.tsig_key
+        self.tsig_key = zones.get_zone_by_name(self.zone_name).tsig_key
