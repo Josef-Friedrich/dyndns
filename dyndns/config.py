@@ -11,8 +11,9 @@ import yaml
 
 from dyndns.exceptions import ConfigurationError, IpAddressesError, NamesError
 from dyndns.ipaddresses import validate as validate_ip
-from dyndns.names import ZonesCollection, validate_hostname
+from dyndns.names import validate_hostname
 from dyndns.types import Config
+from dyndns.zones import ZonesCollection
 
 _config: Config | None = None
 

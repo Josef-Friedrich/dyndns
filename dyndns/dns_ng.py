@@ -1,7 +1,10 @@
 #! /usr/bin/env python
 
+import binascii
 import random
+import re
 import string
+import typing
 from typing import Any
 
 import dns.message
@@ -12,24 +15,80 @@ import dns.tsig
 import dns.tsigkeyring
 import dns.update
 
-from dyndns.config import get_config
-from dyndns.names import Zone, ZonesCollection
-from dyndns.types import Config
+from dyndns.exceptions import NamesError
 
-config: Config = get_config()
+if typing.TYPE_CHECKING:
+    from dyndns.zones import Zone
 
 
-class DnsZoneManager:
+def validate_hostname(hostname: str) -> str:
+    """
+    Validate the given hostname.
+
+    :param hostname: The hostname to be validated.
+
+    :return: The validated hostname as a string.
+    """
+    if hostname[-1] == ".":
+        # strip exactly one dot from the right, if present
+        hostname = hostname[:-1]
+    if len(hostname) > 253:
+        raise NamesError(
+            'The hostname "{}..." is longer than 253 characters.'.format(hostname[:10])
+        )
+
+    labels: list[str] = hostname.split(".")
+
+    tld: str = labels[-1]
+    if re.match(r"[0-9]+$", tld):
+        raise NamesError(
+            'The TLD "{}" of the hostname "{}" must be not all-numeric.'.format(
+                tld, hostname
+            )
+        )
+
+    allowed: re.Pattern[str] = re.compile(r"(?!-)[a-z0-9-]{1,63}(?<!-)$", re.IGNORECASE)
+    for label in labels:
+        if not allowed.match(label):
+            raise NamesError(
+                'The label "{}" of the hostname "{}" is invalid.'.format(
+                    label, hostname
+                )
+            )
+
+    return str(dns.name.from_text(hostname))
+
+
+def validate_tsig_key(tsig_key: str) -> str:
+    """
+    Validates a TSIG key.
+
+    :param tsig_key: The TSIG key to validate.
+
+    :return: The validated TSIG key.
+
+    :raises NamesError: If the TSIG key is invalid.
+    """
+    if not tsig_key:
+        raise NamesError('Invalid tsig key: "{}".'.format(tsig_key))
+    try:
+        dns.tsigkeyring.from_text({"tmp.org.": tsig_key})
+        return tsig_key
+    except binascii.Error:
+        raise NamesError('Invalid tsig key: "{}".'.format(tsig_key))
+
+
+class DnsZone:
     _nameserver: str
     """The ip address of the nameserver, for example ``127.0.0.1``."""
 
-    _zone: Zone
+    _zone: "Zone"
 
     _keyring: dict[dns.name.Name, dns.tsig.Key]
 
     __resolver: dns.resolver.Resolver
 
-    def __init__(self, nameserver: str, zone: Zone) -> None:
+    def __init__(self, nameserver: str, zone: "Zone") -> None:
         self._nameserver = nameserver
         self._zone = zone
         self._keyring = dns.tsigkeyring.from_text({zone.zone_name: zone.tsig_key})
@@ -75,16 +134,3 @@ class DnsZoneManager:
         if result.strings[0].decode() != random_content:
             raise Exception("check failed")
         self.delete_record(check_record_name, "TXT")
-
-
-zone_managers: dict[str, DnsZoneManager] = {}
-
-zones = ZonesCollection(config["zones"])
-
-
-def get_dns_zone_manager(zone_name: str) -> DnsZoneManager:
-    if zone_name not in zone_managers:
-        zone_managers[zone_name] = DnsZoneManager(
-            config["nameserver"], zones.get_zone_by_name(zone_name)
-        )
-    return zone_managers[zone_name]

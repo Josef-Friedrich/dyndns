@@ -7,159 +7,13 @@ record and zone names)
 
 from __future__ import annotations
 
-import binascii
-import re
 import typing
 
-import dns.name
-import dns.tsig
-import dns.tsigkeyring
-
+from dyndns.dns_ng import validate_hostname
 from dyndns.exceptions import NamesError
-from dyndns.types import ZoneConfig
 
-
-def validate_hostname(hostname: str) -> str:
-    """
-    Validate the given hostname.
-
-    :param hostname: The hostname to be validated.
-
-    :return: The validated hostname as a string.
-    """
-    if hostname[-1] == ".":
-        # strip exactly one dot from the right, if present
-        hostname = hostname[:-1]
-    if len(hostname) > 253:
-        raise NamesError(
-            'The hostname "{}..." is longer than 253 characters.'.format(hostname[:10])
-        )
-
-    labels: list[str] = hostname.split(".")
-
-    tld: str = labels[-1]
-    if re.match(r"[0-9]+$", tld):
-        raise NamesError(
-            'The TLD "{}" of the hostname "{}" must be not all-numeric.'.format(
-                tld, hostname
-            )
-        )
-
-    allowed: re.Pattern[str] = re.compile(r"(?!-)[a-z0-9-]{1,63}(?<!-)$", re.IGNORECASE)
-    for label in labels:
-        if not allowed.match(label):
-            raise NamesError(
-                'The label "{}" of the hostname "{}" is invalid.'.format(
-                    label, hostname
-                )
-            )
-
-    return str(dns.name.from_text(hostname))
-
-
-def validate_tsig_key(tsig_key: str) -> str:
-    """
-    Validates a TSIG key.
-
-    :param tsig_key: The TSIG key to validate.
-
-    :return: The validated TSIG key.
-
-    :raises NamesError: If the TSIG key is invalid.
-    """
-    if not tsig_key:
-        raise NamesError('Invalid tsig key: "{}".'.format(tsig_key))
-    try:
-        dns.tsigkeyring.from_text({"tmp.org.": tsig_key})
-        return tsig_key
-    except binascii.Error:
-        raise NamesError('Invalid tsig key: "{}".'.format(tsig_key))
-
-
-class Zone:
-    """
-    Stores the zone name together with the corresponding TSIG (Transaction SIGnature) key.
-
-    :param zone_name: The zone name (e. g. ``example.com.``).
-    :param tsig_key: The TSIG (Transaction SIGnature) key (e. g. ``tPyvZA==``).
-    """
-
-    zone_name: str
-    """The zone name (e. g. ``example.com.``)."""
-
-    tsig_key: str
-    """The TSIG (Transaction SIGnature) key (e. g. ``tPyvZA==``)."""
-
-    def __init__(self, zone_name: str, tsig_key: str) -> None:
-        """
-        Initialize a Zone object.
-
-        :param zone_name: The zone name (e. g. ``example.com.``).
-        :param tsig_key: The TSIG (Transaction SIGnature) key (e. g. ``tPyvZA==``).
-        """
-
-        self.zone_name = validate_hostname(zone_name)
-        self.tsig_key = validate_tsig_key(tsig_key)
-
-    def split_fqdn(self, fqdn: str) -> tuple[str, str]:
-        """Split hostname into record_name and zone_name
-        for example: www.example.com -> www. example.com.
-
-        :param fqdn: The fully qualified domain name.
-
-        :return: A tuple containing the record_name and zone_name.
-
-        :raises NamesError: If the FQDN is not splitable by the zone.
-        """
-        fqdn = validate_hostname(fqdn)
-        record_name: str = fqdn.replace(self.zone_name, "")
-        if record_name and len(record_name) < len(fqdn):
-            return (record_name, self.zone_name)
-        raise NamesError('FQDN "{}" is not splitable by zone "{}".')
-
-    def build_fqdn(self, record_name: str) -> str:
-        """
-        Build a fully qualified domain name.
-
-        :param record_name: The record name.
-
-        :return: The fully qualified domain name.
-        """
-        record_name = validate_hostname(record_name)
-        return record_name + self.zone_name
-
-
-class ZonesCollection:
-    zones: dict[str, Zone]
-
-    def __init__(self, zones_config: list[ZoneConfig]) -> None:
-        self.zones = {}
-        for zone_config in zones_config:
-            zone = Zone(zone_name=zone_config["name"], tsig_key=zone_config["tsig_key"])
-            self.zones[zone.zone_name] = zone
-
-    def get_zone_by_name(self, zone_name: str) -> Zone:
-        zone_name = validate_hostname(zone_name)
-        if zone_name in self.zones:
-            return self.zones[validate_hostname(zone_name)]
-        raise NamesError('Unkown zone "{}".'.format(zone_name))
-
-    def split_fqdn(self, fqdn: str) -> tuple[str, str] | typing.Literal[False]:
-        """Split a fully qualified domain name into a record name and a zone name,
-        for example: ``www.example.com`` -> ``www.`` ``example.com.``
-
-        :param fqdn: The fully qualified domain name.
-        """
-        fqdn = validate_hostname(fqdn)
-        # To handle subzones (example.com and dyndns.example.com)
-        results: dict[int, tuple[str, str]] = {}
-        for _, zone in self.zones.items():
-            record_name: str = fqdn.replace(zone.zone_name, "")
-            if record_name and len(record_name) < len(fqdn):
-                results[len(record_name)] = (record_name, zone.zone_name)
-        for key in sorted(results):
-            return results[key]
-        return False
+if typing.TYPE_CHECKING:
+    from dyndns.zones import ZonesCollection
 
 
 class FullyQualifiedDomainName:
@@ -193,7 +47,7 @@ class FullyQualifiedDomainName:
 
     def __init__(
         self,
-        zones: ZonesCollection,
+        zones: "ZonesCollection",
         fqdn: str | None = None,
         zone_name: str | None = None,
         record_name: str | None = None,

@@ -1,7 +1,7 @@
 import os
 import socket
 
-from dyndns.names import ZonesCollection
+from dyndns.zones import ZonesCollection
 
 
 def check_internet_connectifity(

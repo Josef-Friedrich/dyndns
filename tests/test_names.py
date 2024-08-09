@@ -1,13 +1,12 @@
 import pytest
 
+from dyndns.dns_ng import validate_tsig_key
 from dyndns.exceptions import NamesError
 from dyndns.names import (
     FullyQualifiedDomainName,
-    Zone,
-    ZonesCollection,
     validate_hostname,
-    validate_tsig_key,
 )
+from dyndns.zones import Zone, ZonesCollection
 from tests._helper import zones
 
 
