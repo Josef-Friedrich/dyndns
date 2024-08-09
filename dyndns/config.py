@@ -14,6 +14,8 @@ from dyndns.ipaddresses import validate as validate_ip
 from dyndns.names import ZonesCollection, validate_hostname
 from dyndns.types import Config
 
+_config: Config | None = None
+
 
 def load_config(config_file: str | None = None) -> Config:
     """
@@ -134,4 +136,7 @@ def validate_config(config: Any = None) -> Config:
 
 
 def get_config(config_file: str | None = None) -> Config:
-    return validate_config(load_config(config_file))
+    global _config
+    if _config is None:
+        _config = validate_config(load_config(config_file))
+    return _config
