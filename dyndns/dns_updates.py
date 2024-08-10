@@ -10,9 +10,9 @@ from dyndns.config import Config, get_config
 from dyndns.dns import DnsUpdate
 from dyndns.exceptions import (
     ConfigurationError,
+    DnsNameError,
     DNSServerError,
     IpAddressesError,
-    NamesError,
     ParameterError,
 )
 from dyndns.ipaddresses import IpAddressContainer
@@ -90,7 +90,7 @@ def update_dns_record(
 
     names = raise_parameter_error(
         FullyQualifiedDomainName,
-        NamesError,
+        DnsNameError,
         zones,
         fqdn=fqdn,
         zone_name=zone_name,
@@ -136,7 +136,7 @@ def delete_dns_record(
     authenticate(secret, config)
 
     names = raise_parameter_error(
-        FullyQualifiedDomainName, NamesError, zones, fqdn=fqdn
+        FullyQualifiedDomainName, DnsNameError, zones, fqdn=fqdn
     )
 
     delete = DnsUpdate(

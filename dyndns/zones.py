@@ -1,7 +1,7 @@
 import typing
 
 from dyndns.dns_ng import validate_hostname, validate_tsig_key
-from dyndns.exceptions import NamesError
+from dyndns.exceptions import DnsNameError
 from dyndns.types import ZoneConfig
 
 
@@ -44,7 +44,7 @@ class Zone:
         record_name: str = fqdn.replace(self.zone_name, "")
         if record_name and len(record_name) < len(fqdn):
             return (record_name, self.zone_name)
-        raise NamesError('FQDN "{}" is not splitable by zone "{}".')
+        raise DnsNameError('FQDN "{}" is not splitable by zone "{}".')
 
     def build_fqdn(self, record_name: str) -> str:
         """
@@ -66,12 +66,27 @@ class ZonesCollection:
         for zone_config in zones_config:
             zone = Zone(zone_name=zone_config["name"], tsig_key=zone_config["tsig_key"])
             self.zones[zone.zone_name] = zone
+        self._iter_index = 0
+        self._zone_keys = list(self.zones.keys())
+
+    def __iter__(self) -> typing.Iterator[Zone]:
+        self._iter_index = 0
+        self._zone_keys = list(self.zones.keys())
+        return self
+
+    def __next__(self) -> Zone:
+        if self._iter_index < len(self._zone_keys):
+            zone_name = self._zone_keys[self._iter_index]
+            self._iter_index += 1
+            return self.zones[zone_name]
+        else:
+            raise StopIteration
 
     def get_zone_by_name(self, zone_name: str) -> Zone:
         zone_name = validate_hostname(zone_name)
         if zone_name in self.zones:
             return self.zones[validate_hostname(zone_name)]
-        raise NamesError('Unkown zone "{}".'.format(zone_name))
+        raise DnsNameError('Unkown zone "{}".'.format(zone_name))
 
     def split_fqdn(self, fqdn: str) -> tuple[str, str] | typing.Literal[False]:
         """Split a fully qualified domain name into a record name and a zone name,

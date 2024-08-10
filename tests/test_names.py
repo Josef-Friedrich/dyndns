@@ -1,7 +1,7 @@
 import pytest
 
 from dyndns.dns_ng import validate_tsig_key
-from dyndns.exceptions import NamesError
+from dyndns.exceptions import DnsNameError
 from dyndns.names import (
     FullyQualifiedDomainName,
     validate_hostname,
@@ -12,7 +12,7 @@ from tests._helper import zones
 
 class TestFunctionValidateHostname:
     def assert_raises_msg(self, hostname: str, msg: str) -> None:
-        with pytest.raises(NamesError, match=msg):
+        with pytest.raises(DnsNameError, match=msg):
             validate_hostname(hostname)
 
     def test_valid(self) -> None:
@@ -39,7 +39,7 @@ class TestFunctionValidateHostname:
 
 class TestFunctionValidateTsigKey:
     def assert_raises_msg(self, tsig_key: str, msg: str) -> None:
-        with pytest.raises(NamesError) as e:
+        with pytest.raises(DnsNameError) as e:
             validate_tsig_key(tsig_key)
         assert e.value.args[0] == msg
 
@@ -83,7 +83,7 @@ class TestClassZones:
         assert zone.tsig_key == "tPyvZA=="
 
     def test_method_get_zone_by_name_raises(self) -> None:
-        with pytest.raises(NamesError, match='Unkown zone "lol.org.".'):
+        with pytest.raises(DnsNameError, match='Unkown zone "lol.org.".'):
             zones.get_zone_by_name("lol.org")
 
 

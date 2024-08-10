@@ -18,13 +18,13 @@ class Manager:
     def __init__(self, config_file: str | None = None) -> None:
         self._config = load_config(config_file)
         self._zones = ZonesCollection(self._config["zones"])
+
         self._dns_zones = {}
 
+        for zone in self._zones:
+            self._dns_zones[zone.zone_name] = DnsZone(self._config["nameserver"], zone)
+
     def _get_dns_zone(self, zone_name: str) -> DnsZone:
-        if zone_name not in self._dns_zones:
-            self._dns_zones[zone_name] = DnsZone(
-                self._config["nameserver"], self._zones.get_zone_by_name(zone_name)
-            )
         return self._dns_zones[zone_name]
 
     @property

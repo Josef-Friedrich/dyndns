@@ -11,11 +11,14 @@ import dns.message
 import dns.name
 import dns.query
 import dns.resolver
+import dns.rrset
 import dns.tsig
 import dns.tsigkeyring
 import dns.update
+from dns.rdtypes.ANY.TXT import TXT
 
-from dyndns.exceptions import NamesError
+from dyndns.exceptions import CheckError, DnsNameError
+from dyndns.log_ng import LogLevel, logger
 
 if typing.TYPE_CHECKING:
     from dyndns.zones import Zone
@@ -33,7 +36,7 @@ def validate_hostname(hostname: str) -> str:
         # strip exactly one dot from the right, if present
         hostname = hostname[:-1]
     if len(hostname) > 253:
-        raise NamesError(
+        raise DnsNameError(
             'The hostname "{}..." is longer than 253 characters.'.format(hostname[:10])
         )
 
@@ -41,7 +44,7 @@ def validate_hostname(hostname: str) -> str:
 
     tld: str = labels[-1]
     if re.match(r"[0-9]+$", tld):
-        raise NamesError(
+        raise DnsNameError(
             'The TLD "{}" of the hostname "{}" must be not all-numeric.'.format(
                 tld, hostname
             )
@@ -50,7 +53,7 @@ def validate_hostname(hostname: str) -> str:
     allowed: re.Pattern[str] = re.compile(r"(?!-)[a-z0-9-]{1,63}(?<!-)$", re.IGNORECASE)
     for label in labels:
         if not allowed.match(label):
-            raise NamesError(
+            raise DnsNameError(
                 'The label "{}" of the hostname "{}" is invalid.'.format(
                     label, hostname
                 )
@@ -70,12 +73,12 @@ def validate_tsig_key(tsig_key: str) -> str:
     :raises NamesError: If the TSIG key is invalid.
     """
     if not tsig_key:
-        raise NamesError('Invalid tsig key: "{}".'.format(tsig_key))
+        raise DnsNameError('Invalid tsig key: "{}".'.format(tsig_key))
     try:
         dns.tsigkeyring.from_text({"tmp.org.": tsig_key})
         return tsig_key
     except binascii.Error:
-        raise NamesError('Invalid tsig key: "{}".'.format(tsig_key))
+        raise DnsNameError('Invalid tsig key: "{}".'.format(tsig_key))
 
 
 class DnsZone:
@@ -120,8 +123,11 @@ class DnsZone:
         message.add(record_name, ttl, rdtype, content)
         self._query(message)
 
-    def read_record(self, record_name: str, rdtype: str) -> dns.resolver.Answer:
-        return self._resolver.resolve(record_name + "." + self._zone.zone_name, rdtype)
+    def read_record(self, record_name: str, rdtype: str) -> dns.rrset.RRset | None:
+        result: dns.resolver.Answer = self._resolver.resolve(
+            record_name + "." + self._zone.zone_name, rdtype
+        )
+        return result.rrset
 
     def check(self) -> None:
         check_record_name = "dyndns-check-tmp_a841278b-f089-4164-b8e6-f90514e573ec"
@@ -130,7 +136,23 @@ class DnsZone:
         )
         self.delete_record(check_record_name, "TXT")
         self.add_record(check_record_name, 300, "TXT", random_content)
-        result: Any = self.read_record(check_record_name, "TXT")
-        if result.strings[0].decode() != random_content:
-            raise Exception("check failed")
+        rr_set = self.read_record(check_record_name, "TXT")
         self.delete_record(check_record_name, "TXT")
+
+        if not rr_set:
+            raise CheckError("no response")
+
+        element: Any = rr_set.pop()
+
+        if isinstance(element, TXT):
+            result = element.strings[0].decode()
+            if result != random_content:
+                raise CheckError("check failed")
+            else:
+                logger.log(
+                    LogLevel.INFO,
+                    f"A TXT record {check_record_name} with the content {random_content} could be set.",
+                )
+
+        else:
+            raise CheckError("no TXT record")

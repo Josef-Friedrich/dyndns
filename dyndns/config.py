@@ -9,7 +9,7 @@ from typing import Any
 
 import yaml
 
-from dyndns.exceptions import ConfigurationError, IpAddressesError, NamesError
+from dyndns.exceptions import ConfigurationError, DnsNameError, IpAddressesError
 from dyndns.ipaddresses import validate as validate_ip
 from dyndns.names import validate_hostname
 from dyndns.types import Config
@@ -99,7 +99,7 @@ def validate_config(config: Any = None) -> Config:
     if "dyndns_domain" in config:
         try:
             validate_hostname(config["dyndns_domain"])
-        except NamesError as error:
+        except DnsNameError as error:
             raise ConfigurationError(str(error))
 
     if "zones" not in config:
@@ -128,7 +128,7 @@ def validate_config(config: Any = None) -> Config:
 
     try:
         config["zones"] = ZonesCollection(config["zones"])
-    except NamesError as error:
+    except DnsNameError as error:
         raise ConfigurationError(str(error))
 
     return config

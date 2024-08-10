@@ -10,7 +10,7 @@ from __future__ import annotations
 import typing
 
 from dyndns.dns_ng import validate_hostname
-from dyndns.exceptions import NamesError
+from dyndns.exceptions import DnsNameError
 
 if typing.TYPE_CHECKING:
     from dyndns.zones import ZonesCollection
@@ -65,7 +65,7 @@ class FullyQualifiedDomainName:
         :raises NamesError: If zone_name is not provided.
         """
         if fqdn and zone_name and record_name:
-            raise NamesError('Specify "fqdn" or "zone_name" and "record_name".')
+            raise DnsNameError('Specify "fqdn" or "zone_name" and "record_name".')
 
         if fqdn:
             fqdn = validate_hostname(fqdn)
@@ -74,7 +74,7 @@ class FullyQualifiedDomainName:
                 record_name = split[0]
                 zone_name = split[1]
             else:
-                raise NamesError(
+                raise DnsNameError(
                     f'The fully qualified domain name "{fqdn}" could not be split into a record and a zone name.'
                 )
 
@@ -85,13 +85,13 @@ class FullyQualifiedDomainName:
             fqdn = zone.build_fqdn(record_name)
 
         if not fqdn:
-            raise NamesError('Value "fqdn" is required.')
+            raise DnsNameError('Value "fqdn" is required.')
 
         if not record_name:
-            raise NamesError('Value "record_name" is required.')
+            raise DnsNameError('Value "record_name" is required.')
 
         if not zone_name:
-            raise NamesError('Value "zone_name" is required.')
+            raise DnsNameError('Value "zone_name" is required.')
 
         self.fqdn = fqdn
         self.zone_name = zone_name
