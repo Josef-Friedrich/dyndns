@@ -5,6 +5,7 @@ from __future__ import annotations
 import datetime
 import logging
 import os
+from enum import Enum
 
 from typing_extensions import TypedDict
 
@@ -35,6 +36,14 @@ class Update(TypedDict):
     fqdn: str
     record_type: str
     ip: str
+
+
+class LogLevelEnum(Enum):
+    CONFIGURATION_ERROR = 51
+    DNS_SERVER_ERROR = 51
+    PARAMETER_ERROR = 41
+    UPDATED = 21
+    UNCHANGED = 11
 
 
 class Logger:

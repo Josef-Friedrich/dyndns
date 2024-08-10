@@ -5,6 +5,7 @@ from __future__ import annotations
 import argparse
 
 from dyndns import __version__
+from dyndns.manager import Manager
 from dyndns.webapp import app
 
 
@@ -16,6 +17,11 @@ def get_argparser() -> argparse.ArgumentParser:
         "--version",
         action="version",
         version=__version__,
+    )
+
+    parser.add_argument(
+        "-c",
+        "--config",
     )
 
     subcommand = parser.add_subparsers(
@@ -40,11 +46,15 @@ def get_argparser() -> argparse.ArgumentParser:
 
 def main() -> None:
     args: argparse.Namespace = get_argparser().parse_args()
+
+    manager = Manager(args.config)
+
     if args.subcommand == "serve":
         print(f"Running the webapp on port {args.port}")
         app.run(debug=False, port=args.port)
     elif args.subcommand == "check":
         print("check")
+        manager.check()
 
 
 if __name__ == "__main__":
