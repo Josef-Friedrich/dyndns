@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import datetime
 import logging
 import os
 from enum import Enum
@@ -12,22 +11,6 @@ from typing_extensions import TypedDict
 from dyndns.types import LogLevel, RecordType
 
 log_file: str = os.path.join(os.getcwd(), "dyndns.log")
-
-
-class DateTime:
-    def __init__(self, date_time_string: str | None = None) -> None:
-        if not date_time_string:
-            self.datetime = datetime.datetime.now()
-        else:
-            self.datetime = datetime.datetime.strptime(
-                date_time_string, "%Y-%m-%d %H:%M:%S.%f"
-            )
-
-    def iso8601(self) -> str:
-        return self.datetime.isoformat(" ")
-
-    def iso8601_short(self) -> str:
-        return self.datetime.strftime("%Y-%m-%d %H:%M:%S")
 
 
 class Update(TypedDict):

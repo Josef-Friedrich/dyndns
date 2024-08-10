@@ -64,7 +64,7 @@ class Logger:
         self.__logger.addHandler(stream_handler)
         self.__logger.setLevel(logging.DEBUG)
 
-    def log(self, log_level: LogLevel, message: str) -> None:
+    def log(self, log_level: LogLevel, message: object) -> None:
         self.__logger.log(log_level.value, message)
 
     def log_update(
