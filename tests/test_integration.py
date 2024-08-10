@@ -33,18 +33,18 @@ class TestIntegration:
         self.app = app.test_client()
 
     def get(self, path: str, side_effect: Any = None) -> None:
-        with mock.patch("dns.query.tcp") as tcp:
-            with mock.patch("dns.update.Update") as Update:
-                with mock.patch("dns.resolver.Resolver") as Resolver:
-                    self.mock_tcp = tcp
-                    self.mock_Update = Update
-                    self.mock_Resolver = Resolver
-                    self.mock_resolver = self.mock_Resolver.return_value
-                    if side_effect:
-                        self.mock_resolver.resolve.side_effect = side_effect
-                    self.response = self.app.get(path)
-                    self.data = self.response.data.decode("utf-8")
-                    self.mock_update = Update.return_value
+        with mock.patch("dns.query.tcp") as tcp, mock.patch(
+            "dns.update.Update"
+        ) as Update, mock.patch("dns.resolver.Resolver") as Resolver:
+            self.mock_tcp = tcp
+            self.mock_Update = Update
+            self.mock_Resolver = Resolver
+            self.mock_resolver = self.mock_Resolver.return_value
+            if side_effect:
+                self.mock_resolver.resolve.side_effect = side_effect
+            self.response = self.app.get(path)
+            self.data = self.response.data.decode("utf-8")
+            self.mock_update = Update.return_value
 
 
 class TestMethodUpdateByPath:
