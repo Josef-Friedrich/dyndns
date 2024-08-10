@@ -88,8 +88,8 @@ def update_dns_record(
 
     messages: list[str] = []
     for result in results:
-        message = (
-            f"fqdn: {names.fqdn} old_ip: {result["old_ip"]} new_ip: {result["new_ip"]}"
+        message = "fqdn: {} old_ip: {} new_ip: {}".format(
+            names.fqdn, result["old_ip"], result["new_ip"]
         )
         messages.append(logger.log(result["status"], message))
 

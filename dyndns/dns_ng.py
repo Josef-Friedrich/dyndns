@@ -116,7 +116,7 @@ class DnsZone:
         self._query(message)
 
     def add_record(self, record_name: str, ttl: int, rdtype: str, content: str) -> None:
-        message = self._create_update_message()
+        message: dns.update.UpdateMessage = self._create_update_message()
         message.add(record_name, ttl, rdtype, content)
         self._query(message)
 
@@ -126,14 +126,14 @@ class DnsZone:
         )
         return result.rrset
 
-    def check(self) -> None:
+    def check(self) -> str:
         check_record_name = "dyndns-check-tmp_a841278b-f089-4164-b8e6-f90514e573ec"
-        random_content = "".join(
+        random_content: str = "".join(
             random.choices(string.ascii_uppercase + string.digits, k=8)
         )
         self.delete_record(check_record_name, "TXT")
         self.add_record(check_record_name, 300, "TXT", random_content)
-        rr_set = self.read_record(check_record_name, "TXT")
+        rr_set: dns.rrset.RRset | None = self.read_record(check_record_name, "TXT")
         self.delete_record(check_record_name, "TXT")
 
         if not rr_set:
@@ -142,14 +142,15 @@ class DnsZone:
         element: Any = rr_set.pop()
 
         if isinstance(element, TXT):
-            result = element.strings[0].decode()
-            if result != random_content:
+            result: str = element.strings[0].decode()
+            if result != random_content + "l":
                 raise CheckError("check failed")
             else:
-                logger.log(
+                return logger.log(
                     LogLevel.INFO,
-                    f"A TXT record {check_record_name} with the content {random_content} could be set.",
+                    "The update check passed: "
+                    f"A TXT record '{check_record_name}' with the content '{random_content}' "
+                    f"could be updated on the zone '{self._zone.zone_name}'.",
                 )
-
         else:
             raise CheckError("no TXT record")

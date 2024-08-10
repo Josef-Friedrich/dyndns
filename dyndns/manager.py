@@ -32,6 +32,8 @@ class Manager:
         for dns_zone in self._dns_zones.values():
             yield dns_zone
 
-    def check(self) -> None:
+    def check(self) -> str:
+        outputs: list[str] = []
         for dns_zone in self.dns_zones:
-            dns_zone.check()
+            outputs.append(dns_zone.check())
+        return "\n".join(outputs)
