@@ -6,16 +6,13 @@ from flask import Flask
 from flask.testing import FlaskClient
 from werkzeug.test import TestResponse
 
-from tests import _helper
-
-os.environ["dyndns_CONFIG_FILE"] = _helper.config_file
-
-
 from dyndns.webapp import app
+from tests import _helper
 
 
 @pytest.fixture()
 def run_app() -> Generator[Flask, Any, None]:
+    os.environ["dyndns_CONFIG_FILE"] = _helper.config_file
     app.config["TESTING"] = True
     yield app
 

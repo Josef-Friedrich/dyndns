@@ -37,3 +37,13 @@ class Manager:
         for dns_zone in self.dns_zones:
             outputs.append(dns_zone.check())
         return "\n".join(outputs)
+
+
+_manager: Manager | None = None
+
+
+def get_manager(config_file: str | None = None) -> Manager:
+    global _manager
+    if not _manager:
+        _manager = Manager(config_file)
+    return _manager

@@ -10,7 +10,7 @@ import flask
 
 from dyndns.dns_updates import delete_dns_record, update_dns_record
 from dyndns.exceptions import ParameterError
-from dyndns.manager import Manager
+from dyndns.manager import get_manager
 
 app = flask.Flask(__name__)
 
@@ -18,8 +18,6 @@ app = flask.Flask(__name__)
 log = logging.getLogger("werkzeug")
 # log.disabled = True
 log.setLevel(logging.WARNING)
-
-manager = Manager()
 
 
 @app.errorhandler(Exception)
@@ -47,7 +45,7 @@ def home() -> str:
 
 @app.route("/check")
 def check() -> str:
-    return manager.check()
+    return get_manager().check()
 
 
 @app.route("/update-by-path/<secret>/<fqdn>")
