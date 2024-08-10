@@ -58,7 +58,7 @@ class TestFunctionValidateConfig:
 
     def test_no_secret(self) -> None:
         self.assert_raises_msg(
-            {"lol": "lol"},  # type: ignore
+            {"test": "test"},  # type: ignore
             'Your configuration must have a "secret" key, for example: '
             '"secret: VDEdxeTKH"',
         )
@@ -79,9 +79,9 @@ class TestFunctionValidateConfig:
 
     def test_invalid_nameserver_ip(self) -> None:
         self.assert_raises_msg(
-            {"secret": "12345678", "nameserver": "lol"},  # type: ignore
+            {"secret": "12345678", "nameserver": "test"},  # type: ignore
             'The "nameserver" entry in your configuration is not a valid IP '
-            'address: "lol".',
+            'address: "test".',
         )
 
     def test_invalid_dyndns_domain(self) -> None:
@@ -98,7 +98,7 @@ class TestFunctionValidateConfig:
 
     def test_zones_string(self) -> None:
         self.assert_raises_msg(
-            {"secret": "12345678", "nameserver": "127.0.0.1", "zones": "lol"},  # type: ignore
+            {"secret": "12345678", "nameserver": "127.0.0.1", "zones": "test"},  # type: ignore
             'Your "zones" key must contain a list of zones.',
         )
 
@@ -111,7 +111,7 @@ class TestFunctionValidateConfig:
 
     def test_zone_no_name(self) -> None:
         self.assert_raises_msg(
-            {"secret": "12345678", "nameserver": "127.0.0.1", "zones": [{"lol": "-"}]},  # type: ignore
+            {"secret": "12345678", "nameserver": "127.0.0.1", "zones": [{"test": "-"}]},  # type: ignore
             'Your zone dictionary must contain a key "name"',
         )
 

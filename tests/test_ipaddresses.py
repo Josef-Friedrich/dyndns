@@ -14,19 +14,18 @@ class IpAddressContainerKwargs(TypedDict, total=False):
 
 
 class TestClassIpAddresses:
-    def assert_raises_msg(self, kwargs: IpAddressContainerKwargs, msg: str) -> None:
-        with pytest.raises(IpAddressesError) as e:
+    def assert_raises_msg(self, kwargs: IpAddressContainerKwargs, message: str) -> None:
+        with pytest.raises(IpAddressesError, match=message):
             IpAddressContainer(**kwargs)
-        assert e.value.args[0] == msg
 
     def test_invalid_ipv4(self) -> None:
-        self.assert_raises_msg({"ipv4": "lol"}, 'Invalid ip address "lol"')
+        self.assert_raises_msg({"ipv4": "test"}, 'Invalid ip address "test"')
 
     def test_invalid_ipv4_version(self) -> None:
         self.assert_raises_msg({"ipv4": "1::2"}, 'IP version "4" does not match.')
 
     def test_invalid_ipv6(self) -> None:
-        self.assert_raises_msg({"ipv6": "lol"}, 'Invalid ip address "lol"')
+        self.assert_raises_msg({"ipv6": "test"}, 'Invalid ip address "test"')
 
     def test_invalid_ipv6_version(self) -> None:
         self.assert_raises_msg({"ipv6": "1.2.3.4"}, 'IP version "6" does not match.')

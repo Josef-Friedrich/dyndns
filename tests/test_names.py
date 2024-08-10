@@ -38,10 +38,9 @@ class TestFunctionValidateHostname:
 
 
 class TestFunctionValidateTsigKey:
-    def assert_raises_msg(self, tsig_key: str, msg: str) -> None:
-        with pytest.raises(DnsNameError) as e:
+    def assert_raises_msg(self, tsig_key: str, message: str) -> None:
+        with pytest.raises(DnsNameError, match=message):
             validate_tsig_key(tsig_key)
-        assert e.value.args[0] == msg
 
     def test_valid(self) -> None:
         assert validate_tsig_key("tPyvZA==") == "tPyvZA=="
@@ -83,8 +82,8 @@ class TestClassZones:
         assert zone.tsig_key == "tPyvZA=="
 
     def test_method_get_zone_by_name_raises(self) -> None:
-        with pytest.raises(DnsNameError, match='Unkown zone "lol.org.".'):
-            zones.get_zone_by_name("lol.org")
+        with pytest.raises(DnsNameError, match='Unkown zone "test.org.".'):
+            zones.get_zone_by_name("test.org")
 
 
 class TestClassZonesMethodSplitNames:
@@ -107,22 +106,24 @@ class TestClassZonesMethodSplitNames:
                 {"name": "dyndns.example.com", "tsig_key": "tPyvZA=="},
             ]
         )
-        result = zones.split_fqdn("lol.dyndns.example.com")
-        assert result == ("lol.", "dyndns.example.com.")
+        result = zones.split_fqdn("test.dyndns.example.com")
+        assert result == ("test.", "dyndns.example.com.")
 
 
 class TestClassNames:
+    fqdn: FullyQualifiedDomainName
+
     def setup_method(self) -> None:
-        self.names = FullyQualifiedDomainName(zones=zones, fqdn="www.example.com")
+        self.fqdn = FullyQualifiedDomainName(zones=zones, fqdn="www.example.com")
 
     def test_attribute_fqdn(self) -> None:
-        assert self.names.fqdn == "www.example.com."
+        assert self.fqdn.fqdn == "www.example.com."
 
     def test_attribute_zone_name(self) -> None:
-        assert self.names.zone_name == "example.com."
+        assert self.fqdn.zone_name == "example.com."
 
     def test_attribute_record_name(self) -> None:
-        assert self.names.record_name == "www."
+        assert self.fqdn.record_name == "www."
 
     def test_attribute_tsig_key(self) -> None:
-        assert self.names.tsig_key == "tPyvZA=="
+        assert self.fqdn.tsig_key == "tPyvZA=="
