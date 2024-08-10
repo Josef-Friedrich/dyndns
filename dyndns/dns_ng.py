@@ -38,7 +38,7 @@ def validate_hostname(hostname: str) -> str:
         hostname = hostname[:-1]
     if len(hostname) > 253:
         raise DnsNameError(
-            'The hostname "{}..." is longer than 253 characters.'.format(hostname[:10])
+            f'The hostname "{hostname[:10]}..." is longer than 253 characters.'
         )
 
     labels: list[str] = hostname.split(".")
@@ -46,18 +46,14 @@ def validate_hostname(hostname: str) -> str:
     tld: str = labels[-1]
     if re.match(r"[0-9]+$", tld):
         raise DnsNameError(
-            'The TLD "{}" of the hostname "{}" must be not all-numeric.'.format(
-                tld, hostname
-            )
+            f'The TLD "{tld}" of the hostname "{hostname}" must be not all-numeric.'
         )
 
     allowed: re.Pattern[str] = re.compile(r"(?!-)[a-z0-9-]{1,63}(?<!-)$", re.IGNORECASE)
     for label in labels:
         if not allowed.match(label):
             raise DnsNameError(
-                'The label "{}" of the hostname "{}" is invalid.'.format(
-                    label, hostname
-                )
+                f'The label "{label}" of the hostname "{hostname}" is invalid.'
             )
 
     return str(dns.name.from_text(hostname))
@@ -74,12 +70,12 @@ def validate_tsig_key(tsig_key: str) -> str:
     :raises NamesError: If the TSIG key is invalid.
     """
     if not tsig_key:
-        raise DnsNameError('Invalid tsig key: "{}".'.format(tsig_key))
+        raise DnsNameError(f'Invalid tsig key: "{tsig_key}".')
     try:
         dns.tsigkeyring.from_text({"tmp.org.": tsig_key})
         return tsig_key
     except binascii.Error:
-        raise DnsNameError('Invalid tsig key: "{}".'.format(tsig_key))
+        raise DnsNameError(f'Invalid tsig key: "{tsig_key}".')
 
 
 class DnsZone:

@@ -16,14 +16,14 @@ def validate(
     try:
         address = ipaddress.ip_address(address)
         if ip_version and ip_version != address.version:
-            raise IpAddressesError('IP version "{}" does not match.'.format(ip_version))
+            raise IpAddressesError(f'IP version "{ip_version}" does not match.')
         return str(address), address.version
     except ValueError:
-        raise IpAddressesError('Invalid ip address "{}"'.format(address))
+        raise IpAddressesError(f'Invalid ip address "{address}"')
 
 
 def format_attr(ip_version: Literal[4, 6]) -> str:
-    return "ipv{}".format(ip_version)
+    return f"ipv{ip_version}"
 
 
 class IpAddressContainer:
@@ -95,12 +95,7 @@ class IpAddressContainer:
         ip, ip_version = validate(address)
         old_ip: str = self._get_ip(ip_version)
         if old_ip:
-            msg: str = (
-                'The attribute "{}" is already set and has the value "{}".'.format(
-                    format_attr(ip_version),
-                    old_ip,
-                )
-            )
+            msg: str = f'The attribute "{format_attr(ip_version)}" is already set and has the value "{old_ip}".'
             raise IpAddressesError(msg)
 
         self._setattr(ip_version, ip)

@@ -99,17 +99,12 @@ class DnsUpdate:
             dns.query.tcp(dns_update, where=self.nameserver, timeout=5)
         except dns.tsig.PeerBadKey:
             raise DNSServerError(
-                'The peer "{}" didn\'t know the tsig key '
-                'we used for the zone "{}".'.format(
-                    self.nameserver,
-                    self.fqdn.zone_name,
-                )
+                f'The peer "{self.nameserver}" didn\'t know the tsig key '
+                f'we used for the zone "{self.fqdn.zone_name}".'
             )
         except dns.exception.Timeout:
             raise DNSServerError(
-                "The DNS operation to the nameserver " '"{}" timed out.'.format(
-                    self.nameserver
-                )
+                f'The DNS operation to the nameserver "{self.nameserver}" timed out.'
             )
 
     def _set_record(self, new_ip: str, ip_version: IpVersion = 4) -> UpdateRecord:

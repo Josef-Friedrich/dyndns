@@ -88,10 +88,8 @@ def update_dns_record(
 
     messages: list[str] = []
     for result in results:
-        message = "fqdn: {} old_ip: {} new_ip: {}".format(
-            names.fqdn,
-            result["old_ip"],
-            result["new_ip"],
+        message = (
+            f"fqdn: {names.fqdn} old_ip: {result["old_ip"]} new_ip: {result["new_ip"]}"
         )
         messages.append(logger.log(result["status"], message))
 
@@ -115,7 +113,5 @@ def delete_dns_record(
     )
 
     if delete.delete():
-        return logger.log(LogLevel.UPDATED, 'Deleted "{}".'.format(names.fqdn))
-    return logger.log(
-        LogLevel.UNCHANGED, 'Deletion not successful "{}".'.format(names.fqdn)
-    )
+        return logger.log(LogLevel.UPDATED, f'Deleted "{names.fqdn}".')
+    return logger.log(LogLevel.UNCHANGED, f'Deletion not successful "{names.fqdn}".')

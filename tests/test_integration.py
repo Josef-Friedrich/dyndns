@@ -75,7 +75,7 @@ class TestMethodUpdateByPath:
 class TestUpdateByPath(TestIntegration):
     @staticmethod
     def _url(path: str) -> str:
-        return "/update-by-path/12345678/www.example.com/{}".format(path)
+        return f"/update-by-path/12345678/www.example.com/{path}"
 
     def test_ipv4_update(self) -> None:
         self.get(self._url("1.2.3.5"), [["1.2.3.4"], ["1.2.3.5"]])
@@ -130,7 +130,7 @@ class TestUpdateByQuery(TestIntegration):
     def _url(query_string: str) -> str:
         return (
             "/update-by-query?secret=12345678&record_name=www&zone_name="
-            "example.com&{}".format(query_string)
+            f"example.com&{query_string}"
         )
 
     def test_unkown_argument(self) -> None:
@@ -195,7 +195,7 @@ class TestUpdateByQuery(TestIntegration):
 class TestDeleteByPath(TestIntegration):
     @staticmethod
     def _url(fqdn: str) -> str:
-        return "/delete-by-path/12345678/{}".format(fqdn)
+        return f"/delete-by-path/12345678/{fqdn}"
 
     def test_deletion(self):
         self.get(self._url("www.example.com"))

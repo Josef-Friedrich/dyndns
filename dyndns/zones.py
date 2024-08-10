@@ -86,7 +86,7 @@ class ZonesCollection:
         zone_name = validate_hostname(zone_name)
         if zone_name in self.zones:
             return self.zones[validate_hostname(zone_name)]
-        raise DnsNameError('Unkown zone "{}".'.format(zone_name))
+        raise DnsNameError(f'Unkown zone "{zone_name}".')
 
     def split_fqdn(self, fqdn: str) -> tuple[str, str] | typing.Literal[False]:
         """Split a fully qualified domain name into a record name and a zone name,

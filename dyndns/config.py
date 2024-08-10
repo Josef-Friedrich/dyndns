@@ -92,7 +92,7 @@ def validate_config(config: Any = None) -> Config:
     except IpAddressesError:
         msg: str = (
             'The "nameserver" entry in your configuration is not a valid '
-            'IP address: "{}".'.format(config["nameserver"])
+            f'IP address: "{config["nameserver"]}".'
         )
         raise ConfigurationError(msg)
 
