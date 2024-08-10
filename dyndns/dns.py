@@ -119,7 +119,7 @@ class DnsUpdate:
         status: LogLevel
 
         if new_ip == old_ip:
-            status = "UNCHANGED"
+            status = LogLevel.UNCHANGED
             logger.log_update(False, self.fqdn.fqdn, rdtype, new_ip)
         else:
             self._dns_update.delete(self.fqdn.fqdn, rdtype)
@@ -134,10 +134,10 @@ class DnsUpdate:
             checked_ip = self._resolve(ip_version)
 
             if new_ip == checked_ip:
-                status = "UPDATED"
+                status = LogLevel.UPDATED
                 logger.log_update(True, self.fqdn.fqdn, rdtype, new_ip)
             else:
-                status = "DNS_SERVER_ERROR"
+                status = LogLevel.DNS_SERVER_ERROR
 
         return {
             "ip_version": ip_version,

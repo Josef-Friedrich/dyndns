@@ -6,7 +6,7 @@ from unittest import mock
 import pytest
 
 from dyndns.dns_updates import update_dns_record
-from dyndns.exceptions import ParameterError
+from dyndns.exceptions import DnsNameError, IpAddressesError
 from tests import _helper
 
 
@@ -33,22 +33,22 @@ class TestFunctionUpdateDnsRecord:
     def test_not_all_three_fqdn_etc(self) -> None:
         self.assert_raises_msg(
             {"secret": "12345678", "fqdn": "a", "zone_name": "b", "record_name": "c"},
-            ParameterError,
+            DnsNameError,
             'Specify "fqdn" or "zone_name" and "record_name".',
         )
 
     def test_ip_1_invalid(self) -> None:
         self.assert_raises_msg(
-            {"secret": "12345678", "fqdn": "www.example.com", "ip_1": "lol"},
-            ParameterError,
-            'Invalid ip address "lol"',
+            {"secret": "12345678", "fqdn": "www.example.com", "ip_1": "1.2.3.4.5"},
+            IpAddressesError,
+            'Invalid ip address "1.2.3.4.5"',
         )
 
     def test_ip_2_invalid(self) -> None:
         self.assert_raises_msg(
-            {"secret": "12345678", "fqdn": "www.example.com", "ip_2": "lol"},
-            ParameterError,
-            'Invalid ip address "lol"',
+            {"secret": "12345678", "fqdn": "www.example.com", "ip_2": "invalid"},
+            IpAddressesError,
+            'Invalid ip address "invalid"',
         )
 
     def test_both_ip_same_version(self) -> None:
@@ -59,7 +59,7 @@ class TestFunctionUpdateDnsRecord:
                 "ip_1": "1.2.3.4",
                 "ip_2": "1.2.3.4",
             },
-            ParameterError,
+            IpAddressesError,
             'The attribute "ipv4" is already set and has the value "1.2.3.4".',
         )
 

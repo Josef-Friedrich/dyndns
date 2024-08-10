@@ -2,48 +2,24 @@
 
 from __future__ import annotations
 
-from typing import Any, Callable
+from typing import Any
 
 import flask
 
 from dyndns.config import Config, get_config
 from dyndns.dns import DnsUpdate
 from dyndns.exceptions import (
-    ConfigurationError,
-    DnsNameError,
-    DNSServerError,
-    IpAddressesError,
     ParameterError,
 )
 from dyndns.ipaddresses import IpAddressContainer
 from dyndns.log import logger
 from dyndns.names import FullyQualifiedDomainName
-from dyndns.types import UpdateRecord
+from dyndns.types import LogLevel, UpdateRecord
 
 
 def authenticate(secret: Any, config: Config) -> None:
     if str(secret) != str(config["secret"]):
         raise ParameterError("You specified a wrong secret key.")
-
-
-def raise_parameter_error(
-    function: Callable[..., Any], exception: type[Exception], *args: Any, **kwargs: Any
-) -> Any:
-    try:
-        return function(*args, **kwargs)
-    except exception as e:
-        raise ParameterError(str(e))
-
-
-def catch_errors(function: Callable[..., Any], **kwargs: Any) -> str:
-    try:
-        return function(**kwargs)
-    except ParameterError as error:
-        return logger.log(str(error), "PARAMETER_ERROR")
-    except ConfigurationError as error:
-        return logger.log(str(error), "CONFIGURATION_ERROR")
-    except DNSServerError as error:
-        return logger.log(str(error), "DNS_SERVER_ERROR")
 
 
 def update_dns_record(
@@ -88,17 +64,13 @@ def update_dns_record(
 
     authenticate(secret, config)
 
-    names = raise_parameter_error(
-        FullyQualifiedDomainName,
-        DnsNameError,
+    names = FullyQualifiedDomainName(
         zones,
         fqdn=fqdn,
         zone_name=zone_name,
         record_name=record_name,
     )
-    ip_addresses = raise_parameter_error(
-        IpAddressContainer,
-        IpAddressesError,
+    ip_addresses = IpAddressContainer(
         ip_1=ip_1,
         ip_2=ip_2,
         ipv4=ipv4,
@@ -121,7 +93,7 @@ def update_dns_record(
             result["old_ip"],
             result["new_ip"],
         )
-        messages.append(logger.log(message, result["status"]))
+        messages.append(logger.log(result["status"], message))
 
     return "".join(messages)
 
@@ -135,9 +107,7 @@ def delete_dns_record(
 
     authenticate(secret, config)
 
-    names = raise_parameter_error(
-        FullyQualifiedDomainName, DnsNameError, zones, fqdn=fqdn
-    )
+    names = FullyQualifiedDomainName(zones, fqdn=fqdn)
 
     delete = DnsUpdate(
         nameserver=config["nameserver"],
@@ -145,5 +115,7 @@ def delete_dns_record(
     )
 
     if delete.delete():
-        return logger.log('Deleted "{}".'.format(names.fqdn), "UPDATED")
-    return logger.log('Deletion not successful "{}".'.format(names.fqdn), "UNCHANGED")
+        return logger.log(LogLevel.UPDATED, 'Deleted "{}".'.format(names.fqdn))
+    return logger.log(
+        LogLevel.UNCHANGED, 'Deletion not successful "{}".'.format(names.fqdn)
+    )

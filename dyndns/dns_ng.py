@@ -18,7 +18,8 @@ import dns.update
 from dns.rdtypes.ANY.TXT import TXT
 
 from dyndns.exceptions import CheckError, DnsNameError
-from dyndns.log_ng import LogLevel, logger
+from dyndns.log import logger
+from dyndns.types import LogLevel
 
 if typing.TYPE_CHECKING:
     from dyndns.zones import Zone

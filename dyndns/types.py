@@ -1,12 +1,46 @@
 from __future__ import annotations
 
+from enum import Enum
 from typing import Literal
 
 from typing_extensions import NotRequired, TypedDict
 
-LogLevel = Literal[
-    "CONFIGURATION_ERROR", "DNS_SERVER_ERROR", "PARAMETER_ERROR", "UPDATED", "UNCHANGED"
-]
+
+class LogLevel(Enum):
+    CONFIGURATION_ERROR = 53
+
+    DNS_SERVER_ERROR = 52
+
+    IP_ADDRESS_ERROR = 51
+
+    CRITICAL = 50
+    """Python default"""
+
+    DNS_NAME_ERROR = 43
+
+    PARAMETER_ERROR = 42
+
+    CHECK_ERROR = 41
+
+    ERROR = 40
+    """Python default"""
+
+    WARNING = 30
+    """Python default"""
+
+    UPDATED = 21
+
+    INFO = 20
+    """Python default"""
+
+    UNCHANGED = 11
+
+    DEBUG = 10
+    """Python default"""
+
+    NOTSET = 0
+    """Python default"""
+
 
 RecordType = Literal["a", "aaaa"]
 

@@ -7,6 +7,7 @@ import pytest
 from dyndns.dns import DnsUpdate
 from dyndns.ipaddresses import IpAddressContainer
 from dyndns.names import FullyQualifiedDomainName
+from dyndns.types import LogLevel
 from tests import _helper
 
 ipaddresses = IpAddressContainer(ipv4="1.2.3.4")
@@ -74,7 +75,7 @@ class TestClassDnsUpdate:
             "ip_version": 4,
             "new_ip": "1.2.3.5",
             "old_ip": "1.2.3.4",
-            "status": "UPDATED",
+            "status": LogLevel.UPDATED,
         }
 
     @mock.patch("dns.query.tcp")
@@ -97,7 +98,7 @@ class TestClassDnsUpdate:
             "ip_version": 4,
             "new_ip": "1.2.3.4",
             "old_ip": "1.2.3.4",
-            "status": "UNCHANGED",
+            "status": LogLevel.UNCHANGED,
         }
 
     @mock.patch("dns.query.tcp")
@@ -116,5 +117,5 @@ class TestClassDnsUpdate:
             "ip_version": 4,
             "new_ip": "1.2.3.5",
             "old_ip": "1.2.3.4",
-            "status": "DNS_SERVER_ERROR",
+            "status": LogLevel.DNS_SERVER_ERROR,
         }

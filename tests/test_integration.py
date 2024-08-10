@@ -134,8 +134,10 @@ class TestUpdateByQuery(TestIntegration):
         )
 
     def test_unkown_argument(self) -> None:
-        self.get("/update-by-query?lol=lol")
-        assert self.data == 'PARAMETER_ERROR: Unknown query string argument: "lol"\n'
+        self.get("/update-by-query?unknown=unknown")
+        assert (
+            self.data == 'PARAMETER_ERROR: Unknown query string argument: "unknown"\n'
+        )
 
     def test_ipv4_update(self) -> None:
         side_effect = [["1.2.3.4"], ["1.2.3.5"]]
@@ -181,8 +183,8 @@ class TestUpdateByQuery(TestIntegration):
         )
 
     def test_invalid_ipv4(self) -> None:
-        self.get(self._url("ipv4=lol"))
-        assert self.data == 'PARAMETER_ERROR: Invalid ip address "lol"\n'
+        self.get(self._url("ipv4=1.2.3.4.5"))
+        assert self.data == 'IP_ADDRESS_ERROR: Invalid ip address "1.2.3.4.5"\n'
 
     def test_ttl(self) -> None:
         side_effect = [["1.2.3.4"], ["1.2.3.5"]]

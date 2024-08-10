@@ -32,16 +32,16 @@ def test_wrong_secret(client: FlaskClient) -> None:
         "/update-by-path/wrong-secret/test.example.com/1.2.3.4"
     )
     assert response.status_code == 456
-    assert b"ParameterError: You specified a wrong secret key." in response.data
+    assert b"PARAMETER_ERROR: You specified a wrong secret key." in response.data
 
 
 def test_wrong_fqdn(client: FlaskClient) -> None:
     response: TestResponse = client.get(
         "/update-by-path/12345678/test.wrong-domain.de/1.2.3.4"
     )
-    assert response.status_code == 456
+    assert response.status_code == 453
     assert (
-        b'ParameterError: The fully qualified domain name "test.wrong-domain.de." could not be split into a record and a zone name.'
+        b'DNS_NAME_ERROR: The fully qualified domain name "test.wrong-domain.de." could not be split into a record and a zone name.\n'
         in response.data
     )
 
@@ -50,5 +50,5 @@ def test_wrong_ip(client: FlaskClient) -> None:
     response: TestResponse = client.get(
         "/update-by-path/12345678/test.example.com/1.2.3"
     )
-    assert response.status_code == 456
-    assert b'ParameterError: Invalid ip address "1.2.3"' in response.data
+    assert response.status_code == 454
+    assert b'IP_ADDRESS_ERROR: Invalid ip address "1.2.3"\n' in response.data

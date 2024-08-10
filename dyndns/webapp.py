@@ -4,11 +4,12 @@ from __future__ import annotations
 
 import inspect
 import logging
+from typing import Any
 
 import flask
 
-from dyndns.dns_updates import catch_errors, delete_dns_record, update_dns_record
-from dyndns.log import logger
+from dyndns.dns_updates import delete_dns_record, update_dns_record
+from dyndns.exceptions import ParameterError
 
 app = flask.Flask(__name__)
 
@@ -29,7 +30,16 @@ def handle_exception(e: Exception) -> tuple[str, int]:
     status_code: int = 500
     if hasattr(e, "status_code"):
         status_code = getattr(e, "status_code")
-    return f"{e.__class__.__name__}: {e}", status_code
+    else:
+        status_code = 500
+
+    log_level: str
+    if hasattr(e, "log_level"):
+        log_level = getattr(e, "log_level").name
+    else:
+        log_level = e.__class__.__name__.upper()
+
+    return f"{log_level}: {e}\n", status_code
 
 
 @app.route("/update-by-path/<secret>/<fqdn>")
@@ -50,17 +60,15 @@ def update_by_query_string() -> str:
 
     kwargs = inspect.getfullargspec(update_dns_record).args
 
-    input_args = {}
+    input_args: Any = {}
     for key, arg in args.items():
         input_args[key] = arg
 
         if key not in kwargs:
-            return logger.log(
-                'Unknown query string argument: "{}"'.format(key),
-                "PARAMETER_ERROR",
+            raise ParameterError(
+                f'Unknown query string argument: "{key}"',
             )
-
-    return catch_errors(update_dns_record, **input_args)
+    return update_dns_record(**input_args)
 
 
 @app.route("/delete-by-path/<secret>/<fqdn>")

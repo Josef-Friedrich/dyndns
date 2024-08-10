@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from dyndns.log_ng import LogLevel
+from dyndns.log import LogLevel
 
 
 class DyndnsError(Exception):
@@ -19,13 +19,15 @@ class DyndnsError(Exception):
 class DnsNameError(DyndnsError):
     """This error gets thrown by invalid DNS names."""
 
-    status_code = 453
-
     log_level = LogLevel.DNS_NAME_ERROR
+
+    status_code = 453
 
 
 class IpAddressesError(DyndnsError):
     """This error gets thrown by invalid IP addresses."""
+
+    log_level = LogLevel.IP_ADDRESS_ERROR
 
     status_code = 454
 
@@ -33,11 +35,15 @@ class IpAddressesError(DyndnsError):
 class ConfigurationError(DyndnsError):
     """dyndns configuration error."""
 
+    log_level = LogLevel.CONFIGURATION_ERROR
+
     status_code = 455
 
 
 class ParameterError(DyndnsError):
     """Client side parameter error."""
+
+    log_level = LogLevel.PARAMETER_ERROR
 
     status_code = 456
 
@@ -45,10 +51,14 @@ class ParameterError(DyndnsError):
 class CheckError(DyndnsError):
     """The check failed."""
 
+    log_level = LogLevel.CHECK_ERROR
+
     status_code = 457
 
 
 class DNSServerError(DyndnsError):
     """Communicating with the external DNS server."""
+
+    log_level = LogLevel.DNS_SERVER_ERROR
 
     status_code = 512
