@@ -143,7 +143,7 @@ class DnsZone:
 
         if isinstance(element, TXT):
             result: str = element.strings[0].decode()
-            if result != random_content + "l":
+            if result != random_content:
                 raise CheckError("check failed")
             else:
                 return logger.log(
