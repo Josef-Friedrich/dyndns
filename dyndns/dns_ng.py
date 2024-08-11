@@ -7,6 +7,7 @@ import string
 import typing
 from typing import Any
 
+import dns.exception
 import dns.message
 import dns.name
 import dns.query
@@ -17,7 +18,7 @@ import dns.tsigkeyring
 import dns.update
 from dns.rdtypes.ANY.TXT import TXT
 
-from dyndns.exceptions import CheckError, DnsNameError
+from dyndns.exceptions import CheckError, DnsNameError, DNSServerError
 from dyndns.log import logger
 from dyndns.types import LogLevel
 
@@ -108,7 +109,19 @@ class DnsZone:
         )
 
     def _query(self, message: dns.message.Message) -> dns.message.Message:
-        return dns.query.tcp(message, self._nameserver)
+        """Catch some errors and convert this errors to dyndns specific
+        errors."""
+        try:
+            return dns.query.tcp(message, where=self._nameserver, timeout=5)
+        except dns.tsig.PeerBadKey:
+            raise DNSServerError(
+                f'The peer "{self._nameserver}" didn\'t know the tsig key '
+                f'we used for the zone "{self._zone.zone_name}".'
+            )
+        except dns.exception.Timeout:
+            raise DNSServerError(
+                f'The DNS operation to the nameserver "{self._nameserver}" timed out.'
+            )
 
     def delete_record(self, record_name: str, rdtype: str = "A") -> None:
         message: dns.update.UpdateMessage = self._create_update_message()
