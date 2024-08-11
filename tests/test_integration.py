@@ -2,6 +2,10 @@ import os
 from typing import Any
 from unittest import mock
 
+import pytest
+from dns.rdataclass import RdataClass
+from dns.rdatatype import RdataType
+from dns.rdtypes.ANY.TXT import TXT
 from flask.testing import FlaskClient
 from werkzeug.test import TestResponse
 
@@ -15,12 +19,16 @@ class TestIntegration:
     app: FlaskClient
 
     mock_tcp: mock.Mock
+    """Mocks ``dns.query.tcp``."""
 
     mock_Update: mock.Mock
+    """Mocks ``dns.update.Update``."""
 
     mock_Resolver: mock.Mock
+    """Mocks ``dns.resolver.Resolver``."""
 
     mock_resolver: mock.Mock
+    """Mocks ``resolver = Resolver()``."""
 
     response: TestResponse
 
@@ -207,4 +215,11 @@ class TestDeleteByPath(TestIntegration):
             ]
         )
         self.mock_update.add.assert_not_called()
+        assert self.data == 'UPDATED: Deleted "www.example.com.".\n'
+
+
+class TestCheck(TestIntegration):
+    @pytest.mark.skip
+    def test_check(self) -> None:
+        self.get("/check", TXT(RdataClass.ANY, RdataType.TXT, ("any")))
         assert self.data == 'UPDATED: Deleted "www.example.com.".\n'
