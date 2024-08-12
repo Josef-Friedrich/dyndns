@@ -4,7 +4,7 @@ from dyndns.dns_ng import validate_tsig_key
 from dyndns.exceptions import DnsNameError
 from dyndns.names import (
     FullyQualifiedDomainName,
-    validate_hostname,
+    validate_dns_name,
 )
 from dyndns.zones import Zone, ZonesCollection
 from tests._helper import zones
@@ -13,21 +13,21 @@ from tests._helper import zones
 class TestFunctionValidateHostname:
     def assert_raises_msg(self, hostname: str, msg: str) -> None:
         with pytest.raises(DnsNameError, match=msg):
-            validate_hostname(hostname)
+            validate_dns_name(hostname)
 
     def test_valid(self) -> None:
-        assert validate_hostname("www.example.com") == "www.example.com."
+        assert validate_dns_name("www.example.com") == "www.example.com."
 
     def test_invalid_tld(self) -> None:
         self.assert_raises_msg(
             "www.example.777",
-            'The TLD "777" of the hostname "www.example.777" must be not all-numeric.',
+            'The TLD "777" of the DNS name "www.example.777" must be not all-numeric.',
         )
 
     def test_invalid_to_long(self) -> None:
         self.assert_raises_msg(
             "a" * 300,
-            'The hostname "aaaaaaaaaa..." is longer than 253 characters.',
+            'The DNS name "aaaaaaaaaa..." is longer than 253 characters.',
         )
 
     def test_invalid_characters(self) -> None:
@@ -55,7 +55,7 @@ class TestFunctionValidateTsigKey:
 class TestClassZone:
     def test_init(self) -> None:
         zone = Zone("example.com", "tPyvZA==")
-        assert zone.zone_name == "example.com."
+        assert zone.name == "example.com."
         assert zone.tsig_key == "tPyvZA=="
 
     def test_method_split_fqdn(self) -> None:
@@ -73,12 +73,12 @@ class TestClassZone:
 class TestClassZones:
     def test_init(self) -> None:
         zone = zones.zones["example.org."]
-        assert zone.zone_name == "example.org."
+        assert zone.name == "example.org."
         assert zone.tsig_key == "tPyvZA=="
 
     def test_method_get_zone_by_name(self) -> None:
         zone = zones.get_zone_by_name("example.org")
-        assert zone.zone_name == "example.org."
+        assert zone.name == "example.org."
         assert zone.tsig_key == "tPyvZA=="
 
     def test_method_get_zone_by_name_raises(self) -> None:

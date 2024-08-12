@@ -11,7 +11,7 @@ import yaml
 
 from dyndns.exceptions import ConfigurationError, DnsNameError, IpAddressesError
 from dyndns.ipaddresses import validate as validate_ip
-from dyndns.names import validate_hostname
+from dyndns.names import validate_dns_name
 from dyndns.types import Config
 from dyndns.zones import ZonesCollection
 
@@ -98,7 +98,7 @@ def validate_config(config: Any = None) -> Config:
 
     if "dyndns_domain" in config:
         try:
-            validate_hostname(config["dyndns_domain"])
+            validate_dns_name(config["dyndns_domain"])
         except DnsNameError as error:
             raise ConfigurationError(str(error))
 

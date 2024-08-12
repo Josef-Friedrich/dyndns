@@ -9,7 +9,7 @@ from __future__ import annotations
 
 import typing
 
-from dyndns.dns_ng import validate_hostname
+from dyndns.dns_ng import validate_dns_name
 from dyndns.exceptions import DnsNameError
 
 if typing.TYPE_CHECKING:
@@ -68,7 +68,7 @@ class FullyQualifiedDomainName:
             raise DnsNameError('Specify "fqdn" or "zone_name" and "record_name".')
 
         if fqdn:
-            fqdn = validate_hostname(fqdn)
+            fqdn = validate_dns_name(fqdn)
             split = zones.split_fqdn(fqdn)
             if split:
                 record_name = split[0]
@@ -79,8 +79,8 @@ class FullyQualifiedDomainName:
                 )
 
         if not fqdn and zone_name and record_name:
-            record_name = validate_hostname(record_name)
-            zone_name = validate_hostname(zone_name)
+            record_name = validate_dns_name(record_name)
+            zone_name = validate_dns_name(zone_name)
             zone = zones.get_zone_by_name(zone_name)
             fqdn = zone.build_fqdn(record_name)
 

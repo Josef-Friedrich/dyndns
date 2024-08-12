@@ -1,6 +1,6 @@
 import typing
 
-from dyndns.dns_ng import validate_hostname, validate_tsig_key
+from dyndns.dns_ng import validate_dns_name, validate_tsig_key
 from dyndns.exceptions import DnsNameError
 from dyndns.types import ZoneConfig
 
@@ -13,21 +13,21 @@ class Zone:
     :param tsig_key: The TSIG (Transaction SIGnature) key (e. g. ``tPyvZA==``).
     """
 
-    zone_name: str
+    name: str
     """The zone name (e. g. ``example.com.``)."""
 
     tsig_key: str
     """The TSIG (Transaction SIGnature) key (e. g. ``tPyvZA==``)."""
 
-    def __init__(self, zone_name: str, tsig_key: str) -> None:
+    def __init__(self, name: str, tsig_key: str) -> None:
         """
         Initialize a Zone object.
 
-        :param zone_name: The zone name (e. g. ``example.com.``).
+        :param name: The zone name (e. g. ``example.com.``).
         :param tsig_key: The TSIG (Transaction SIGnature) key (e. g. ``tPyvZA==``).
         """
 
-        self.zone_name = validate_hostname(zone_name)
+        self.name = validate_dns_name(name)
         self.tsig_key = validate_tsig_key(tsig_key)
 
     def split_fqdn(self, fqdn: str) -> tuple[str, str]:
@@ -40,10 +40,10 @@ class Zone:
 
         :raises NamesError: If the FQDN is not splitable by the zone.
         """
-        fqdn = validate_hostname(fqdn)
-        record_name: str = fqdn.replace(self.zone_name, "")
+        fqdn = validate_dns_name(fqdn)
+        record_name: str = fqdn.replace(self.name, "")
         if record_name and len(record_name) < len(fqdn):
-            return (record_name, self.zone_name)
+            return (record_name, self.name)
         raise DnsNameError('FQDN "{}" is not splitable by zone "{}".')
 
     def build_fqdn(self, record_name: str) -> str:
@@ -54,8 +54,8 @@ class Zone:
 
         :return: The fully qualified domain name.
         """
-        record_name = validate_hostname(record_name)
-        return record_name + self.zone_name
+        record_name = validate_dns_name(record_name)
+        return record_name + self.name
 
 
 class ZonesCollection:
@@ -64,8 +64,8 @@ class ZonesCollection:
     def __init__(self, zones_config: list[ZoneConfig]) -> None:
         self.zones = {}
         for zone_config in zones_config:
-            zone = Zone(zone_name=zone_config["name"], tsig_key=zone_config["tsig_key"])
-            self.zones[zone.zone_name] = zone
+            zone = Zone(name=zone_config["name"], tsig_key=zone_config["tsig_key"])
+            self.zones[zone.name] = zone
         self._iter_index = 0
         self._zone_keys = list(self.zones.keys())
 
@@ -83,9 +83,9 @@ class ZonesCollection:
             raise StopIteration
 
     def get_zone_by_name(self, zone_name: str) -> Zone:
-        zone_name = validate_hostname(zone_name)
+        zone_name = validate_dns_name(zone_name)
         if zone_name in self.zones:
-            return self.zones[validate_hostname(zone_name)]
+            return self.zones[validate_dns_name(zone_name)]
         raise DnsNameError(f'Unkown zone "{zone_name}".')
 
     def split_fqdn(self, fqdn: str) -> tuple[str, str] | typing.Literal[False]:
@@ -94,13 +94,13 @@ class ZonesCollection:
 
         :param fqdn: The fully qualified domain name.
         """
-        fqdn = validate_hostname(fqdn)
+        fqdn = validate_dns_name(fqdn)
         # To handle subzones (example.com and dyndns.example.com)
         results: dict[int, tuple[str, str]] = {}
         for _, zone in self.zones.items():
-            record_name: str = fqdn.replace(zone.zone_name, "")
+            record_name: str = fqdn.replace(zone.name, "")
             if record_name and len(record_name) < len(fqdn):
-                results[len(record_name)] = (record_name, zone.zone_name)
+                results[len(record_name)] = (record_name, zone.name)
         for key in sorted(results):
             return results[key]
         return False

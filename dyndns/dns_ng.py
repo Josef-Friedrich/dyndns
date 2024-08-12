@@ -26,38 +26,38 @@ if typing.TYPE_CHECKING:
     from dyndns.zones import Zone
 
 
-def validate_hostname(hostname: str) -> str:
+def validate_dns_name(name: str) -> str:
     """
-    Validate the given hostname.
+    Validate the given DNS name.
 
-    :param hostname: The hostname to be validated.
+    :param name: The DNS name to be validated.
 
-    :return: The validated hostname as a string.
+    :return: The validated DNS name as a string.
     """
-    if hostname[-1] == ".":
+    if name[-1] == ".":
         # strip exactly one dot from the right, if present
-        hostname = hostname[:-1]
-    if len(hostname) > 253:
+        name = name[:-1]
+    if len(name) > 253:
         raise DnsNameError(
-            f'The hostname "{hostname[:10]}..." is longer than 253 characters.'
+            f'The DNS name "{name[:10]}..." is longer than 253 characters.'
         )
 
-    labels: list[str] = hostname.split(".")
+    labels: list[str] = name.split(".")
 
     tld: str = labels[-1]
     if re.match(r"[0-9]+$", tld):
         raise DnsNameError(
-            f'The TLD "{tld}" of the hostname "{hostname}" must be not all-numeric.'
+            f'The TLD "{tld}" of the DNS name "{name}" must be not all-numeric.'
         )
 
     allowed: re.Pattern[str] = re.compile(r"(?!-)[a-z0-9-]{1,63}(?<!-)$", re.IGNORECASE)
     for label in labels:
         if not allowed.match(label):
             raise DnsNameError(
-                f'The label "{label}" of the hostname "{hostname}" is invalid.'
+                f'The label "{label}" of the hostname "{name}" is invalid.'
             )
 
-    return str(dns.name.from_text(hostname))
+    return str(dns.name.from_text(name))
 
 
 def validate_tsig_key(tsig_key: str) -> str:
@@ -92,7 +92,7 @@ class DnsZone:
     def __init__(self, nameserver: str, zone: "Zone") -> None:
         self._nameserver = nameserver
         self._zone = zone
-        self._keyring = dns.tsigkeyring.from_text({zone.zone_name: zone.tsig_key})
+        self._keyring = dns.tsigkeyring.from_text({zone.name: zone.tsig_key})
 
     @property
     def _resolver(self) -> dns.resolver.Resolver:
@@ -103,7 +103,7 @@ class DnsZone:
 
     def _create_update_message(self) -> dns.update.UpdateMessage:
         return dns.update.UpdateMessage(
-            self._zone.zone_name,
+            self._zone.name,
             keyring=self._keyring,
             keyalgorithm=dns.tsig.HMAC_SHA512,
         )
@@ -116,7 +116,7 @@ class DnsZone:
         except dns.tsig.PeerBadKey:
             raise DNSServerError(
                 f'The peer "{self._nameserver}" didn\'t know the tsig key '
-                f'we used for the zone "{self._zone.zone_name}".'
+                f'we used for the zone "{self._zone.name}".'
             )
         except dns.exception.Timeout:
             raise DNSServerError(
@@ -139,7 +139,7 @@ class DnsZone:
 
     def read_record(self, record_name: str, rdtype: str) -> dns.rrset.RRset | None:
         result: dns.resolver.Answer = self._resolver.resolve(
-            record_name + "." + self._zone.zone_name, rdtype
+            record_name + "." + self._zone.name, rdtype
         )
         return result.rrset
 
@@ -167,7 +167,7 @@ class DnsZone:
                     LogLevel.INFO,
                     "The update check passed: "
                     f"A TXT record '{check_record_name}' with the content '{random_content}' "
-                    f"could be updated on the zone '{self._zone.zone_name}'.",
+                    f"could be updated on the zone '{self._zone.name}'.",
                 )
         else:
             raise CheckError("no TXT record")

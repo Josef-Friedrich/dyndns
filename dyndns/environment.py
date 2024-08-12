@@ -31,7 +31,7 @@ class ConfiguredEnvironment:
         self._dns_zones = {}
 
         for zone in self._zones:
-            self._dns_zones[zone.zone_name] = DnsZone(self._config["nameserver"], zone)
+            self._dns_zones[zone.name] = DnsZone(self._config["nameserver"], zone)
 
     def _get_dns_zone(self, zone_name: str) -> DnsZone:
         return self._dns_zones[zone_name]
