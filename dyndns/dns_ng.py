@@ -81,6 +81,8 @@ def validate_tsig_key(tsig_key: str) -> str:
 
 
 class DnsZone:
+    """"""
+
     _nameserver: str
     """The ip address of the nameserver, for example ``127.0.0.1``."""
 
@@ -124,19 +126,24 @@ class DnsZone:
                 f'The DNS operation to the nameserver "{self._nameserver}" timed out.'
             )
 
-    def delete_record(self, record_name: str, rdtype: str = "A") -> None:
+    def delete_record_by_type(
+        self, record_name: str, rdtype: str = "A"
+    ) -> dns.message.Message:
         message: dns.update.UpdateMessage = self._create_update_message()
         message.delete(record_name, rdtype)
-        self._query(message)
+        return self._query(message)
 
-    def delete_a_aaaa_records(self, record_name: str) -> None:
-        self.delete_record(record_name, "A")
-        self.delete_record(record_name, "AAAA")
+    def delete_records(self, record_name: str) -> None:
+        """Delete the A and the AAAA records."""
+        self.delete_record_by_type(record_name, "A")
+        self.delete_record_by_type(record_name, "AAAA")
 
-    def add_record(self, record_name: str, ttl: int, rdtype: str, content: str) -> None:
+    def add_record(
+        self, record_name: str, ttl: int, rdtype: str, content: str
+    ) -> dns.message.Message:
         message: dns.update.UpdateMessage = self._create_update_message()
         message.add(record_name, ttl, rdtype, content)
-        self._query(message)
+        return self._query(message)
 
     def read_record(self, record_name: str, rdtype: str) -> dns.rrset.RRset | None:
         result: dns.resolver.Answer = self._resolver.resolve(
@@ -149,10 +156,10 @@ class DnsZone:
         random_content: str = "".join(
             random.choices(string.ascii_uppercase + string.digits, k=8)
         )
-        self.delete_record(check_record_name, "TXT")
+        self.delete_record_by_type(check_record_name, "TXT")
         self.add_record(check_record_name, 300, "TXT", random_content)
         rr_set: dns.rrset.RRset | None = self.read_record(check_record_name, "TXT")
-        self.delete_record(check_record_name, "TXT")
+        self.delete_record_by_type(check_record_name, "TXT")
 
         if not rr_set:
             raise CheckError("no response")

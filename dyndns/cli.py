@@ -41,6 +41,11 @@ def get_argparser() -> argparse.ArgumentParser:
 
     subcommand.add_parser("check")
 
+    delete_parser = subcommand.add_parser("delete")
+    delete_parser.add_argument("fqdn", help="lol")
+
+    subcommand.add_parser("config")
+
     return parser
 
 
@@ -55,6 +60,10 @@ def main() -> None:
     elif args.subcommand == "check":
         print("check")
         env.check()
+    elif args.subcommand == "config":
+        env.print_config()
+    elif args.subcommand == "delete":
+        print("delete")
     else:
         print(f"Running the webapp on port {args.port}")
         create_app(env).run(debug=False, port=args.port)

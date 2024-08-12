@@ -1,5 +1,6 @@
 """Main class that assembles all classes together with the loaded configuration."""
 
+import pprint
 from typing import Any, Generator
 
 import flask
@@ -33,13 +34,17 @@ class ConfiguredEnvironment:
         for zone in self._zones:
             self._dns_zones[zone.name] = DnsZone(self._config["nameserver"], zone)
 
-    def _get_dns_zone(self, zone_name: str) -> DnsZone:
-        return self._dns_zones[zone_name]
+    def get_dns_for_zone(self, name: str) -> DnsZone:
+        """:param name: A zone name or a fully qualifed domain name."""
+        return self._dns_zones[self._zones.get_zone(name).name]
 
     @property
     def dns_zones(self) -> Generator[DnsZone, Any, Any]:
         for dns_zone in self._dns_zones.values():
             yield dns_zone
+
+    def print_config(self) -> None:
+        pprint.pprint(self._config, indent=2)
 
     def check(self) -> str:
         outputs: list[str] = []
@@ -119,23 +124,15 @@ class ConfiguredEnvironment:
 
         return "".join(messages)
 
-    def delete_dns_record(
-        self, secret: str | None = None, fqdn: str | None = None
-    ) -> str:
-        self._authenticate(secret)
+    def delete_dns_record(self, fqdn: str) -> str:
+        name = FullyQualifiedDomainName(self._zones, fqdn=fqdn)
+        dns = self.get_dns_for_zone(name.zone_name)
 
-        names = FullyQualifiedDomainName(self._zones, fqdn=fqdn)
+        dns.delete_records(name.record_name)
 
-        delete = DnsUpdate(
-            nameserver=self._config["nameserver"],
-            names=names,
-        )
-
-        if delete.delete():
-            return logger.log(LogLevel.UPDATED, f'Deleted "{names.fqdn}".')
-        return logger.log(
-            LogLevel.UNCHANGED, f'Deletion not successful "{names.fqdn}".'
-        )
+        if True:
+            return logger.log(LogLevel.UPDATED, f'Deleted "{name.fqdn}".')
+        return logger.log(LogLevel.UNCHANGED, f'Deletion not successful "{name.fqdn}".')
 
 
 _environment: ConfiguredEnvironment | None = None
