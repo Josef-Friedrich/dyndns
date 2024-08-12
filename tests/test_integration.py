@@ -9,10 +9,9 @@ from dns.rdtypes.ANY.TXT import TXT
 from flask.testing import FlaskClient
 from werkzeug.test import TestResponse
 
-from dyndns.webapp import app
+from dyndns.environment import ConfiguredEnvironment
+from dyndns.webapp import create_app
 from tests import _helper
-
-app.config["TESTING"] = True
 
 
 class TestIntegration:
@@ -33,14 +32,18 @@ class TestIntegration:
     response: TestResponse
 
     data: str
+    """``response.data.decode("utf-8")``"""
 
     mock_update: mock.Mock
 
     def setup_method(self) -> None:
         os.environ["dyndns_CONFIG_FILE"] = _helper.config_file
+        app = create_app(ConfiguredEnvironment())
+        app.config["TESTING"] = True
+
         self.app = app.test_client()
 
-    def get(self, path: str, side_effect: Any = None) -> None:
+    def get(self, path: str, side_effect: Any = None) -> TestResponse:
         with mock.patch("dns.query.tcp") as tcp, mock.patch(
             "dns.update.Update"
         ) as Update, mock.patch("dns.resolver.Resolver") as Resolver:
@@ -53,12 +56,10 @@ class TestIntegration:
             self.response = self.app.get(path)
             self.data = self.response.data.decode("utf-8")
             self.mock_update = Update.return_value
+            return self.response
 
 
-class TestMethodUpdateByPath:
-    def setup_method(self) -> None:
-        self.app = app.test_client()
-
+class TestMethodUpdateByPath(TestIntegration):
     @mock.patch("dyndns.webapp.update_dns_record")
     def test_call_secret_fqdn(self, update: mock.Mock) -> None:
         update.return_value = "ok"
@@ -81,6 +82,8 @@ class TestMethodUpdateByPath:
 
 
 class TestUpdateByPath(TestIntegration):
+    """Test the path ``update-by-path`` of the Flask web app."""
+
     @staticmethod
     def _url(path: str) -> str:
         return f"/update-by-path/12345678/www.example.com/{path}"
@@ -132,8 +135,30 @@ class TestUpdateByPath(TestIntegration):
             "UPDATED: fqdn: www.example.com. old_ip: 1::2 new_ip: 1::3\n"
         )
 
+    def test_wrong_secret(self) -> None:
+        self.get("/update-by-path/wrong-secret/test.example.com/1.2.3.4")
+        assert self.response.status_code == 456
+        assert (
+            b"PARAMETER_ERROR: You specified a wrong secret key." in self.response.data
+        )
+
+    def test_wrong_fqdn(self) -> None:
+        self.get("/update-by-path/12345678/test.wrong-domain.de/1.2.3.4")
+        assert self.response.status_code == 453
+        assert (
+            b'DNS_NAME_ERROR: The fully qualified domain name "test.wrong-domain.de." could not be split into a record and a zone name.\n'
+            in self.response.data
+        )
+
+    def test_wrong_ip(self) -> None:
+        self.get("/update-by-path/12345678/test.example.com/1.2.3")
+        assert self.response.status_code == 454
+        assert b'IP_ADDRESS_ERROR: Invalid ip address "1.2.3"\n' in self.response.data
+
 
 class TestUpdateByQuery(TestIntegration):
+    """Test the path ``update-by-query`` of the Flask web app."""
+
     @staticmethod
     def _url(query_string: str) -> str:
         return (
@@ -219,6 +244,10 @@ class TestDeleteByPath(TestIntegration):
 
 
 class TestCheck(TestIntegration):
+    def test_home(self) -> None:
+        self.get("/")
+        assert b"dyndns" in self.response.data
+
     @pytest.mark.skip
     def test_check(self) -> None:
         self.get("/check", TXT(RdataClass.ANY, RdataType.TXT, ("any")))

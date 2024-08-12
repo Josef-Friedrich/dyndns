@@ -17,7 +17,7 @@ from dyndns.types import Config, LogLevel, UpdateRecord
 from dyndns.zones import ZonesCollection
 
 
-class Manager:
+class ConfiguredEnvironment:
     _config: Config
 
     _zones: ZonesCollection
@@ -138,11 +138,11 @@ class Manager:
         )
 
 
-_manager: Manager | None = None
+_environment: ConfiguredEnvironment | None = None
 
 
-def get_manager(config_file: str | None = None) -> Manager:
-    global _manager
-    if not _manager:
-        _manager = Manager(config_file)
-    return _manager
+def get_environment(config_file: str | None = None) -> ConfiguredEnvironment:
+    global _environment
+    if not _environment:
+        _environment = ConfiguredEnvironment(config_file)
+    return _environment
