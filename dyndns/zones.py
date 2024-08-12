@@ -26,7 +26,6 @@ class Zone:
         :param name: The zone name (e. g. ``example.com.``).
         :param tsig_key: The TSIG (Transaction SIGnature) key (e. g. ``tPyvZA==``).
         """
-
         self.name = validate_dns_name(name)
         self.tsig_key = validate_tsig_key(tsig_key)
 
@@ -82,14 +81,16 @@ class ZonesCollection:
         else:
             raise StopIteration
 
-    def get_zone_by_name(self, zone_name: str) -> Zone:
-        zone_name = validate_dns_name(zone_name)
-        if zone_name in self.zones:
-            return self.zones[validate_dns_name(zone_name)]
-        raise DnsNameError(f'Unkown zone "{zone_name}".')
+    def get_zone_by_name(self, name: str) -> Zone:
+        self.split_fqdn(name)
+        name = validate_dns_name(name)
+        if name in self.zones:
+            return self.zones[validate_dns_name(name)]
+        raise DnsNameError(f'Unkown zone "{name}".')
 
-    def split_fqdn(self, fqdn: str) -> tuple[str, str] | typing.Literal[False]:
+    def split_fqdn(self, fqdn: str) -> tuple[str, str] | None:
         """Split a fully qualified domain name into a record name and a zone name,
+
         for example: ``www.example.com`` -> ``www.`` ``example.com.``
 
         :param fqdn: The fully qualified domain name.
@@ -103,4 +104,4 @@ class ZonesCollection:
                 results[len(record_name)] = (record_name, zone.name)
         for key in sorted(results):
             return results[key]
-        return False
+        return None

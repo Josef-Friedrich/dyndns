@@ -1,5 +1,4 @@
 import os
-import unittest
 from typing import TypedDict
 from unittest import mock
 
@@ -86,7 +85,3 @@ class TestFunctionUpdateDnsRecord:
             ]
         )
         update.add.assert_called_with("www.example.com.", 300, "a", "1.2.3.5")
-
-
-if __name__ == "__main__":
-    unittest.main()

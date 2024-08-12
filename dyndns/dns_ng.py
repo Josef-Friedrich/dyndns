@@ -28,7 +28,8 @@ if typing.TYPE_CHECKING:
 
 def validate_dns_name(name: str) -> str:
     """
-    Validate the given DNS name.
+    Validate the given DNS name. A dot is appended to the end of the DNS name
+    if it is not already present.
 
     :param name: The DNS name to be validated.
 
