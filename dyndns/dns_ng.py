@@ -128,6 +128,10 @@ class DnsZone:
         message.delete(record_name, rdtype)
         self._query(message)
 
+    def delete_a_aaaa_records(self, record_name: str) -> None:
+        self.delete_record(record_name, "A")
+        self.delete_record(record_name, "AAAA")
+
     def add_record(self, record_name: str, ttl: int, rdtype: str, content: str) -> None:
         message: dns.update.UpdateMessage = self._create_update_message()
         message.add(record_name, ttl, rdtype, content)

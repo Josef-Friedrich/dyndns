@@ -230,7 +230,7 @@ class TestDeleteByPath(TestIntegration):
     def _url(fqdn: str) -> str:
         return f"/delete-by-path/12345678/{fqdn}"
 
-    def test_deletion(self):
+    def test_deletion(self) -> None:
         self.get(self._url("www.example.com"))
 
         self.mock_update.delete.assert_has_calls(
@@ -243,7 +243,7 @@ class TestDeleteByPath(TestIntegration):
         assert self.data == 'UPDATED: Deleted "www.example.com.".\n'
 
 
-class TestCheck(TestIntegration):
+class TestMultiplePaths(TestIntegration):
     def test_home(self) -> None:
         self.get("/")
         assert b"dyndns" in self.response.data
