@@ -145,10 +145,25 @@ class DnsZone:
         return self._query(message)
 
     def read_record(self, record_name: str, rdtype: str) -> dns.rrset.RRset | None:
-        result: dns.resolver.Answer = self._resolver.resolve(
-            record_name + "." + self._zone.name, rdtype
-        )
-        return result.rrset
+        try:
+            result: dns.resolver.Answer = self._resolver.resolve(
+                record_name + "." + self._zone.name, rdtype
+            )
+            return result.rrset
+        except (dns.resolver.NoAnswer, dns.resolver.NXDOMAIN):
+            return None
+
+    def _read_record_as_string(self, record_name: str, rdtype: str) -> str | None:
+        result: Any = self.read_record(record_name, rdtype)
+        if result and len(result) > 0:
+            return str(result[0])
+        return None
+
+    def read_a_record(self, record_name: str) -> str | None:
+        return self._read_record_as_string(record_name, "a")
+
+    def read_aaaa_record(self, record_name: str) -> str | None:
+        return self._read_record_as_string(record_name, "aaaa")
 
     def check(self) -> str:
         check_record_name = "dyndns-check-tmp_a841278b-f089-4164-b8e6-f90514e573ec"
