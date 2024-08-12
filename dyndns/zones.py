@@ -37,7 +37,7 @@ class Zone:
 
         :return: A tuple containing the record_name and zone_name.
 
-        :raises NamesError: If the FQDN is not splitable by the zone.
+        :raises DnsNameError: If the FQDN is not splitable by the zone.
         """
         fqdn = validate_dns_name(fqdn)
         record_name: str = fqdn.replace(self.name, "")
@@ -81,12 +81,21 @@ class ZonesCollection:
         else:
             raise StopIteration
 
-    def get_zone_by_name(self, name: str) -> Zone:
-        self.split_fqdn(name)
-        name = validate_dns_name(name)
-        if name in self.zones:
-            return self.zones[validate_dns_name(name)]
-        raise DnsNameError(f'Unkown zone "{name}".')
+    def get_zone(self, name: str) -> Zone:
+        """
+        Get a zone by a DNS name.
+
+        :param name: The DNS name. It can be a fully qualified domain name
+          containing the zone name or the zone name itself.
+
+        :return: The requested zone.
+
+        :raises DnsNameError: if the zone could not be found.
+        """
+        segments = self.split_fqdn(name)
+        if segments is None:
+            raise DnsNameError(f'Unknown zone "{name}".')
+        return self.zones[segments[1]]
 
     def split_fqdn(self, fqdn: str) -> tuple[str, str] | None:
         """Split a fully qualified domain name into a record name and a zone name,
@@ -94,13 +103,15 @@ class ZonesCollection:
         for example: ``www.example.com`` -> ``www.`` ``example.com.``
 
         :param fqdn: The fully qualified domain name.
+
+        :return: A tuple containing two entries: The first is the record name and the second is the zone name.
         """
         fqdn = validate_dns_name(fqdn)
         # To handle subzones (example.com and dyndns.example.com)
         results: dict[int, tuple[str, str]] = {}
         for _, zone in self.zones.items():
-            record_name: str = fqdn.replace(zone.name, "")
-            if record_name and len(record_name) < len(fqdn):
+            if zone.name in fqdn:
+                record_name: str = fqdn.replace(zone.name, "")
                 results[len(record_name)] = (record_name, zone.name)
         for key in sorted(results):
             return results[key]

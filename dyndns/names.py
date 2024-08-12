@@ -81,7 +81,7 @@ class FullyQualifiedDomainName:
         if not fqdn and zone_name and record_name:
             record_name = validate_dns_name(record_name)
             zone_name = validate_dns_name(zone_name)
-            zone = zones.get_zone_by_name(zone_name)
+            zone = zones.get_zone(zone_name)
             fqdn = zone.build_fqdn(record_name)
 
         if not fqdn:
@@ -96,4 +96,4 @@ class FullyQualifiedDomainName:
         self.fqdn = fqdn
         self.zone_name = zone_name
         self.record_name = record_name
-        self.tsig_key = zones.get_zone_by_name(self.zone_name).tsig_key
+        self.tsig_key = zones.get_zone(self.zone_name).tsig_key

@@ -29,35 +29,42 @@ class TestClassZonesCollection:
         assert zone.name == "example.org."
         assert zone.tsig_key == "tPyvZA=="
 
-    def test_method_get_zone_by_name(self) -> None:
-        zone = zones.get_zone_by_name("example.org")
+    def test_method_get_zone(self) -> None:
+        zone = zones.get_zone("example.org")
         assert zone.name == "example.org."
         assert zone.tsig_key == "tPyvZA=="
 
-    def test_method_get_zone_by_name_raises(self) -> None:
-        with pytest.raises(DnsNameError, match='Unkown zone "test.org.".'):
-            zones.get_zone_by_name("test.org")
+    def test_method_get_zone_raises(self) -> None:
+        with pytest.raises(DnsNameError, match='Unknown zone "test.org".'):
+            zones.get_zone("test.org")
 
+    class TestMethodSplitNames:
+        def test_zone_name_itself_given_without_dot(self) -> None:
+            result = zones.split_fqdn("example.com")
+            assert result == ("", "example.com.")
 
-class TestClassZonesMethodSplitNames:
-    def test_with_dot(self) -> None:
-        result = zones.split_fqdn("www.example.com")
-        assert result == ("www.", "example.com.")
+        def test_zone_name_itself_given_with_dot(self) -> None:
+            result = zones.split_fqdn("example.com.")
+            assert result == ("", "example.com.")
 
-    def test_with_org(self) -> None:
-        result = zones.split_fqdn("www.example.org")
-        assert result == ("www.", "example.org.")
+        def test_with_dot(self) -> None:
+            result = zones.split_fqdn("www.example.com")
+            assert result == ("www.", "example.com.")
 
-    def test_unkown_zone(self) -> None:
-        result = zones.split_fqdn("www.xx.org")
-        assert result is None
+        def test_with_org(self) -> None:
+            result = zones.split_fqdn("www.example.org")
+            assert result == ("www.", "example.org.")
 
-    def test_subzones(self) -> None:
-        zones = ZonesCollection(
-            [
-                {"name": "example.com.", "tsig_key": "tPyvZA=="},
-                {"name": "dyndns.example.com", "tsig_key": "tPyvZA=="},
-            ]
-        )
-        result = zones.split_fqdn("test.dyndns.example.com")
-        assert result == ("test.", "dyndns.example.com.")
+        def test_unkown_zone(self) -> None:
+            result = zones.split_fqdn("www.xx.org")
+            assert result is None
+
+        def test_subzones(self) -> None:
+            zones = ZonesCollection(
+                [
+                    {"name": "example.com.", "tsig_key": "tPyvZA=="},
+                    {"name": "dyndns.example.com", "tsig_key": "tPyvZA=="},
+                ]
+            )
+            result = zones.split_fqdn("test.dyndns.example.com")
+            assert result == ("test.", "dyndns.example.com.")

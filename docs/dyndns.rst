@@ -50,7 +50,18 @@ dyndns.names module
 
 .. automodule:: dyndns.names
 
+dyndns.types module
+^^^^^^^^^^^^^^^^^^^
+
+.. automodule:: dyndns.types
+
 dyndns.webapp module
 ^^^^^^^^^^^^^^^^^^^^
 
 .. automodule:: dyndns.webapp
+
+
+dyndns.zones module
+^^^^^^^^^^^^^^^^^^^
+
+.. automodule:: dyndns.zones

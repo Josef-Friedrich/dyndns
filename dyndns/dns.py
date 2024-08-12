@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Any
+from typing import Any, Literal
 
 import dns.exception
 import dns.name
@@ -51,9 +51,11 @@ class DnsUpdate:
         else:
             self.ttl = int(ttl)
 
-        self._tsigkeyring = self._build_tsigkeyring(
-            self.fqdn.zone_name,
-            self.fqdn.tsig_key,
+        self._tsigkeyring: dns.name.Dict[dns.name.Name, dns.tsig.Key] = (
+            self._build_tsigkeyring(
+                self.fqdn.zone_name,
+                self.fqdn.tsig_key,
+            )
         )
         self._dns_update: dns.update.Update = dns.update.Update(
             self.fqdn.zone_name,
@@ -62,7 +64,9 @@ class DnsUpdate:
         )
 
     @staticmethod
-    def _build_tsigkeyring(zone_name: str, tsig_key: str):
+    def _build_tsigkeyring(
+        zone_name: str, tsig_key: str
+    ) -> dns.name.Dict[dns.name.Name, dns.tsig.Key]:
         """
         :param zone: A zone name object
         :param tsig_key: A TSIG key
@@ -141,7 +145,7 @@ class DnsUpdate:
             "status": status,
         }
 
-    def delete(self):
+    def delete(self) -> Literal[True]:
         self._dns_update.delete(self.fqdn.fqdn, "a")
         self._dns_update.delete(self.fqdn.fqdn, "aaaa")
         self._query_tcp(self._dns_update)
@@ -155,5 +159,4 @@ class DnsUpdate:
             results.append(self._set_record(new_ip=self.ipaddresses.ipv4, ip_version=4))
         if self.ipaddresses.ipv6:
             results.append(self._set_record(new_ip=self.ipaddresses.ipv6, ip_version=6))
-
         return results
