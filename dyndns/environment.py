@@ -12,9 +12,9 @@ from dyndns.exceptions import (
     ParameterError,
 )
 from dyndns.ipaddresses import IpAddressContainer
-from dyndns.log import logger
+from dyndns.log import LogLevel, logger
 from dyndns.names import FullyQualifiedDomainName
-from dyndns.types import Config, LogLevel, UpdateRecord
+from dyndns.types import Config, UpdateRecord
 from dyndns.zones import ZonesCollection
 
 

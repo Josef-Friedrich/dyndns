@@ -12,9 +12,9 @@ from dyndns.exceptions import (
     ParameterError,
 )
 from dyndns.ipaddresses import IpAddressContainer
-from dyndns.log import logger
+from dyndns.log import LogLevel, logger
 from dyndns.names import FullyQualifiedDomainName
-from dyndns.types import LogLevel, UpdateRecord
+from dyndns.types import UpdateRecord
 
 
 def authenticate(secret: Any, config: Config) -> None:

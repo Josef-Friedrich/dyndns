@@ -8,11 +8,11 @@ from dyndns.dns import DnsUpdate
 from dyndns.dns_ng import validate_tsig_key
 from dyndns.exceptions import DnsNameError
 from dyndns.ipaddresses import IpAddressContainer
+from dyndns.log import LogLevel
 from dyndns.names import (
     FullyQualifiedDomainName,
     validate_dns_name,
 )
-from dyndns.types import LogLevel
 from tests import _helper
 from tests._helper import zones
 

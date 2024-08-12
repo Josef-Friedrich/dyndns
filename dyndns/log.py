@@ -3,10 +3,11 @@
 from __future__ import annotations
 
 import logging
+from enum import Enum
 
 from typing_extensions import TypedDict
 
-from dyndns.types import LogLevel, RecordType
+from dyndns.types import RecordType
 
 
 class Update(TypedDict):
@@ -15,6 +16,42 @@ class Update(TypedDict):
     fqdn: str
     record_type: str
     ip: str
+
+
+class LogLevel(Enum):
+    CONFIGURATION_ERROR = 53
+
+    DNS_SERVER_ERROR = 52
+
+    IP_ADDRESS_ERROR = 51
+
+    CRITICAL = 50
+    """Python default"""
+
+    DNS_NAME_ERROR = 43
+
+    PARAMETER_ERROR = 42
+
+    CHECK_ERROR = 41
+
+    ERROR = 40
+    """Python default"""
+
+    WARNING = 30
+    """Python default"""
+
+    UPDATED = 21
+
+    INFO = 20
+    """Python default"""
+
+    UNCHANGED = 11
+
+    DEBUG = 10
+    """Python default"""
+
+    NOTSET = 0
+    """Python default"""
 
 
 class Logger:

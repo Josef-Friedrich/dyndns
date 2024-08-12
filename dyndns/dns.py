@@ -14,9 +14,9 @@ import dns.update
 
 from dyndns.exceptions import DNSServerError, DyndnsError
 from dyndns.ipaddresses import IpAddressContainer
-from dyndns.log import logger
+from dyndns.log import LogLevel, logger
 from dyndns.names import FullyQualifiedDomainName
-from dyndns.types import IpVersion, LogLevel, RecordType, UpdateRecord
+from dyndns.types import IpVersion, RecordType, UpdateRecord
 
 
 class DnsUpdate:
