@@ -53,6 +53,16 @@ class LogLevel(Enum):
     NOTSET = 0
     """Python default"""
 
+    @classmethod
+    def get_name(cls, value: int) -> str:
+        for log_level in cls:
+            if log_level.value == value:
+                return log_level.name
+        raise ValueError(f"No LogLevel with value {value}")
+
+    def log(self, message: str) -> str:
+        return logger.log(self.value, message)
+
 
 class Logger:
     __logger: logging.Logger
@@ -68,9 +78,17 @@ class Logger:
         self.__logger.addHandler(stream_handler)
         self.__logger.setLevel(logging.DEBUG)
 
-    def log(self, log_level: LogLevel, message: object) -> str:
-        self.__logger.log(log_level.value, message)
-        return f"{log_level.name}: {message}\n"
+    def log(self, log_level: LogLevel | int, message: object) -> str:
+        level: int
+        name: str
+        if isinstance(log_level, LogLevel):
+            level = log_level.value
+            name = log_level.name
+        else:
+            level = log_level
+            name = LogLevel.get_name(level)
+        self.__logger.log(level, message)
+        return f"{name}: {message}\n"
 
     def log_update(
         self, updated: bool, fqdn: str, record_type: RecordType, ip: str
