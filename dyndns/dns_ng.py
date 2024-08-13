@@ -80,7 +80,7 @@ def validate_tsig_key(tsig_key: str) -> str:
 
 
 class DnsZone:
-    """"""
+    """ """
 
     _nameserver: str
     """The ip address of the nameserver, for example ``127.0.0.1``."""
@@ -125,11 +125,18 @@ class DnsZone:
                 f'The DNS operation to the nameserver "{self._nameserver}" timed out.'
             )
 
+    def _normalize_record_name(self, record_name: str) -> str:
+        return self._zone.get_record_name(record_name)
+
     def delete_record_by_type(
         self, record_name: str, rdtype: str = "A"
     ) -> dns.message.Message:
+        """
+        :param record_name: The record name or a fully qualified domain name
+          containing the record name and the zone name.
+        """
         message: dns.update.UpdateMessage = self._create_update_message()
-        message.delete(record_name, rdtype)
+        message.delete(self._normalize_record_name(record_name), rdtype)
         return self._query(message)
 
     def delete_records(self, record_name: str) -> None:
@@ -140,29 +147,49 @@ class DnsZone:
     def add_record(
         self, record_name: str, ttl: int, rdtype: str, content: str
     ) -> dns.message.Message:
+        """
+        :param record_name: The record name or a fully qualified domain name
+          containing the record name and the zone name.
+        """
         message: dns.update.UpdateMessage = self._create_update_message()
-        message.add(record_name, ttl, rdtype, content)
+        message.add(self._normalize_record_name(record_name), ttl, rdtype, content)
         return self._query(message)
 
     def read_record(self, record_name: str, rdtype: str) -> dns.rrset.RRset | None:
+        """
+        :param record_name: The record name or a fully qualified domain name
+          containing the record name and the zone name.
+        """
         try:
             result: dns.resolver.Answer = self._resolver.resolve(
-                record_name + "." + self._zone.name, rdtype
+                self._normalize_record_name(record_name) + self._zone.name, rdtype
             )
             return result.rrset
         except (dns.resolver.NoAnswer, dns.resolver.NXDOMAIN):
             return None
 
     def _read_record_as_string(self, record_name: str, rdtype: str) -> str | None:
+        """
+        :param record_name: The record name or a fully qualified domain name
+          containing the record name and the zone name.
+        """
         result: Any = self.read_record(record_name, rdtype)
         if result and len(result) > 0:
             return str(result[0])
         return None
 
     def read_a_record(self, record_name: str) -> str | None:
+        """
+        :param record_name: The record name or a fully qualified domain name
+          containing the record name and the zone name.
+        """
         return self._read_record_as_string(record_name, "a")
 
     def read_aaaa_record(self, record_name: str) -> str | None:
+        """
+        :param record_name: The record name or a fully qualified domain name
+          containing the record name and the zone name.
+        """
         return self._read_record_as_string(record_name, "aaaa")
 
     def check(self) -> str:

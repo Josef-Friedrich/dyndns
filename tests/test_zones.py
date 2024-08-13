@@ -6,21 +6,31 @@ from tests._helper import zones
 
 
 class TestClassZone:
+    zone: Zone
+
+    def setup_method(self) -> None:
+        self.zone = Zone("example.com", "tPyvZA==")
+
     def test_init(self) -> None:
-        zone = Zone("example.com", "tPyvZA==")
-        assert zone.name == "example.com."
-        assert zone.tsig_key == "tPyvZA=="
+        assert self.zone.name == "example.com."
+        assert self.zone.tsig_key == "tPyvZA=="
+
+    def test_method_get_record_name(self) -> None:
+        assert self.zone.get_record_name("www.example.com") == "www."
+
+    def test_method_get_record_name_record_name_given(self) -> None:
+        assert self.zone.get_record_name("www") == "www."
+
+    def test_method_get_record_name_foreign_fqdn_given(self) -> None:
+        assert self.zone.get_record_name("www.example.org") == "www.example.org."
 
     def test_method_split_fqdn(self) -> None:
-        zone = Zone("example.com", "tPyvZA==")
-        record_name, zone_name = zone.split_fqdn("www.example.com")
+        record_name, zone_name = self.zone.split_fqdn("www.example.com")
         assert record_name == "www."
         assert zone_name == "example.com."
 
     def test_method_build_fqdn(self) -> None:
-        zone = Zone("example.com", "tPyvZA==")
-        fqdn = zone.build_fqdn("www")
-        assert fqdn == "www.example.com."
+        assert self.zone.build_fqdn("www") == "www.example.com."
 
 
 class TestClassZonesCollection:

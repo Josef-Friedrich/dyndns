@@ -29,6 +29,18 @@ class Zone:
         self.name = validate_dns_name(name)
         self.tsig_key = validate_tsig_key(tsig_key)
 
+    def get_record_name(self, name: str) -> str:
+        """
+        Remove the zone from the given DNS name.
+
+        :param name: A record name (e. g. ``dyndns``) or a fully qualified
+          domain name (e. g. ``dyndns.example.com``).
+
+        :return: The record name (e. g. ``dyndns.``).
+        """
+        name = validate_dns_name(name)
+        return name.replace(self.name, "")
+
     def split_fqdn(self, fqdn: str) -> tuple[str, str]:
         """Split hostname into record_name and zone_name
         for example: www.example.com -> www. example.com.
@@ -99,7 +111,6 @@ class ZonesCollection:
 
     def split_fqdn(self, fqdn: str) -> tuple[str, str] | None:
         """Split a fully qualified domain name into a record name and a zone name,
-
         for example: ``www.example.com`` -> ``www.`` ``example.com.``
 
         :param fqdn: The fully qualified domain name.
