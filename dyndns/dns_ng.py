@@ -126,7 +126,7 @@ class DnsZone:
             )
 
     def _normalize_record_name(self, record_name: str) -> str:
-        return self._zone.get_record_name(record_name)
+        return self._zone.build_fqdn(record_name)
 
     def delete_record_by_type(
         self, record_name: str, rdtype: str = "A"
@@ -162,7 +162,7 @@ class DnsZone:
         """
         try:
             result: dns.resolver.Answer = self._resolver.resolve(
-                self._normalize_record_name(record_name) + self._zone.name, rdtype
+                self._normalize_record_name(record_name), rdtype
             )
             return result.rrset
         except (dns.resolver.NoAnswer, dns.resolver.NXDOMAIN):
