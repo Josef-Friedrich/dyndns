@@ -21,10 +21,10 @@ class TestClassDnsZone:
         self.dns.delete_record_by_type("test", "A")
 
     def test_add_record_fqdn_by_type(self) -> None:
-        self.dns.add_record("test.dyndns.friedrich.rocks", 300, "A", "1.2.3.4")
-        answer = self.dns.read_record("test.dyndns.friedrich.rocks", "A")
+        self.dns.add_record("test.dyndns.friedrich.rocks", 300, "A", "1.2.3.5")
+        answer = self.dns.read_record("test", "A")
         assert answer
-        assert str(answer[0]) == "1.2.3.4"  # type: ignore
+        assert str(answer[0]) == "1.2.3.5"  # type: ignore
 
     def test_read_a_record(self) -> None:
         self.dns.add_record("a.record.test", 300, "A", "1.1.1.1")

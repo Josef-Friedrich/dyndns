@@ -65,8 +65,7 @@ class Zone:
 
         :return: The fully qualified domain name.
         """
-        record_name = validate_dns_name(record_name)
-        return record_name + self.name
+        return self.get_record_name(record_name) + self.name
 
 
 class ZonesCollection:

@@ -32,6 +32,9 @@ class TestClassZone:
     def test_method_build_fqdn(self) -> None:
         assert self.zone.build_fqdn("www") == "www.example.com."
 
+    def test_method_build_fqdn_specified_as_fqdn(self) -> None:
+        assert self.zone.build_fqdn("www.example.com.") == "www.example.com."
+
 
 class TestClassZonesCollection:
     def test_init(self) -> None:
