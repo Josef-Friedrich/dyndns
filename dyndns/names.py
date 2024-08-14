@@ -82,7 +82,7 @@ class FullyQualifiedDomainName:
             record_name = validate_dns_name(record_name)
             zone_name = validate_dns_name(zone_name)
             zone = zones.get_zone(zone_name)
-            fqdn = zone.build_fqdn(record_name)
+            fqdn = zone.get_fqdn(record_name)
 
         if not fqdn:
             raise DnsNameError('Value "fqdn" is required.')

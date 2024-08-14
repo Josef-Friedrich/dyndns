@@ -5,35 +5,37 @@ from dyndns.zones import Zone, ZonesCollection
 from tests._helper import zones
 
 
+@pytest.fixture
+def zone() -> Zone:
+    return Zone("example.com", "tPyvZA==")
+
+
 class TestClassZone:
-    zone: Zone
+    def test_init(self, zone: Zone) -> None:
+        assert zone.name == "example.com."
+        assert zone.tsig_key == "tPyvZA=="
 
-    def setup_method(self) -> None:
-        self.zone = Zone("example.com", "tPyvZA==")
+    class TestMethodGetRecordName:
+        def test_specify_fqdn(self, zone: Zone) -> None:
+            assert zone.get_record_name("www.example.com") == "www."
 
-    def test_init(self) -> None:
-        assert self.zone.name == "example.com."
-        assert self.zone.tsig_key == "tPyvZA=="
+        def test_specify_record_name(self, zone: Zone) -> None:
+            assert zone.get_record_name("www") == "www."
 
-    def test_method_get_record_name(self) -> None:
-        assert self.zone.get_record_name("www.example.com") == "www."
+        def test_specify_foreign_fqdn(self, zone: Zone) -> None:
+            assert zone.get_record_name("www.example.org") == "www.example.org."
 
-    def test_method_get_record_name_record_name_given(self) -> None:
-        assert self.zone.get_record_name("www") == "www."
+    class TestMethodGetFqdn:
+        def test_specify_record_name(self, zone: Zone) -> None:
+            assert zone.get_fqdn("www") == "www.example.com."
 
-    def test_method_get_record_name_foreign_fqdn_given(self) -> None:
-        assert self.zone.get_record_name("www.example.org") == "www.example.org."
+        def test_specify_fqdn(self, zone: Zone) -> None:
+            assert zone.get_fqdn("www.example.com.") == "www.example.com."
 
-    def test_method_split_fqdn(self) -> None:
-        record_name, zone_name = self.zone.split_fqdn("www.example.com")
+    def test_method_split_fqdn(self, zone: Zone) -> None:
+        record_name, zone_name = zone.split_fqdn("www.example.com")
         assert record_name == "www."
         assert zone_name == "example.com."
-
-    def test_method_build_fqdn(self) -> None:
-        assert self.zone.build_fqdn("www") == "www.example.com."
-
-    def test_method_build_fqdn_specified_as_fqdn(self) -> None:
-        assert self.zone.build_fqdn("www.example.com.") == "www.example.com."
 
 
 class TestClassZonesCollection:

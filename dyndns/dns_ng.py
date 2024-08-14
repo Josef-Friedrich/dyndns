@@ -126,7 +126,7 @@ class DnsZone:
             )
 
     def _normalize_record_name(self, record_name: str) -> str:
-        return self._zone.build_fqdn(record_name)
+        return self._zone.get_fqdn(record_name)
 
     def delete_record_by_type(
         self, record_name: str, rdtype: str = "A"

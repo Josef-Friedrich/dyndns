@@ -38,34 +38,29 @@ class Zone:
 
         :return: The record name (e. g. ``dyndns.``).
         """
-        name = validate_dns_name(name)
-        return name.replace(self.name, "")
+        return validate_dns_name(name).replace(self.name, "")
 
-    def split_fqdn(self, fqdn: str) -> tuple[str, str]:
-        """Split hostname into record_name and zone_name
-        for example: www.example.com -> www. example.com.
-
-        :param fqdn: The fully qualified domain name.
-
-        :return: A tuple containing the record_name and zone_name.
-
-        :raises DnsNameError: If the FQDN is not splitable by the zone.
-        """
-        fqdn = validate_dns_name(fqdn)
-        record_name: str = fqdn.replace(self.name, "")
-        if record_name and len(record_name) < len(fqdn):
-            return (record_name, self.name)
-        raise DnsNameError('FQDN "{}" is not splitable by zone "{}".')
-
-    def build_fqdn(self, record_name: str) -> str:
+    def get_fqdn(self, name: str) -> str:
         """
         Build a fully qualified domain name.
 
-        :param record_name: The record name.
+        :param name: A record name (e. g. ``dyndns``) or a fully qualified
+          domain name (e. g. ``dyndns.example.com``).
 
         :return: The fully qualified domain name.
         """
-        return self.get_record_name(record_name) + self.name
+        return self.get_record_name(name) + self.name
+
+    def split_fqdn(self, name: str) -> tuple[str, str]:
+        """Split hostname into record_name and zone_name
+        for example: www.example.com -> www. example.com.
+
+        :param name: A record name (e. g. ``dyndns``) or a fully qualified
+          domain name (e. g. ``dyndns.example.com``).
+
+        :return: A tuple containing the record name and zone name.
+        """
+        return (self.get_record_name(name), self.name)
 
 
 class ZonesCollection:
