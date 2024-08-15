@@ -14,6 +14,20 @@ jobs:
     name: Python ${{ matrix.python-version }}
     runs-on: ubuntu-latest
 
+    # Service containers to run with `container-job`
+    services:
+      # Label used to access the service container
+      bind9:
+        # https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#jobsjob_idservicesservice_idimage
+        image: ubuntu/bind9
+        ports:
+          - 53:53/tcp
+          - 53:53/udp
+        volumes:
+          - ./dev-dns-server/etc/named.conf:/etc/bind/named.conf
+          - ./dev-dns-server/cache/dyndns1.dev.db:/var/cache/bind/dyndns1.dev.db
+          - ./dev-dns-server/cache/dyndns2.dev.db:/var/cache/bind/dyndns2.dev.db
+
     strategy:
       matrix:
         python-version: ['3.10', '3.11', '3.12']
