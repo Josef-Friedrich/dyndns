@@ -1,9 +1,10 @@
 import pytest
 
 from dyndns.environment import ConfiguredEnvironment
+from tests._helper import NOT_REAL_WORLD
 
 
-@pytest.mark.skip
+@pytest.mark.skipif(NOT_REAL_WORLD, reason="No DNS server configured.")
 class TestClassZone:
     env: ConfiguredEnvironment
 

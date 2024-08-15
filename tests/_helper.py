@@ -1,5 +1,6 @@
 import os
 import socket
+from pathlib import Path
 
 from dyndns.zones import ZonesCollection
 
@@ -21,9 +22,15 @@ def check_internet_connectifity(
         return False
 
 
-files_dir = os.path.join(os.path.dirname(__file__), "files")
-config_file = os.path.join(files_dir, "config.yml")
+files_dir: str = os.path.join(os.path.dirname(__file__), "files")
+config_file: str = os.path.join(files_dir, "config.yml")
 
+
+IS_REAL_WORLD: bool = Path("/etc/dyndns.yml").exists()
+"""True if a real DNS server is configured with a zone name ``dyndns.friedrich.rocks``."""
+
+NOT_REAL_WORLD: bool = not IS_REAL_WORLD
+"""True if a real DNS server is not configured."""
 
 zones = ZonesCollection(
     [
