@@ -13,7 +13,7 @@ jobs:
   preconfigure:
     runs-on: ubuntu-latest
     steps:
-     - run: systemctl disable systemd-resolved.service
+     - run: sudo netstat -tulpn | grep LISTEN
 
 
   tests:
