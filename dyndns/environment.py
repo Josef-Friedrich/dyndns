@@ -58,7 +58,6 @@ class ConfiguredEnvironment:
 
     def update_dns_record(
         self,
-        secret: str | None = None,
         fqdn: str | None = None,
         zone_name: str | None = None,
         record_name: str | None = None,
@@ -72,34 +71,31 @@ class ConfiguredEnvironment:
         Update a DNS record.
 
         :param secret: A password like secret string. The secret string has to
-        be at least 8 characters long and only alphnumeric characters are
-        allowed.
+            be at least 8 characters long and only alphnumeric characters are
+            allowed.
         :param fqdn: The Fully-Qualified Domain Name
-        (e. g. ``www.example.com``). If you specify the argument ``fqdn``, you
-        don’t have to specify the arguments ``zone_name`` and ``record_name``.
+            (e. g. ``www.example.com``). If you specify the argument ``fqdn``, you
+            don’t have to specify the arguments ``zone_name`` and ``record_name``.
         :param zone_name: The zone name (e. g. ``example.com``). You have to
-        specify the argument ``record_name``.
+            specify the argument ``record_name``.
         :param record_name: The record name (e. g. ``www``). You have to
-        specify the argument ``zone_name``.
+            specify the argument ``zone_name``.
         :param ip_1: An IP address, can be version 4 or version 6.
         :param ip_2: A second IP address, can be version 4 or version 6. Must
-        be a different version than ``ip_1``.
+            be a different version than ``ip_1``.
         :param ipv4: An IP address version 4.
         :param ipv6: An IP address version 6.
         :param ttl: Time to live.
-        :param dict config: The configuration in the Python dictionary format
-        (as returned by the function ``validate_config()``).
+
+        :return: A log message.
         """
-
-        self._authenticate(secret)
-
-        names = FullyQualifiedDomainName(
+        name = FullyQualifiedDomainName(
             self._zones,
             fqdn=fqdn,
             zone_name=zone_name,
             record_name=record_name,
         )
-        ip_addresses = IpAddressContainer(
+        ip_address = IpAddressContainer(
             ip_1=ip_1,
             ip_2=ip_2,
             ipv4=ipv4,
@@ -109,8 +105,8 @@ class ConfiguredEnvironment:
 
         update = DnsUpdate(
             nameserver=self._config["nameserver"],
-            names=names,
-            ipaddresses=ip_addresses,
+            names=name,
+            ipaddresses=ip_address,
             ttl=ttl,
         )
         results: list[UpdateRecord] = update.update()
@@ -118,21 +114,28 @@ class ConfiguredEnvironment:
         messages: list[str] = []
         for result in results:
             message = "fqdn: {} old_ip: {} new_ip: {}".format(
-                names.fqdn, result["old_ip"], result["new_ip"]
+                name.fqdn, result["old_ip"], result["new_ip"]
             )
             messages.append(logger.log(result["status"], message))
 
         return "".join(messages)
 
     def delete_dns_record(self, fqdn: str) -> str:
+        """
+        :return: A log message.
+        """
         name = FullyQualifiedDomainName(self._zones, fqdn=fqdn)
-        dns = self.get_dns_for_zone(name.zone_name)
-
-        dns.delete_records(name.record_name)
-
-        if True:
-            return logger.log(LogLevel.UPDATED, f'Deleted "{name.fqdn}".')
-        return logger.log(LogLevel.UNCHANGED, f'Deletion not successful "{name.fqdn}".')
+        dns: DnsZone = self.get_dns_for_zone(name.zone_name)
+        IS_A: bool = dns.is_a_record(name.record_name)
+        IS_AAAA: bool = dns.is_aaaa_record(name.record_name)
+        if IS_A or IS_AAAA:
+            dns.delete_records(name.record_name)
+            return LogLevel.UPDATED.log(
+                f'The A and AAAA records of the domain name "{name.fqdn}" were deleted.'
+            )
+        return LogLevel.UNCHANGED.log(
+            f'The deletion of the domain name "{name.fqdn}" was not executed because there were no A or AAAA records.'
+        )
 
 
 _environment: ConfiguredEnvironment | None = None

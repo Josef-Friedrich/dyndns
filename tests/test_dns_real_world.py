@@ -54,7 +54,7 @@ def test_read_aaaa_record(dns: DnsZone) -> None:
     dns.add_record("aaaa.record.test", 300, "AAAA", "1::2")
     ip: str | None = dns.read_aaaa_record("aaaa.record.test")
     assert ip == "1::2"
-    dns.delete_record_by_type("a.record.test", "A")
+    dns.delete_record_by_type("aaaa.record.test", "AAAA")
 
 
 @pytest.mark.skipif(NOT_REAL_WORLD, reason="No DNS server configured.")

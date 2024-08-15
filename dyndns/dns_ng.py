@@ -210,6 +210,28 @@ class DnsZone:
         """
         return self._read_record_as_string(name, "AAAA")
 
+    def is_a_record(self, name: str) -> bool:
+        """
+        Return ``True`` if the specified name has an A record (IPv4).
+
+        :param name: A record name (e. g. ``dyndns``) or a fully qualified
+          domain name (e. g. ``dyndns.example.com``).
+
+        :return: `True`` if the specified name has an A record (IPv4).
+        """
+        return self.read_a_record(name) is not None
+
+    def is_aaaa_record(self, name: str) -> bool:
+        """
+        Return ``True`` if the specified name has an AAAA record (IPv6).
+
+        :param name: A record name (e. g. ``dyndns``) or a fully qualified
+          domain name (e. g. ``dyndns.example.com``).
+
+        :return: `True`` if the specified name has an AAAA record (IPv6).
+        """
+        return self.read_aaaa_record(name) is not None
+
     def check(self) -> str:
         """Check the functionality of the DNS server by creating a temporary text record."""
         check_record_name = "dyndns-check-tmp_a841278b-f089-4164-b8e6-f90514e573ec"
