@@ -181,6 +181,8 @@ class DnsZone:
 
     def read_record(self, name: str, record_type: RecordType) -> str | None:
         """
+        Read one record.
+
         :param name: A record name (e. g. ``dyndns``) or a fully qualified
           domain name (e. g. ``dyndns.example.com``).
         """

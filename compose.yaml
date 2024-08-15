@@ -1,0 +1,7 @@
+---
+# https://hub.docker.com/r/internetsystemsconsortium/bind9
+services:
+  dns_server:
+    image: internetsystemsconsortium/bind9:9.20
+    ports:
+      - "53:53"
