@@ -1,7 +1,13 @@
 ---
 # https://hub.docker.com/r/internetsystemsconsortium/bind9
+
+# https://github.com/jonezy35/BIND-DNS/blob/main/docker-compose.yml
 services:
-  dns_server:
+  bind9:
+    container_name: bind-dns
     image: internetsystemsconsortium/bind9:9.20
+    environment:
+      - BIND9_USER=root
     ports:
-      - "55553:53"
+      - "53:53/tcp"
+      - "53:53/udp"
