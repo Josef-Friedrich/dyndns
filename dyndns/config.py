@@ -5,6 +5,7 @@ from __future__ import annotations
 import os
 import re
 from io import TextIOWrapper
+from pathlib import Path
 from typing import Any
 
 import yaml
@@ -16,7 +17,7 @@ from dyndns.types import Config
 from dyndns.zones import ZonesCollection
 
 
-def load_config(config_file: str | None = None) -> Config:
+def load_config(config_file: str | Path | None = None) -> Config:
     """
     Load the configuration from the specified file or from the default locations.
 
@@ -28,7 +29,7 @@ def load_config(config_file: str | None = None) -> Config:
     """
     config_files: list[str] = []
     if config_file:
-        config_files.append(config_file)
+        config_files.append(str(config_file))
     if "dyndns_CONFIG_FILE" in os.environ:
         config_files.append(os.environ["dyndns_CONFIG_FILE"])
     config_files.append(os.path.join(os.getcwd(), ".dyndns.yml"))

@@ -1,0 +1,9 @@
+---
+secret: 12345678
+nameserver: 127.0.0.1
+dyndns_domain: dyndns1.dev.
+zones:
+  - name: dyndns1.dev.
+    tsig_key: aaZI/Ssod3/yqhknm85T3IPKScEU4Q/CbQ2J+QQW9IXeLwkLkxFprkYDoHqre4ECqTfgeu/34DCjHJO8peQc/g==
+  - name: dyndns2.dev.
+    tsig_key: KdSYRjm4zaz+rBWtJN5Q0r0slhJE9VmJR3EMi+1CMDh4GdNrj8KHuI5iYDIUcLYadGMVx3RFNBCPiceGnWH04w==

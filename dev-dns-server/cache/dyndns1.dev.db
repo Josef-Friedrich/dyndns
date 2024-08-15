@@ -1,12 +1,11 @@
 $ORIGIN dyndns1.dev.
 $TTL 300 ; 5 minutes
 
-@	IN SOA	ns1.example.com. admin.example.com. (
+@	IN SOA	dns0.eu. admin.dyndns1.dev. (
     1  ; SERIAL: Serial number for this zone.
     3600       ; REFRESH: number of seconds after which secondary name servers should query
     1000       ; RETRY: number of seconds after which secondary name servers should retry to request
     3600000    ; EXPIRE: number of seconds after which secondary name servers should stop answering request
     300        ; TTL: Time To Live for purposes of negative caching
     )
-        NS	ns1.example.com.
-        NS	ns2.example.com.
+        IN NS dns0.eu.

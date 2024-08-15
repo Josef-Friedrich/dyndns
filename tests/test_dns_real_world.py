@@ -2,18 +2,7 @@ import pytest
 from dns.exception import SyntaxError
 
 from dyndns.dns_ng import DnsZone
-from dyndns.environment import ConfiguredEnvironment
 from tests._helper import NOT_REAL_WORLD
-
-
-@pytest.fixture
-def env() -> ConfiguredEnvironment:
-    return ConfiguredEnvironment("/etc/dyndns.yml")
-
-
-@pytest.fixture
-def dns(env: ConfiguredEnvironment) -> DnsZone:
-    return env.get_dns_for_zone("dyndns.friedrich.rocks")
 
 
 @pytest.mark.skipif(NOT_REAL_WORLD, reason="No DNS server configured.")
@@ -42,14 +31,14 @@ class TestAddRecord:
         dns.delete_record("test", "A")
 
     def test_specified_as_fqdn(self, dns: DnsZone) -> None:
-        dns.add_record("test.dyndns.friedrich.rocks", "A", "1.2.3.5")
+        dns.add_record("test.dyndns1.dev", "A", "1.2.3.5")
         answer: str | None = dns.read_record("test", "A")
         assert answer
         assert answer == "1.2.3.5"
 
     def test_txt_record(self, dns: DnsZone) -> None:
         dns.delete_record("txt", "TXT")
-        dns.add_record("txt.dyndns.friedrich.rocks", "TXT", "STRING")
+        dns.add_record("txt.dyndns1.dev", "TXT", "STRING")
         answer: str | None = dns.read_record("txt", "TXT")
         assert answer
         assert answer == "STRING"

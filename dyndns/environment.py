@@ -1,6 +1,7 @@
 """Main class that assembles all classes together with the loaded configuration."""
 
 import pprint
+from pathlib import Path
 from typing import Any, Generator
 
 import flask
@@ -25,7 +26,7 @@ class ConfiguredEnvironment:
 
     _dns_zones: dict[str, DnsZone]
 
-    def __init__(self, config_file: str | None = None) -> None:
+    def __init__(self, config_file: str | Path | None = None) -> None:
         self._config = load_config(config_file)
         self._zones = ZonesCollection(self._config["zones"])
 
