@@ -125,74 +125,93 @@ class DnsZone:
                 f'The DNS operation to the nameserver "{self._nameserver}" timed out.'
             )
 
-    def _normalize_record_name(self, record_name: str) -> str:
-        return self._zone.get_fqdn(record_name)
+    def _normalize_name(self, name: str) -> str:
+        """
+        :param name: A record name (e. g. ``dyndns``) or a fully qualified
+          domain name (e. g. ``dyndns.example.com``).
+
+        :return: A fully qualified domain name (e. g. ``dyndns.example.com.``).
+        """
+        return self._zone.get_fqdn(name)
 
     def delete_record_by_type(
-        self, record_name: str, rdtype: str = "A"
+        self, name: str, rdtype: str = "A"
     ) -> dns.message.Message:
         """
-        :param record_name: The record name or a fully qualified domain name
-          containing the record name and the zone name.
+        :param name: A record name (e. g. ``dyndns``) or a fully qualified
+          domain name (e. g. ``dyndns.example.com``).
         """
         message: dns.update.UpdateMessage = self._create_update_message()
-        message.delete(self._normalize_record_name(record_name), rdtype)
+        message.delete(self._normalize_name(name), rdtype)
         return self._query(message)
 
-    def delete_records(self, record_name: str) -> None:
-        """Delete the A and the AAAA records."""
-        self.delete_record_by_type(record_name, "A")
-        self.delete_record_by_type(record_name, "AAAA")
+    def delete_records(self, name: str) -> None:
+        """Delete the A and the AAAA records.
+
+        :param name: A record name (e. g. ``dyndns``) or a fully qualified
+          domain name (e. g. ``dyndns.example.com``).
+        """
+        self.delete_record_by_type(name, "A")
+        self.delete_record_by_type(name, "AAAA")
 
     def add_record(
-        self, record_name: str, ttl: int, rdtype: str, content: str
+        self, name: str, ttl: int, rdtype: str, content: str
     ) -> dns.message.Message:
         """
-        :param record_name: The record name or a fully qualified domain name
-          containing the record name and the zone name.
+        :param name: A record name (e. g. ``dyndns``) or a fully qualified
+          domain name (e. g. ``dyndns.example.com``).
         """
         message: dns.update.UpdateMessage = self._create_update_message()
-        message.add(self._normalize_record_name(record_name), ttl, rdtype, content)
+        message.add(self._normalize_name(name), ttl, rdtype, content)
         return self._query(message)
 
-    def read_record(self, record_name: str, rdtype: str) -> dns.rrset.RRset | None:
+    def read_record(self, name: str, rdtype: str) -> dns.rrset.RRset | None:
         """
-        :param record_name: The record name or a fully qualified domain name
-          containing the record name and the zone name.
+        :param name: A record name (e. g. ``dyndns``) or a fully qualified
+          domain name (e. g. ``dyndns.example.com``).
         """
         try:
             result: dns.resolver.Answer = self._resolver.resolve(
-                self._normalize_record_name(record_name), rdtype
+                self._normalize_name(name), rdtype
             )
             return result.rrset
         except (dns.resolver.NoAnswer, dns.resolver.NXDOMAIN):
             return None
 
-    def _read_record_as_string(self, record_name: str, rdtype: str) -> str | None:
+    def _read_record_as_string(self, name: str, rdtype: str) -> str | None:
         """
-        :param record_name: The record name or a fully qualified domain name
-          containing the record name and the zone name.
+        :param name: A record name (e. g. ``dyndns``) or a fully qualified
+          domain name (e. g. ``dyndns.example.com``).
         """
-        result: Any = self.read_record(record_name, rdtype)
+        result: Any = self.read_record(name, rdtype)
         if result and len(result) > 0:
             return str(result[0])
         return None
 
-    def read_a_record(self, record_name: str) -> str | None:
+    def read_a_record(self, name: str) -> str | None:
         """
-        :param record_name: The record name or a fully qualified domain name
-          containing the record name and the zone name.
-        """
-        return self._read_record_as_string(record_name, "a")
+        Read an IPv4 address record.
 
-    def read_aaaa_record(self, record_name: str) -> str | None:
+        :param name: A record name (e. g. ``dyndns``) or a fully qualified
+          domain name (e. g. ``dyndns.example.com``).
+
+        :return: An IPv4 address.
         """
-        :param record_name: The record name or a fully qualified domain name
-          containing the record name and the zone name.
+        return self._read_record_as_string(name, "A")
+
+    def read_aaaa_record(self, name: str) -> str | None:
         """
-        return self._read_record_as_string(record_name, "aaaa")
+        Read an IPv6 address record.
+
+        :param name: A record name (e. g. ``dyndns``) or a fully qualified
+          domain name (e. g. ``dyndns.example.com``).
+
+        :return: An IPv6 address.
+        """
+        return self._read_record_as_string(name, "AAAA")
 
     def check(self) -> str:
+        """Check the functionality of the DNS server by creating a temporary text record."""
         check_record_name = "dyndns-check-tmp_a841278b-f089-4164-b8e6-f90514e573ec"
         random_content: str = "".join(
             random.choices(string.ascii_uppercase + string.digits, k=8)
