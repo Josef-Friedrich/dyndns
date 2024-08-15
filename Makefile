@@ -47,8 +47,13 @@ lint:
 pin_docs_requirements:
 	pip-compile --output-file=docs/requirements.txt docs/requirements.in pyproject.toml
 
-dev_server:
+dev_up:
 	sudo docker compose --file ./dev-dns-server/compose.yaml up --detach
 
+dev_down:
+	sudo docker compose --file ./dev-dns-server/compose.yaml down
+
+dev_logs:
+	sudo docker compose --file ./dev-dns-server/compose.yaml logs --follow
 
 .PHONY: test install install_editable update build publish format docs lint pin_docs_requirements dev_server

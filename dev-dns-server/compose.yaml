@@ -1,13 +1,20 @@
 ---
-# https://hub.docker.com/r/internetsystemsconsortium/bind9
 
 # https://github.com/jonezy35/BIND-DNS/blob/main/docker-compose.yml
 services:
   bind9:
     container_name: bind-dns
-    image: internetsystemsconsortium/bind9:9.20
-    environment:
-      - BIND9_USER=root
-    ports:
-      - "53:53/tcp"
-      - "53:53/udp"
+    # https://hub.docker.com/r/internetsystemsconsortium/bind9
+    # image: internetsystemsconsortium/bind9:9.20
+
+    # https://hub.docker.com/r/ubuntu/bind9
+    # https://code.launchpad.net/~ubuntu-docker-images/ubuntu-docker-images/+git/bind9
+    image: ubuntu/bind9 # has login enabled
+    # ports:
+    #   - 53:53/tcp
+    #   - 53:53/udp
+
+    volumes:
+      - ./etc/named.conf:/etc/bind/named.conf
+      - ./cache/dyndns1.dev.db:/var/cache/bind/dyndns1.dev.db
+      - ./cache/dyndns2.dev.db:/var/cache/bind/dyndns2.dev.db
