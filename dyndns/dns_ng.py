@@ -5,6 +5,7 @@ import random
 import re
 import string
 import typing
+from dataclasses import dataclass
 from typing import Any
 
 import dns.exception
@@ -23,6 +24,12 @@ from dyndns.types import RecordType
 
 if typing.TYPE_CHECKING:
     from dyndns.zones import Zone
+
+
+@dataclass
+class DnsUpdate:
+    old: str | None
+    new: str | None
 
 
 def validate_dns_name(name: str) -> str:
@@ -132,10 +139,12 @@ class DnsZone:
         """
         return self._zone.get_fqdn(name)
 
-    def delete_record_by_type(
+    def delete_record(
         self, name: str, record_type: RecordType = "A"
     ) -> dns.message.Message:
         """
+        Delete one record or multiple records of a specific record type.
+
         :param name: A record name (e. g. ``dyndns``) or a fully qualified
           domain name (e. g. ``dyndns.example.com``).
         """
@@ -144,24 +153,31 @@ class DnsZone:
         return self._query(message)
 
     def delete_records(self, name: str) -> None:
-        """Delete the A and the AAAA records.
+        """Delete all A and the AAAA records.
 
         :param name: A record name (e. g. ``dyndns``) or a fully qualified
           domain name (e. g. ``dyndns.example.com``).
         """
-        self.delete_record_by_type(name, "A")
-        self.delete_record_by_type(name, "AAAA")
+        self.delete_record(name, "A")
+        self.delete_record(name, "AAAA")
 
     def add_record(
-        self, name: str, ttl: int, record_type: RecordType, content: str
-    ) -> dns.message.Message:
+        self, name: str, record_type: RecordType, content: str, ttl: int = 300
+    ) -> DnsUpdate:
         """
+        Add one record. All existing records with the same name and same record
+        type are deleted before a new record is added.
+
         :param name: A record name (e. g. ``dyndns``) or a fully qualified
           domain name (e. g. ``dyndns.example.com``).
         """
+        old_content = self.read_record(name, record_type)
+        self.delete_record(name, record_type)
         message: dns.update.UpdateMessage = self._create_update_message()
         message.add(self._normalize_name(name), ttl, record_type, content)
-        return self._query(message)
+        self._query(message)
+        new_content = self.read_record(name, record_type)
+        return DnsUpdate(old=old_content, new=new_content)
 
     def read_record(self, name: str, record_type: RecordType) -> str | None:
         """
@@ -232,10 +248,10 @@ class DnsZone:
         random_content: str = "".join(
             random.choices(string.ascii_uppercase + string.digits, k=8)
         )
-        self.delete_record_by_type(check_record_name, "TXT")
-        self.add_record(check_record_name, 300, "TXT", random_content)
+        self.delete_record(check_record_name, "TXT")
+        self.add_record(check_record_name, "TXT", random_content)
         result: str | None = self.read_record(check_record_name, "TXT")
-        self.delete_record_by_type(check_record_name, "TXT")
+        self.delete_record(check_record_name, "TXT")
         if not result:
             raise CheckError("no response")
         if result != random_content:
