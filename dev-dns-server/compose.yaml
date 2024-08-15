@@ -4,4 +4,4 @@ services:
   dns_server:
     image: internetsystemsconsortium/bind9:9.20
     ports:
-      - "53:53"
+      - "55553:53"
