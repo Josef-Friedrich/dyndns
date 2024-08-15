@@ -31,7 +31,7 @@ class TestFunctionUpdateDnsRecord:
 
     def test_not_all_three_fqdn_etc(self) -> None:
         self.assert_raises_msg(
-            {"secret": "12345678", "fqdn": "a", "zone_name": "b", "record_name": "c"},
+            {"secret": "12345678", "fqdn": "A", "zone_name": "b", "record_name": "c"},
             DnsNameError,
             'Specify "fqdn" or "zone_name" and "record_name".',
         )
@@ -80,8 +80,8 @@ class TestFunctionUpdateDnsRecord:
         )
         update.delete.assert_has_calls(
             [
-                mock.call("www.example.com.", "a"),
-                mock.call("www.example.com.", "aaaa"),
+                mock.call("www.example.com.", "A"),
+                mock.call("www.example.com.", "AAAA"),
             ]
         )
-        update.add.assert_called_with("www.example.com.", 300, "a", "1.2.3.5")
+        update.add.assert_called_with("www.example.com.", 300, "A", "1.2.3.5")

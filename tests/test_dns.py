@@ -75,8 +75,8 @@ class TestClassDnsUpdate:
             assert tsig_key == b"\xb4\xfc\xafd"
 
     def test_method_convert_record_type(self) -> None:
-        assert DnsUpdate._convert_record_type(4) == "a"  # type: ignore
-        assert DnsUpdate._convert_record_type(6) == "aaaa"  # type: ignore
+        assert DnsUpdate._convert_record_type(4) == "A"  # type: ignore
+        assert DnsUpdate._convert_record_type(6) == "AAAA"  # type: ignore
 
     @pytest.mark.skipif(NO_INTERNET_CONNECTIFITY, reason="No uplink")
     def test_method_resolve_unpatched(self) -> None:
@@ -110,11 +110,11 @@ class TestClassDnsUpdate:
 
         update.delete.assert_has_calls(
             [
-                mock.call("www.example.com.", "a"),
-                mock.call("www.example.com.", "aaaa"),
+                mock.call("www.example.com.", "A"),
+                mock.call("www.example.com.", "AAAA"),
             ]
         )
-        update.add.assert_called_with("www.example.com.", 300, "a", "1.2.3.5")
+        update.add.assert_called_with("www.example.com.", 300, "A", "1.2.3.5")
         assert tcp.call_args[1]["where"] == "127.0.0.1"
         Update.assert_called()
 

@@ -31,7 +31,7 @@ class IpAddressContainer:
     A container class to store and detect IP addresses in both versions
     (ipv4 and ipv6).
 
-    :param str ip_1: Am IP address of unkown version.
+    :param str ip_1: An IP address of unkown version.
     :param str ip_2: An IP address of unkown version.
     :param str ipv4: An ipv4 IP address.
     :param str ipv6: An ipv6 IP address.
@@ -79,7 +79,7 @@ class IpAddressContainer:
     def _get_ip(self, ip_version: Literal[4, 6]) -> str:
         return getattr(self, format_attr(ip_version))
 
-    def _setattr(self, ip_version: Literal[4, 6], value: str):
+    def _setattr(self, ip_version: Literal[4, 6], value: str) -> None:
         return setattr(self, format_attr(ip_version), value)
 
     def _get_client_ip(self) -> str | None:

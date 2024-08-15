@@ -78,9 +78,9 @@ class DnsUpdate:
     @staticmethod
     def _convert_record_type(ip_version: Any = 4) -> RecordType:
         if ip_version == 4:
-            return "a"
+            return "A"
         elif ip_version == 6:
-            return "aaaa"
+            return "AAAA"
         else:
             raise ValueError("“ip_version” must be 4 or 6")
 
@@ -124,8 +124,8 @@ class DnsUpdate:
             self._dns_update.delete(self.fqdn.fqdn, rdtype)
             # If the client (a notebook) moves in a network without ipv6
             # support, we have to delete the 'aaaa' record.
-            if rdtype == "a":
-                self._dns_update.delete(self.fqdn.fqdn, "aaaa")
+            if rdtype == "A":
+                self._dns_update.delete(self.fqdn.fqdn, "AAAA")
 
             self._dns_update.add(self.fqdn.fqdn, self.ttl, rdtype, new_ip)
             self._query_tcp(self._dns_update)
@@ -146,8 +146,8 @@ class DnsUpdate:
         }
 
     def delete(self) -> Literal[True]:
-        self._dns_update.delete(self.fqdn.fqdn, "a")
-        self._dns_update.delete(self.fqdn.fqdn, "aaaa")
+        self._dns_update.delete(self.fqdn.fqdn, "A")
+        self._dns_update.delete(self.fqdn.fqdn, "AAAA")
         self._query_tcp(self._dns_update)
         return True
 

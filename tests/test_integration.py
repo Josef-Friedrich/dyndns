@@ -93,11 +93,11 @@ class TestUpdateByPath(TestIntegration):
 
         self.mock_update.delete.assert_has_calls(
             [
-                mock.call("www.example.com.", "a"),
-                mock.call("www.example.com.", "aaaa"),
+                mock.call("www.example.com.", "A"),
+                mock.call("www.example.com.", "AAAA"),
             ]
         )
-        self.mock_update.add.assert_called_with("www.example.com.", 300, "a", "1.2.3.5")
+        self.mock_update.add.assert_called_with("www.example.com.", 300, "A", "1.2.3.5")
         assert (
             self.data == "UPDATED: fqdn: www.example.com. old_ip: 1.2.3.4 new_ip: "
             "1.2.3.5\n"
@@ -105,8 +105,8 @@ class TestUpdateByPath(TestIntegration):
 
     def test_ipv6_update(self) -> None:
         self.get(self._url("1::3"), [["1::2"], ["1::3"]])
-        self.mock_update.delete.assert_called_with("www.example.com.", "aaaa")
-        self.mock_update.add.assert_called_with("www.example.com.", 300, "aaaa", "1::3")
+        self.mock_update.delete.assert_called_with("www.example.com.", "AAAA")
+        self.mock_update.add.assert_called_with("www.example.com.", 300, "AAAA", "1::3")
         assert (
             self.data == "UPDATED: fqdn: www.example.com. old_ip: 1::2 new_ip: 1::3\n"
         )
@@ -115,8 +115,8 @@ class TestUpdateByPath(TestIntegration):
         self.get(
             self._url("1.2.3.5/1::3"), [["1.2.3.4"], ["1.2.3.5"], ["1::2"], ["1::3"]]
         )
-        self.mock_update.delete.assert_called_with("www.example.com.", "aaaa")
-        self.mock_update.add.assert_called_with("www.example.com.", 300, "aaaa", "1::3")
+        self.mock_update.delete.assert_called_with("www.example.com.", "AAAA")
+        self.mock_update.add.assert_called_with("www.example.com.", 300, "AAAA", "1::3")
         assert (
             self.data
             == "UPDATED: fqdn: www.example.com. old_ip: 1.2.3.4 new_ip: 1.2.3.5\n"
@@ -127,8 +127,8 @@ class TestUpdateByPath(TestIntegration):
         self.get(
             self._url("1::3/1.2.3.5"), [["1.2.3.4"], ["1.2.3.5"], ["1::2"], ["1::3"]]
         )
-        self.mock_update.delete.assert_called_with("www.example.com.", "aaaa")
-        self.mock_update.add.assert_called_with("www.example.com.", 300, "aaaa", "1::3")
+        self.mock_update.delete.assert_called_with("www.example.com.", "AAAA")
+        self.mock_update.add.assert_called_with("www.example.com.", 300, "AAAA", "1::3")
         assert (
             self.data
             == "UPDATED: fqdn: www.example.com. old_ip: 1.2.3.4 new_ip: 1.2.3.5\n"
@@ -178,11 +178,11 @@ class TestUpdateByQuery(TestIntegration):
 
         self.mock_update.delete.assert_has_calls(
             [
-                mock.call("www.example.com.", "a"),
-                mock.call("www.example.com.", "aaaa"),
+                mock.call("www.example.com.", "A"),
+                mock.call("www.example.com.", "AAAA"),
             ]
         )
-        self.mock_update.add.assert_called_with("www.example.com.", 300, "a", "1.2.3.5")
+        self.mock_update.add.assert_called_with("www.example.com.", 300, "A", "1.2.3.5")
         assert (
             self.data == "UPDATED: fqdn: www.example.com. old_ip: 1.2.3.4 new_ip: "
             "1.2.3.5\n"
@@ -191,8 +191,8 @@ class TestUpdateByQuery(TestIntegration):
     def test_ipv6_update(self) -> None:
         side_effect = [["1::2"], ["1::3"]]
         self.get(self._url("ipv6=1::3"), side_effect)
-        self.mock_update.delete.assert_called_with("www.example.com.", "aaaa")
-        self.mock_update.add.assert_called_with("www.example.com.", 300, "aaaa", "1::3")
+        self.mock_update.delete.assert_called_with("www.example.com.", "AAAA")
+        self.mock_update.add.assert_called_with("www.example.com.", 300, "AAAA", "1::3")
         assert (
             self.data == "UPDATED: fqdn: www.example.com. old_ip: 1::2 new_ip: 1::3\n"
         )
@@ -222,7 +222,7 @@ class TestUpdateByQuery(TestIntegration):
     def test_ttl(self) -> None:
         side_effect = [["1.2.3.4"], ["1.2.3.5"]]
         self.get(self._url("ipv4=1.2.3.5&ttl=123"), side_effect)
-        self.mock_update.add.assert_called_with("www.example.com.", 123, "a", "1.2.3.5")
+        self.mock_update.add.assert_called_with("www.example.com.", 123, "A", "1.2.3.5")
 
 
 class TestDeleteByPath(TestIntegration):
@@ -235,8 +235,8 @@ class TestDeleteByPath(TestIntegration):
 
         self.mock_update.delete.assert_has_calls(
             [
-                mock.call("www.example.com.", "a"),
-                mock.call("www.example.com.", "aaaa"),
+                mock.call("www.example.com.", "A"),
+                mock.call("www.example.com.", "AAAA"),
             ]
         )
         self.mock_update.add.assert_not_called()

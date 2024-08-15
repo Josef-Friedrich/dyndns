@@ -16,10 +16,10 @@ import dns.rrset
 import dns.tsig
 import dns.tsigkeyring
 import dns.update
-from dns.rdtypes.ANY.TXT import TXT
 
 from dyndns.exceptions import CheckError, DnsNameError, DNSServerError
 from dyndns.log import LogLevel, logger
+from dyndns.types import RecordType
 
 if typing.TYPE_CHECKING:
     from dyndns.zones import Zone
@@ -80,8 +80,6 @@ def validate_tsig_key(tsig_key: str) -> str:
 
 
 class DnsZone:
-    """ """
-
     _nameserver: str
     """The ip address of the nameserver, for example ``127.0.0.1``."""
 
@@ -135,14 +133,14 @@ class DnsZone:
         return self._zone.get_fqdn(name)
 
     def delete_record_by_type(
-        self, name: str, rdtype: str = "A"
+        self, name: str, record_type: RecordType = "A"
     ) -> dns.message.Message:
         """
         :param name: A record name (e. g. ``dyndns``) or a fully qualified
           domain name (e. g. ``dyndns.example.com``).
         """
         message: dns.update.UpdateMessage = self._create_update_message()
-        message.delete(self._normalize_name(name), rdtype)
+        message.delete(self._normalize_name(name), record_type)
         return self._query(message)
 
     def delete_records(self, name: str) -> None:
@@ -155,37 +153,33 @@ class DnsZone:
         self.delete_record_by_type(name, "AAAA")
 
     def add_record(
-        self, name: str, ttl: int, rdtype: str, content: str
+        self, name: str, ttl: int, record_type: RecordType, content: str
     ) -> dns.message.Message:
         """
         :param name: A record name (e. g. ``dyndns``) or a fully qualified
           domain name (e. g. ``dyndns.example.com``).
         """
         message: dns.update.UpdateMessage = self._create_update_message()
-        message.add(self._normalize_name(name), ttl, rdtype, content)
+        message.add(self._normalize_name(name), ttl, record_type, content)
         return self._query(message)
 
-    def read_record(self, name: str, rdtype: str) -> dns.rrset.RRset | None:
+    def read_record(self, name: str, record_type: RecordType) -> str | None:
         """
         :param name: A record name (e. g. ``dyndns``) or a fully qualified
           domain name (e. g. ``dyndns.example.com``).
         """
         try:
-            result: dns.resolver.Answer = self._resolver.resolve(
-                self._normalize_name(name), rdtype
+            result: Any = self._resolver.resolve(
+                self._normalize_name(name), record_type
             )
-            return result.rrset
+            if result and len(result) > 0:
+                if record_type == "TXT":
+                    element = result.rrset.pop()
+                    return element.strings[0].decode()
+                else:
+                    return str(result[0])
         except (dns.resolver.NoAnswer, dns.resolver.NXDOMAIN):
-            return None
-
-    def _read_record_as_string(self, name: str, rdtype: str) -> str | None:
-        """
-        :param name: A record name (e. g. ``dyndns``) or a fully qualified
-          domain name (e. g. ``dyndns.example.com``).
-        """
-        result: Any = self.read_record(name, rdtype)
-        if result and len(result) > 0:
-            return str(result[0])
+            pass
         return None
 
     def read_a_record(self, name: str) -> str | None:
@@ -197,7 +191,7 @@ class DnsZone:
 
         :return: An IPv4 address.
         """
-        return self._read_record_as_string(name, "A")
+        return self.read_record(name, "A")
 
     def read_aaaa_record(self, name: str) -> str | None:
         """
@@ -208,7 +202,7 @@ class DnsZone:
 
         :return: An IPv6 address.
         """
-        return self._read_record_as_string(name, "AAAA")
+        return self.read_record(name, "AAAA")
 
     def is_a_record(self, name: str) -> bool:
         """
@@ -240,24 +234,16 @@ class DnsZone:
         )
         self.delete_record_by_type(check_record_name, "TXT")
         self.add_record(check_record_name, 300, "TXT", random_content)
-        rr_set: dns.rrset.RRset | None = self.read_record(check_record_name, "TXT")
+        result: str | None = self.read_record(check_record_name, "TXT")
         self.delete_record_by_type(check_record_name, "TXT")
-
-        if not rr_set:
+        if not result:
             raise CheckError("no response")
-
-        element: Any = rr_set.pop()
-
-        if isinstance(element, TXT):
-            result: str = element.strings[0].decode()
-            if result != random_content:
-                raise CheckError("check failed")
-            else:
-                return logger.log(
-                    LogLevel.INFO,
-                    "The update check passed: "
-                    f"A TXT record '{check_record_name}' with the content '{random_content}' "
-                    f"could be updated on the zone '{self._zone.name}'.",
-                )
+        if result != random_content:
+            raise CheckError("check failed")
         else:
-            raise CheckError("no TXT record")
+            return logger.log(
+                LogLevel.INFO,
+                "The update check passed: "
+                f"A TXT record '{check_record_name}' with the content '{random_content}' "
+                f"could be updated on the zone '{self._zone.name}'.",
+            )

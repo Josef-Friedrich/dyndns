@@ -1,6 +1,5 @@
 import pytest
 from dns.exception import SyntaxError
-from dns.rrset import RRset
 
 from dyndns.dns_ng import DnsZone
 from dyndns.environment import ConfiguredEnvironment
@@ -28,9 +27,16 @@ class TestAddRecord:
 
     def test_specified_as_fqdn(self, dns: DnsZone) -> None:
         dns.add_record("test.dyndns.friedrich.rocks", 300, "A", "1.2.3.5")
-        answer: RRset | None = dns.read_record("test", "A")
+        answer: str | None = dns.read_record("test", "A")
         assert answer
-        assert str(answer[0]) == "1.2.3.5"  # type: ignore
+        assert answer == "1.2.3.5"
+
+    def test_txt_record(self, dns: DnsZone) -> None:
+        dns.delete_record_by_type("txt", "TXT")
+        dns.add_record("txt.dyndns.friedrich.rocks", 300, "TXT", "STRING")
+        answer: str | None = dns.read_record("txt", "TXT")
+        assert answer
+        assert answer == "STRING"
 
     def test_invalid_a_ip_address(self, dns: DnsZone) -> None:
         with pytest.raises(SyntaxError, match="Text input is malformed."):

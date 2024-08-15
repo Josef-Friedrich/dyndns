@@ -9,7 +9,7 @@ if typing.TYPE_CHECKING:
     from dyndns.log import LogLevel
 
 
-RecordType = Literal["a", "aaaa"]
+RecordType = Literal["A", "AAAA", "TXT"]
 
 IpVersion = Literal[4, 6]
 

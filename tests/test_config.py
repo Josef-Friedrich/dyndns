@@ -128,7 +128,7 @@ class TestFunctionValidateConfig:
 
     def test_zone_no_tsig_key(self) -> None:
         self.assert_raises_msg(
-            {"secret": "12345678", "nameserver": "127.0.0.1", "zones": [{"name": "a"}]},  # type: ignore
+            {"secret": "12345678", "nameserver": "127.0.0.1", "zones": [{"name": "A"}]},  # type: ignore
             'Your zone dictionary must contain a key "tsig_key"',
         )
 
@@ -136,7 +136,7 @@ class TestFunctionValidateConfig:
         config: Config = {
             "secret": "12345678",
             "nameserver": "127.0.0.1",
-            "zones": [{"name": "a", "tsig_key": "xxx"}],
+            "zones": [{"name": "A", "tsig_key": "xxx"}],
         }
         self.assert_raises_msg(
             config,
