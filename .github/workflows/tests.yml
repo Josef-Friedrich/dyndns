@@ -15,19 +15,6 @@ jobs:
     name: Python ${{ matrix.python-version }}
     runs-on: ubuntu-latest
 
-    # Service containers to run with `container-job`
-    services:
-      # Label used to access the service container
-      bind9:
-        # https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#jobsjob_idservicesservice_idimage
-        image: ubuntu/bind9
-        ports:
-          - 55553:53/tcp
-          - 55553:53/udp
-        volumes:
-          - ${{ github.workspace }}/dev-dns-server/etc:/etc/bind
-          - ${{ github.workspace }}/dev-dns-server/cache:/var/cache/bind
-
     strategy:
       matrix:
         python-version: ['3.10', '3.11', '3.12']
@@ -35,6 +22,21 @@ jobs:
     steps:
       # https://github.com/marketplace/actions/checkout
       - uses: actions/checkout@v3
+      - name: Start docker container
+        uses: docker://docker
+        with:
+          args: >-
+            run
+            --name bind9
+            --volume ${{ github.workspace }}/dev-dns-server/etc/named.conf:/etc/bind/named.conf
+            --volume ${{ github.workspace }}/dev-dns-server/cache/dyndns1.dev.db:/var/cache/bind/dyndns1.dev.db
+            --volume ${{ github.workspace }}/dev-dns-server/cache/dyndns2.dev.db:/var/cache/bind/dyndns2.dev.db
+            --publish 55553:53/tcp
+            --publish 55553:53/udp
+            --detach
+            ubuntu/bind9
+      - run: sleep 5
+
       # https://github.com/marketplace/actions/setup-python
       - uses: actions/setup-python@v4
         with:
