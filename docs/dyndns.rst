@@ -19,11 +19,6 @@ dyndns.config module
 
 .. automodule:: dyndns.config
 
-dyndns.dns_updates module
-^^^^^^^^^^^^^^^^^^^^^^^^^
-
-.. automodule:: dyndns.dns_updates
-
 dyndns.dns module
 ^^^^^^^^^^^^^^^^^
 

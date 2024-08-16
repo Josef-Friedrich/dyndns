@@ -1,7 +1,7 @@
 import pytest
 from dns.exception import SyntaxError
 
-from dyndns.dns_ng import DnsZone
+from dyndns.dns import DnsZone
 
 
 class TestAddRecord:

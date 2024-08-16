@@ -14,11 +14,12 @@ classifiers = [
 
 [tool.poetry.dependencies]
 python = "^3.10"
-dnspython = "2.6.1"
-Flask = "3.0.3"
+dnspython = "^2"
+Flask = "^3"
 PyYAML = "^6"
 typing-extensions = "^4"
 types-PyYAML = "*"
+pydantic = "^2"
 
 [tool.poetry.group.dev.dependencies]
 ruff = "^0"

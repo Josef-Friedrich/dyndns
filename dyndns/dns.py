@@ -1,162 +1,290 @@
 """Query the DSN server using the package “dnspython”."""
 
-from __future__ import annotations
-
-from typing import Any, Literal
+import binascii
+import random
+import re
+import string
+import typing
+from dataclasses import dataclass
+from typing import Any
 
 import dns.exception
+import dns.message
 import dns.name
 import dns.query
 import dns.resolver
+import dns.rrset
 import dns.tsig
 import dns.tsigkeyring
 import dns.update
 
-from dyndns.exceptions import DNSServerError, DyndnsError
-from dyndns.ipaddresses import IpAddressContainer
+from dyndns.exceptions import CheckError, DnsNameError, DNSServerError
 from dyndns.log import LogLevel, logger
-from dyndns.names import FullyQualifiedDomainName
-from dyndns.types import IpVersion, RecordType, UpdateRecord
+from dyndns.types import RecordType
+
+if typing.TYPE_CHECKING:
+    from dyndns.zones import Zone
 
 
-class DnsUpdate:
+@dataclass
+class DnsChangeMessage:
+    fqdn: str
+    old: str | None
+    new: str | None
+    record_type: RecordType
+
+
+def validate_dns_name(name: str) -> str:
     """
-    Update the DNS server.
+    Validate the given DNS name. A dot is appended to the end of the DNS name
+    if it is not already present.
 
-    :param nameserver: The ip address of the nameserver, for example ``127.0.0.1``.
+    :param name: The DNS name to be validated.
+
+    :return: The validated DNS name as a string.
     """
+    if name[-1] == ".":
+        # strip exactly one dot from the right, if present
+        name = name[:-1]
+    if len(name) > 253:
+        raise DnsNameError(
+            f'The DNS name "{name[:10]}..." is longer than 253 characters.'
+        )
 
-    nameserver: str
+    labels: list[str] = name.split(".")
+
+    tld: str = labels[-1]
+    if re.match(r"[0-9]+$", tld):
+        raise DnsNameError(
+            f'The TLD "{tld}" of the DNS name "{name}" must be not all-numeric.'
+        )
+
+    allowed: re.Pattern[str] = re.compile(r"(?!-)[a-z0-9-]{1,63}(?<!-)$", re.IGNORECASE)
+    for label in labels:
+        if not allowed.match(label):
+            raise DnsNameError(
+                f'The label "{label}" of the hostname "{name}" is invalid.'
+            )
+
+    return str(dns.name.from_text(name))
+
+
+def validate_tsig_key(tsig_key: str) -> str:
+    """
+    Validates a TSIG key.
+
+    :param tsig_key: The TSIG key to validate.
+
+    :return: The validated TSIG key.
+
+    :raises NamesError: If the TSIG key is invalid.
+    """
+    if not tsig_key:
+        raise DnsNameError(f'Invalid tsig key: "{tsig_key}".')
+    try:
+        dns.tsigkeyring.from_text({"tmp.org.": tsig_key})
+        return tsig_key
+    except binascii.Error:
+        raise DnsNameError(f'Invalid tsig key: "{tsig_key}".')
+
+
+class DnsZone:
+    _nameserver: str
     """The ip address of the nameserver, for example ``127.0.0.1``."""
 
-    fqdn: FullyQualifiedDomainName
+    _port: int
 
-    ipaddresses: IpAddressContainer | None
+    _zone: "Zone"
 
-    ttl: int
-    """time to live"""
+    _keyring: dict[dns.name.Name, dns.tsig.Key]
 
-    def __init__(
-        self,
-        nameserver: str,
-        names: FullyQualifiedDomainName,
-        ipaddresses: IpAddressContainer | None = None,
-        ttl: str | int | None = None,
-    ) -> None:
-        self.nameserver = nameserver
-        self.fqdn = names
-        self.ipaddresses = ipaddresses
-        if not ttl:
-            self.ttl = 300
-        else:
-            self.ttl = int(ttl)
+    __resolver: dns.resolver.Resolver
 
-        self._tsigkeyring: dns.name.Dict[dns.name.Name, dns.tsig.Key] = (
-            self._build_tsigkeyring(
-                self.fqdn.zone_name,
-                self.fqdn.tsig_key,
-            )
-        )
-        self._dns_update: dns.update.Update = dns.update.Update(
-            self.fqdn.zone_name,
-            keyring=self._tsigkeyring,
+    def __init__(self, nameserver: str, port: int, zone: "Zone") -> None:
+        self._nameserver = nameserver
+        self._port = port
+        self._zone = zone
+        self._keyring = dns.tsigkeyring.from_text({zone.name: zone.tsig_key})
+
+    @property
+    def _resolver(self) -> dns.resolver.Resolver:
+        if not hasattr(self, "__resolver"):
+            self.__resolver = dns.resolver.Resolver()
+            self.__resolver.nameservers = [self._nameserver]
+            self.__resolver.port = self._port
+        return self.__resolver
+
+    def _create_update_message(self) -> dns.update.UpdateMessage:
+        return dns.update.UpdateMessage(
+            self._zone.name,
+            keyring=self._keyring,
             keyalgorithm=dns.tsig.HMAC_SHA512,
         )
 
-    @staticmethod
-    def _build_tsigkeyring(
-        zone_name: str, tsig_key: str
-    ) -> dns.name.Dict[dns.name.Name, dns.tsig.Key]:
-        """
-        :param zone: A zone name object
-        :param tsig_key: A TSIG key
-        """
-        keyring: dict[str, str] = {}
-        keyring[zone_name] = tsig_key
-        return dns.tsigkeyring.from_text(keyring)
-
-    @staticmethod
-    def _convert_record_type(ip_version: Any = 4) -> RecordType:
-        if ip_version == 4:
-            return "A"
-        elif ip_version == 6:
-            return "AAAA"
-        else:
-            raise ValueError("“ip_version” must be 4 or 6")
-
-    def _resolve(self, ip_version: IpVersion = 4) -> str:
-        resolver = dns.resolver.Resolver()
-        resolver.nameservers = [self.nameserver]
-        try:
-            ip: dns.resolver.Answer = resolver.resolve(
-                self.fqdn.fqdn,
-                self._convert_record_type(ip_version),
-            )
-            return str(ip[0])  # type: ignore
-        except dns.exception.DNSException:
-            return ""
-
-    def _query_tcp(self, dns_update: dns.update.Update) -> None:
+    def _query(self, message: dns.message.Message) -> dns.message.Message:
         """Catch some errors and convert this errors to dyndns specific
         errors."""
         try:
-            dns.query.tcp(dns_update, where=self.nameserver, timeout=5)
+            return dns.query.tcp(
+                message, where=self._nameserver, port=self._port, timeout=5
+            )
         except dns.tsig.PeerBadKey:
             raise DNSServerError(
-                f'The peer "{self.nameserver}" didn\'t know the tsig key '
-                f'we used for the zone "{self.fqdn.zone_name}".'
+                f'The peer "{self._nameserver}" didn\'t know the tsig key '
+                f'we used for the zone "{self._zone.name}".'
             )
         except dns.exception.Timeout:
             raise DNSServerError(
-                f'The DNS operation to the nameserver "{self.nameserver}" timed out.'
+                f'The DNS operation to the nameserver "{self._nameserver}" timed out.'
             )
 
-    def _set_record(self, new_ip: str, ip_version: IpVersion = 4) -> UpdateRecord:
-        old_ip: str = self._resolve(ip_version)
-        rdtype = self._convert_record_type(ip_version)
+    def _normalize_name(self, name: str) -> str:
+        """
+        :param name: A record name (e. g. ``dyndns``) or a fully qualified
+          domain name (e. g. ``dyndns.example.com``).
 
-        status: LogLevel
+        :return: A fully qualified domain name (e. g. ``dyndns.example.com.``).
+        """
+        return self._zone.get_fqdn(name)
 
-        if new_ip == old_ip:
-            status = LogLevel.UNCHANGED
-            logger.log_update(False, self.fqdn.fqdn, rdtype, new_ip)
+    def _delete_record(
+        self, name: str, record_type: RecordType = "A"
+    ) -> dns.message.Message:
+        """
+        Delete one record or multiple records of a specific record type.
+
+        :param name: A record name (e. g. ``dyndns``) or a fully qualified
+          domain name (e. g. ``dyndns.example.com``).
+        """
+        message: dns.update.UpdateMessage = self._create_update_message()
+        message.delete(self._normalize_name(name), record_type)
+        return self._query(message)
+
+    def delete_record(
+        self, name: str, record_type: RecordType = "A"
+    ) -> DnsChangeMessage:
+        """
+        Delete one record or multiple records of a specific record type.
+
+        :param name: A record name (e. g. ``dyndns``) or a fully qualified
+          domain name (e. g. ``dyndns.example.com``).
+        """
+        fqdn: str = self._normalize_name(name)
+        old = self.read_record(fqdn, record_type)
+        self._delete_record(fqdn, record_type)
+        return DnsChangeMessage(fqdn=fqdn, old=old, new=None, record_type=record_type)
+
+    def delete_records(self, name: str) -> None:
+        """Delete all A and the AAAA records.
+
+        :param name: A record name (e. g. ``dyndns``) or a fully qualified
+          domain name (e. g. ``dyndns.example.com``).
+        """
+        self._delete_record(name, "A")
+        self._delete_record(name, "AAAA")
+
+    def add_record(
+        self, name: str, record_type: RecordType, content: str, ttl: int = 300
+    ) -> DnsChangeMessage:
+        """
+        Add one record. All existing records with the same name and same record
+        type are deleted before a new record is added.
+
+        :param name: A record name (e. g. ``dyndns``) or a fully qualified
+          domain name (e. g. ``dyndns.example.com``).
+        """
+        fqdn = self._normalize_name(name)
+        old = self.read_record(fqdn, record_type)
+        self._delete_record(fqdn, record_type)
+        message: dns.update.UpdateMessage = self._create_update_message()
+        message.add(fqdn, ttl, record_type, content)
+        self._query(message)
+        new = self.read_record(fqdn, record_type)
+        return DnsChangeMessage(fqdn=fqdn, old=old, new=new, record_type=record_type)
+
+    def read_record(self, name: str, record_type: RecordType) -> str | None:
+        """
+        Read one record.
+
+        :param name: A record name (e. g. ``dyndns``) or a fully qualified
+          domain name (e. g. ``dyndns.example.com``).
+        """
+        try:
+            result: Any = self._resolver.resolve(
+                self._normalize_name(name), record_type
+            )
+            if result and len(result) > 0:
+                if record_type == "TXT":
+                    element = result.rrset.pop()
+                    return element.strings[0].decode()
+                else:
+                    return str(result[0])
+        except (dns.resolver.NoAnswer, dns.resolver.NXDOMAIN):
+            pass
+        return None
+
+    def read_a_record(self, name: str) -> str | None:
+        """
+        Read an IPv4 address record.
+
+        :param name: A record name (e. g. ``dyndns``) or a fully qualified
+          domain name (e. g. ``dyndns.example.com``).
+
+        :return: An IPv4 address.
+        """
+        return self.read_record(name, "A")
+
+    def read_aaaa_record(self, name: str) -> str | None:
+        """
+        Read an IPv6 address record.
+
+        :param name: A record name (e. g. ``dyndns``) or a fully qualified
+          domain name (e. g. ``dyndns.example.com``).
+
+        :return: An IPv6 address.
+        """
+        return self.read_record(name, "AAAA")
+
+    def is_a_record(self, name: str) -> bool:
+        """
+        Return ``True`` if the specified name has an A record (IPv4).
+
+        :param name: A record name (e. g. ``dyndns``) or a fully qualified
+          domain name (e. g. ``dyndns.example.com``).
+
+        :return: `True`` if the specified name has an A record (IPv4).
+        """
+        return self.read_a_record(name) is not None
+
+    def is_aaaa_record(self, name: str) -> bool:
+        """
+        Return ``True`` if the specified name has an AAAA record (IPv6).
+
+        :param name: A record name (e. g. ``dyndns``) or a fully qualified
+          domain name (e. g. ``dyndns.example.com``).
+
+        :return: `True`` if the specified name has an AAAA record (IPv6).
+        """
+        return self.read_aaaa_record(name) is not None
+
+    def check(self) -> str:
+        """Check the functionality of the DNS server by creating a temporary text record."""
+        check_record_name = "dyndns-check-tmp-a841278b-f089-4164-b8e6-f90514e573ec"
+        random_content: str = "".join(
+            random.choices(string.ascii_uppercase + string.digits, k=8)
+        )
+        self._delete_record(check_record_name, "TXT")
+        self.add_record(check_record_name, "TXT", random_content)
+        result: str | None = self.read_record(check_record_name, "TXT")
+        self._delete_record(check_record_name, "TXT")
+        if not result:
+            raise CheckError("no response")
+        if result != random_content:
+            raise CheckError("check failed")
         else:
-            self._dns_update.delete(self.fqdn.fqdn, rdtype)
-            # If the client (a notebook) moves in a network without ipv6
-            # support, we have to delete the 'aaaa' record.
-            if rdtype == "A":
-                self._dns_update.delete(self.fqdn.fqdn, "AAAA")
-
-            self._dns_update.add(self.fqdn.fqdn, self.ttl, rdtype, new_ip)
-            self._query_tcp(self._dns_update)
-
-            checked_ip = self._resolve(ip_version)
-
-            if new_ip == checked_ip:
-                status = LogLevel.UPDATED
-                logger.log_update(True, self.fqdn.fqdn, rdtype, new_ip)
-            else:
-                status = LogLevel.DNS_SERVER_ERROR
-
-        return {
-            "ip_version": ip_version,
-            "new_ip": new_ip,
-            "old_ip": old_ip,
-            "status": status,
-        }
-
-    def delete(self) -> Literal[True]:
-        self._dns_update.delete(self.fqdn.fqdn, "A")
-        self._dns_update.delete(self.fqdn.fqdn, "AAAA")
-        self._query_tcp(self._dns_update)
-        return True
-
-    def update(self) -> list[UpdateRecord]:
-        results: list[UpdateRecord] = []
-        if not self.ipaddresses:
-            raise DyndnsError("No ip addresses set.")
-        if self.ipaddresses.ipv4:
-            results.append(self._set_record(new_ip=self.ipaddresses.ipv4, ip_version=4))
-        if self.ipaddresses.ipv6:
-            results.append(self._set_record(new_ip=self.ipaddresses.ipv6, ip_version=6))
-        return results
+            return logger.log(
+                LogLevel.INFO,
+                "The update check passed: "
+                f"A TXT record '{check_record_name}' with the content '{random_content}' "
+                f"could be updated on the zone '{self._zone.name}'.",
+            )

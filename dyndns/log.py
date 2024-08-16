@@ -9,7 +9,7 @@ from enum import Enum
 from typing_extensions import TypedDict
 
 if typing.TYPE_CHECKING:
-    from dyndns.dns_ng import DnsChangeMessage
+    from dyndns.dns import DnsChangeMessage
     from dyndns.types import RecordType
 
 

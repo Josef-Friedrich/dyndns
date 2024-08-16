@@ -7,7 +7,7 @@ from typing import Any, Generator
 import flask
 
 from dyndns.config import load_config
-from dyndns.dns_ng import DnsChangeMessage, DnsZone
+from dyndns.dns import DnsChangeMessage, DnsZone
 from dyndns.exceptions import (
     DyndnsError,
     ParameterError,
@@ -55,7 +55,7 @@ class ConfiguredEnvironment:
             outputs.append(dns_zone.check())
         return "\n".join(outputs)
 
-    def _authenticate(self, secret: Any) -> None:
+    def authenticate(self, secret: Any) -> None:
         if str(secret) != str(self._config["secret"]):
             raise ParameterError("You specified a wrong secret key.")
 

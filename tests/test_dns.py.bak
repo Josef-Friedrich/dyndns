@@ -4,8 +4,7 @@ from unittest import mock
 
 import pytest
 
-from dyndns.dns import DnsUpdate
-from dyndns.dns_ng import validate_tsig_key
+from dyndns.dns import DnsUpdate, validate_tsig_key
 from dyndns.exceptions import DnsNameError
 from dyndns.ipaddresses import IpAddressContainer
 from dyndns.log import LogLevel

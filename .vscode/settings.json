@@ -24,6 +24,7 @@
   "python.analysis.diagnosticSeverityOverrides": {
     "reportPrivateImportUsage": "none",
     "reportUnusedImport": "information",
+    "reportUnusedFunction": "none",
     "reportUnusedExpression": "information",
     "reportImportCycles": "information"
   },

@@ -1,6 +1,6 @@
 import typing
 
-from dyndns.dns_ng import validate_dns_name, validate_tsig_key
+from dyndns.dns import validate_dns_name, validate_tsig_key
 from dyndns.exceptions import DnsNameError
 from dyndns.types import ZoneConfig
 

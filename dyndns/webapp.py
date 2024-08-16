@@ -2,18 +2,28 @@
 
 from __future__ import annotations
 
-import inspect
 import logging
-from typing import Any
+from typing import Any, Optional
 
 import flask
+from pydantic import BaseModel
 
-from dyndns.dns_updates import delete_dns_record, update_dns_record
-from dyndns.environment import ConfiguredEnvironment, get_environment
-from dyndns.exceptions import ParameterError
+from dyndns.environment import ConfiguredEnvironment
 
 
-def create_app(environment: ConfiguredEnvironment) -> flask.Flask:
+class UpdateQueryParams(BaseModel):
+    secret: str
+    fqdn: Optional[str] = None
+    zone_name: Optional[str] = None
+    record_name: Optional[str] = None
+    ip_1: Optional[str] = None
+    ip_2: Optional[str] = None
+    ipv4: Optional[str] = None
+    ipv6: Optional[str] = None
+    ttl: Optional[int] = None
+
+
+def create_app(env: ConfiguredEnvironment) -> flask.Flask:
     app = flask.Flask(__name__)
 
     log = logging.getLogger("werkzeug")
@@ -43,7 +53,7 @@ def create_app(environment: ConfiguredEnvironment) -> flask.Flask:
 
     @app.route("/check")
     def check() -> str:
-        return get_environment().check()
+        return env.check()
 
     @app.route("/update-by-path/<secret>/<fqdn>")
     @app.route("/update-by-path/<secret>/<fqdn>/<ip_1>")
@@ -51,30 +61,31 @@ def create_app(environment: ConfiguredEnvironment) -> flask.Flask:
     def update_by_path(
         secret: str, fqdn: str, ip_1: str | None = None, ip_2: str | None = None
     ) -> str:
-        return update_dns_record(secret=secret, fqdn=fqdn, ip_1=ip_1, ip_2=ip_2)
+        env.authenticate(secret)
+        return env.update_dns_record(fqdn=fqdn, ip_1=ip_1, ip_2=ip_2)
 
     @app.route("/update-by-query")
     def update_by_query_string() -> str:
-        args = flask.request.args
-        # Returns ImmutableMultiDict([('secret', '12345678'), ...])
-        # dict(args):
-        # {'secret': ['12345678'],
+        args: Any = flask.request.args.to_dict()
 
-        kwargs = inspect.getfullargspec(update_dns_record).args
+        params = UpdateQueryParams(**args)
 
-        input_args: Any = {}
-        for key, arg in args.items():
-            input_args[key] = arg
-
-            if key not in kwargs:
-                raise ParameterError(
-                    f'Unknown query string argument: "{key}"',
-                )
-        return update_dns_record(**input_args)
+        env.authenticate(params.secret)
+        return env.update_dns_record(
+            fqdn=params.fqdn,
+            zone_name=params.zone_name,
+            record_name=params.record_name,
+            ip_1=params.ip_1,
+            ip_2=params.ip_2,
+            ipv4=params.ipv4,
+            ipv6=params.ipv6,
+            ttl=params.ttl,
+        )
 
     @app.route("/delete-by-path/<secret>/<fqdn>")
     def delete_by_path(secret: str, fqdn: str) -> str:
-        return delete_dns_record(secret=secret, fqdn=fqdn)
+        env.authenticate(secret)
+        return env.delete_dns_record(fqdn=fqdn)
 
     return app
 
