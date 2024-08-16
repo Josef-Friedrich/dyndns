@@ -9,6 +9,7 @@ from werkzeug.test import TestResponse
 from dyndns.environment import ConfiguredEnvironment
 from dyndns.webapp import create_app
 from tests import _helper
+from tests.conftest import TestClient
 
 
 class TestIntegration:
@@ -80,28 +81,26 @@ class TestMethodUpdateByPath(TestIntegration):
         )
 
 
-class TestUpdateByPath(TestIntegration):
+class TestUpdateByPath:
+    @staticmethod
+    def _url(path: str) -> str:
+        return f"/update-by-path/12345678/test.dyndns1.dev/{path}"
+
+    def test_ipv4_update(self, client: TestClient) -> None:
+        client.delete_record("test", "A")
+        client.add_record("test", "A", "1.2.3.4")
+        assert (
+            client.get(self._url("1.2.3.5"))
+            == "UPDATED: test.dyndns1.dev. A 1.2.3.4 -> 1.2.3.5\nUNCHANGED: test.dyndns1.dev. AAAA None\n"
+        )
+
+
+class TestUpdateByPathOld(TestIntegration):
     """Test the path ``update-by-path`` of the Flask web app."""
 
     @staticmethod
     def _url(path: str) -> str:
-        return f"/update-by-path/12345678/www.example.com/{path}"
-
-    @pytest.mark.skip
-    def test_ipv4_update(self) -> None:
-        self.get(self._url("1.2.3.5"), [["1.2.3.4"], ["1.2.3.5"]])
-
-        self.mock_update.delete.assert_has_calls(
-            [
-                mock.call("www.example.com.", "A"),
-                mock.call("www.example.com.", "AAAA"),
-            ]
-        )
-        self.mock_update.add.assert_called_with("www.example.com.", 300, "A", "1.2.3.5")
-        assert (
-            self.data == "UPDATED: fqdn: www.example.com. old_ip: 1.2.3.4 new_ip: "
-            "1.2.3.5\n"
-        )
+        return f"/update-by-path/12345678/www.dyndns1.dev/{path}"
 
     @pytest.mark.skip
     def test_ipv6_update(self) -> None:
@@ -254,12 +253,12 @@ class TestDeleteByPath(TestIntegration):
 
 
 class TestMultiplePaths(TestIntegration):
-    def test_home(self, client: FlaskClient) -> None:
-        response = client.get("/")
+    def test_home(self, flask_client: FlaskClient) -> None:
+        response = flask_client.get("/")
         assert b"dyndns" in response.data
 
-    def test_check(self, client: FlaskClient) -> None:
-        response = client.get("/check")
+    def test_check(self, flask_client: FlaskClient) -> None:
+        response = flask_client.get("/check")
         content = response.data.decode()
         assert "could be updated on the zone 'dyndns1.dev.'" in content
         assert "could be updated on the zone 'dyndns2.dev.'" in content

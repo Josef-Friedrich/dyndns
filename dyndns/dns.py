@@ -12,6 +12,7 @@ import dns.exception
 import dns.message
 import dns.name
 import dns.query
+import dns.rdatatype
 import dns.resolver
 import dns.rrset
 import dns.tsig
