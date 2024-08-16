@@ -5,6 +5,7 @@ from typing import Any
 import pytest
 from flask import Flask
 from flask.testing import FlaskClient
+from werkzeug.test import TestResponse
 
 from dyndns.dns import DnsZone
 from dyndns.environment import ConfiguredEnvironment
@@ -45,19 +46,26 @@ class TestClient:
 
     dns: DnsZone
 
-    def __init__(self, client: FlaskClient, dns: DnsZone):
+    def __init__(self, client: FlaskClient, dns: DnsZone) -> None:
         self.client = client
         self.dns = dns
+        self.dns.delete_records("test")
 
     def get(self, path: str) -> str:
-        response = self.client.get(path)
+        response: TestResponse = self.client.get(path)
         return response.data.decode()
+
+    def get_response(self, path: str) -> TestResponse:
+        return self.client.get(path)
 
     def add_record(self, name: str, record_type: RecordType, content: str) -> None:
         self.dns.add_record(name, record_type, content)
 
     def delete_record(self, name: str, record_type: RecordType) -> None:
         self.dns.delete_record(name, record_type)
+
+    def read_record(self, name: str, record_type: RecordType) -> str | None:
+        return self.dns.read_record(name, record_type)
 
 
 @pytest.fixture()

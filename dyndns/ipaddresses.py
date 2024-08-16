@@ -20,7 +20,7 @@ def validate(
             raise IpAddressesError(f'IP version "{ip_version}" does not match.')
         return str(address), address.version
     except ValueError:
-        raise IpAddressesError(f'Invalid ip address "{address}"')
+        raise IpAddressesError(f"Invalid IP address '{address}'.")
 
 
 def format_attr(ip_version: IpVersion) -> str:

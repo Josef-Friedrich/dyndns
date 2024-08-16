@@ -75,7 +75,7 @@ class FullyQualifiedDomainName:
                 zone_name = split[1]
             else:
                 raise DnsNameError(
-                    f'The fully qualified domain name "{fqdn}" could not be split into a record and a zone name.'
+                    f"The fully qualified domain name '{fqdn}' could not be split into a record and a zone name."
                 )
 
         if not fqdn and zone_name and record_name:

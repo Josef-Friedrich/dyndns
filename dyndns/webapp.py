@@ -49,7 +49,7 @@ def create_app(env: ConfiguredEnvironment) -> flask.Flask:
 
     @app.route("/")
     def home() -> str:
-        return "dyndns"
+        return "dyndns\n"
 
     @app.route("/check")
     def check() -> str:

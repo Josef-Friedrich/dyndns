@@ -19,13 +19,13 @@ class TestClassIpAddresses:
             IpAddressContainer(**kwargs)
 
     def test_invalid_ipv4(self) -> None:
-        self.assert_raises_msg({"ipv4": "test"}, 'Invalid ip address "test"')
+        self.assert_raises_msg({"ipv4": "test"}, "Invalid IP address 'test'.")
 
     def test_invalid_ipv4_version(self) -> None:
         self.assert_raises_msg({"ipv4": "1::2"}, 'IP version "4" does not match.')
 
     def test_invalid_ipv6(self) -> None:
-        self.assert_raises_msg({"ipv6": "test"}, 'Invalid ip address "test"')
+        self.assert_raises_msg({"ipv6": "test"}, "Invalid IP address 'test'.")
 
     def test_invalid_ipv6_version(self) -> None:
         self.assert_raises_msg({"ipv6": "1.2.3.4"}, 'IP version "6" does not match.')
