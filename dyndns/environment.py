@@ -7,15 +7,15 @@ from typing import Any, Generator
 import flask
 
 from dyndns.config import load_config
-from dyndns.dns import DnsUpdate
-from dyndns.dns_ng import DnsZone
+from dyndns.dns_ng import DnsChangeMessage, DnsZone
 from dyndns.exceptions import (
+    DyndnsError,
     ParameterError,
 )
 from dyndns.ipaddresses import IpAddressContainer
 from dyndns.log import LogLevel, logger
 from dyndns.names import FullyQualifiedDomainName
-from dyndns.types import Config, UpdateRecord
+from dyndns.types import Config
 from dyndns.zones import ZonesCollection
 
 
@@ -98,7 +98,7 @@ class ConfiguredEnvironment:
             zone_name=zone_name,
             record_name=record_name,
         )
-        ip_address = IpAddressContainer(
+        ip = IpAddressContainer(
             ip_1=ip_1,
             ip_2=ip_2,
             ipv4=ipv4,
@@ -106,20 +106,23 @@ class ConfiguredEnvironment:
             request=flask.request,
         )
 
-        update = DnsUpdate(
-            nameserver=self._config["nameserver"],
-            names=name,
-            ipaddresses=ip_address,
-            ttl=ttl,
-        )
-        results: list[UpdateRecord] = update.update()
+        dns: DnsZone = self.get_dns_for_zone(name.zone_name)
+
+        results: list[DnsChangeMessage] = []
+        if not ip:
+            raise DyndnsError("No ip addresses set.")
+        if ip.ipv4:
+            results.append(dns.add_record(name.record_name, "A", ip.ipv4))
+        else:
+            results.append(dns.delete_record(name.record_name, "A"))
+        if ip.ipv6:
+            results.append(dns.add_record(name.record_name, "AAAA", ip.ipv6))
+        else:
+            results.append(dns.delete_record(name.record_name, "AAAA"))
 
         messages: list[str] = []
         for result in results:
-            message = "fqdn: {} old_ip: {} new_ip: {}".format(
-                name.fqdn, result["old_ip"], result["new_ip"]
-            )
-            messages.append(logger.log(result["status"], message))
+            messages.append(logger.log_change(result))
 
         return "".join(messages)
 

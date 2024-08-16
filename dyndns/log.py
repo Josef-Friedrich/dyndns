@@ -3,11 +3,14 @@
 from __future__ import annotations
 
 import logging
+import typing
 from enum import Enum
 
 from typing_extensions import TypedDict
 
-from dyndns.types import RecordType
+if typing.TYPE_CHECKING:
+    from dyndns.dns_ng import DnsChangeMessage
+    from dyndns.types import RecordType
 
 
 class Update(TypedDict):
@@ -90,8 +93,20 @@ class Logger:
         self.__logger.log(level, message)
         return f"{name}: {message}\n"
 
+    def log_change(self, message: "DnsChangeMessage") -> str:
+        if message.old == message.new:
+            return self.log(
+                LogLevel.UNCHANGED,
+                f"{message.fqdn} {message.record_type} {message.new}",
+            )
+        else:
+            return self.log(
+                LogLevel.UPDATED,
+                f"{message.fqdn} {message.record_type} {message.old} -> {message.new}",
+            )
+
     def log_update(
-        self, updated: bool, fqdn: str, record_type: RecordType, ip: str
+        self, updated: bool, fqdn: str, record_type: "RecordType", ip: str
     ) -> str:
         level: LogLevel
         if updated:

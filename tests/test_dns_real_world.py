@@ -65,7 +65,21 @@ def test_read_aaaa_record(dns: DnsZone) -> None:
     dns.delete_record("aaaa.record.test", "AAAA")
 
 
-def test_delete_record_by_type(dns: DnsZone) -> None:
-    dns.delete_record("test", "A")
-    ip: str | None = dns.read_a_record("test")
-    assert ip is None
+class TestDeleteRecord:
+    def test_existent(self, dns: DnsZone) -> None:
+        dns.add_record("test", "A", "7.7.7.7")
+        message = dns.delete_record("test", "A")
+        assert message.old == "7.7.7.7"
+        assert message.new is None
+        assert message.record_type == "A"
+        ip: str | None = dns.read_a_record("test")
+        assert ip is None
+
+    def test_non_existent(self, dns: DnsZone) -> None:
+        dns.delete_record("test", "A")
+        message = dns.delete_record("test", "A")
+        assert message.old is None
+        assert message.new is None
+        assert message.record_type == "A"
+        ip: str | None = dns.read_a_record("test")
+        assert ip is None
