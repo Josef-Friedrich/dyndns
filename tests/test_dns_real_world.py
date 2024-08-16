@@ -2,10 +2,8 @@ import pytest
 from dns.exception import SyntaxError
 
 from dyndns.dns_ng import DnsZone
-from tests._helper import NOT_REAL_WORLD
 
 
-@pytest.mark.skipif(NOT_REAL_WORLD, reason="No DNS server configured.")
 class TestAddRecord:
     def test_specified_as_record_name(self, dns: DnsZone) -> None:
         dns.delete_record("test", "A")
@@ -53,7 +51,6 @@ class TestAddRecord:
             dns.add_record("test", "AAAA", "invalid")
 
 
-@pytest.mark.skipif(NOT_REAL_WORLD, reason="No DNS server configured.")
 def test_read_a_record(dns: DnsZone) -> None:
     dns.add_record("a.record.test", "A", "1.1.1.1")
     ip: str | None = dns.read_a_record("a.record.test")
@@ -61,7 +58,6 @@ def test_read_a_record(dns: DnsZone) -> None:
     dns.delete_record("a.record.test", "A")
 
 
-@pytest.mark.skipif(NOT_REAL_WORLD, reason="No DNS server configured.")
 def test_read_aaaa_record(dns: DnsZone) -> None:
     dns.add_record("aaaa.record.test", "AAAA", "1::2")
     ip: str | None = dns.read_aaaa_record("aaaa.record.test")
@@ -69,7 +65,6 @@ def test_read_aaaa_record(dns: DnsZone) -> None:
     dns.delete_record("aaaa.record.test", "AAAA")
 
 
-@pytest.mark.skipif(NOT_REAL_WORLD, reason="No DNS server configured.")
 def test_delete_record_by_type(dns: DnsZone) -> None:
     dns.delete_record("test", "A")
     ip: str | None = dns.read_a_record("test")
