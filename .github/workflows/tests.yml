@@ -25,9 +25,8 @@ jobs:
           - 55553:53/tcp
           - 55553:53/udp
         volumes:
-          - ${{ github.workspace }}/dev-dns-server/etc/named.conf:/etc/bind/named.conf
-          - ${{ github.workspace }}/dev-dns-server/cache/dyndns1.dev.db:/var/cache/bind/dyndns1.dev.db
-          - ${{ github.workspace }}/dev-dns-server/cache/dyndns2.dev.db:/var/cache/bind/dyndns2.dev.db
+          - ${{ github.workspace }}/dev-dns-server/etc:/etc/bind
+          - ${{ github.workspace }}/dev-dns-server/cache:/var/cache/bind
 
     strategy:
       matrix:
