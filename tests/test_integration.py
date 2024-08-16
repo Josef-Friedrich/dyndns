@@ -56,31 +56,6 @@ class TestIntegration:
             return self.response
 
 
-class TestMethodUpdateByPath(TestIntegration):
-    @pytest.mark.skip
-    @mock.patch("dyndns.webapp.update_dns_record")
-    def test_call_secret_fqdn(self, update: mock.Mock) -> None:
-        update.return_value = "ok"
-        self.app.get("/update-by-path/secret/fqdn")
-        update.assert_called_with(secret="secret", fqdn="fqdn", ip_1=None, ip_2=None)
-
-    @pytest.mark.skip
-    @mock.patch("dyndns.webapp.update_dns_record")
-    def test_call_secret_fqdn_ip_1(self, update: mock.Mock) -> None:
-        update.return_value = "ok"
-        self.app.get("/update-by-path/secret/fqdn/ip_1")
-        update.assert_called_with(secret="secret", fqdn="fqdn", ip_1="ip_1", ip_2=None)
-
-    @pytest.mark.skip
-    @mock.patch("dyndns.webapp.update_dns_record")
-    def test_call_secret_fqdn_ip1_ip2(self, update: mock.Mock) -> None:
-        update.return_value = "ok"
-        self.app.get("/update-by-path/secret/fqdn/ip_1/ip_2")
-        update.assert_called_with(
-            secret="secret", fqdn="fqdn", ip_1="ip_1", ip_2="ip_2"
-        )
-
-
 class TestUpdateByPath:
     @staticmethod
     def url(path: str) -> str:
