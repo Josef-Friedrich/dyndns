@@ -3,16 +3,17 @@
 from __future__ import annotations
 
 import ipaddress
-from typing import Any, Literal
+from typing import Any
 
 from flask import Request
 
 from dyndns.exceptions import IpAddressesError
+from dyndns.types import IpVersion
 
 
 def validate(
-    address: Any, ip_version: Literal[4, 6] | None = None
-) -> tuple[str, Literal[4, 6]]:
+    address: Any, ip_version: IpVersion | None = None
+) -> tuple[str, IpVersion]:
     try:
         address = ipaddress.ip_address(address)
         if ip_version and ip_version != address.version:
@@ -22,7 +23,7 @@ def validate(
         raise IpAddressesError(f'Invalid ip address "{address}"')
 
 
-def format_attr(ip_version: Literal[4, 6]) -> str:
+def format_attr(ip_version: IpVersion) -> str:
     return f"ipv{ip_version}"
 
 
@@ -33,15 +34,15 @@ class IpAddressContainer:
 
     :param str ip_1: An IP address of unkown version.
     :param str ip_2: An IP address of unkown version.
-    :param str ipv4: An ipv4 IP address.
-    :param str ipv6: An ipv6 IP address.
+    :param str ipv4: An IPv4 IP address.
+    :param str ipv6: An IPv6 IP address.
     """
 
     ipv4: str | None
-    """The ipv4 address to update the DNS record with."""
+    """The IPv4 address to update the DNS record with."""
 
     ipv6: str | None
-    """The ipv6 address to update the DNS record with."""
+    """The IPv6 address to update the DNS record with."""
 
     request: Request
 
@@ -76,10 +77,10 @@ class IpAddressContainer:
         if not self.ipv4 and not self.ipv6:
             raise IpAddressesError("No ip address set.")
 
-    def _get_ip(self, ip_version: Literal[4, 6]) -> str:
+    def _get_ip(self, ip_version: IpVersion) -> str:
         return getattr(self, format_attr(ip_version))
 
-    def _setattr(self, ip_version: Literal[4, 6], value: str) -> None:
+    def _setattr(self, ip_version: IpVersion, value: str) -> None:
         return setattr(self, format_attr(ip_version), value)
 
     def _get_client_ip(self) -> str | None:
@@ -97,5 +98,4 @@ class IpAddressContainer:
         if old_ip:
             msg: str = f'The attribute "{format_attr(ip_version)}" is already set and has the value "{old_ip}".'
             raise IpAddressesError(msg)
-
         self._setattr(ip_version, ip)

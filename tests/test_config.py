@@ -111,8 +111,8 @@ class TestFunctionValidateConfig:
                 "secret": "12345678",
                 "nameserver": "127.0.0.1",
                 "port": 53,
-                "zones": "test",
-            },  # type: ignore
+                "zones": "test",  # type: ignore
+            },
             'Your "zones" key must contain a list of zones.',
         )
 
