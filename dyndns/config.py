@@ -97,6 +97,12 @@ def validate_config(config: Any = None) -> Config:
         )
         raise ConfigurationError(msg)
 
+    if "port" in config:
+        if not isinstance(config["port"], int):
+            raise ConfigurationError("Port has to be an int.")
+    else:
+        config["port"] = 53
+
     if "dyndns_domain" in config:
         try:
             validate_dns_name(config["dyndns_domain"])
