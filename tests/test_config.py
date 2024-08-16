@@ -72,39 +72,53 @@ class TestFunctionValidateConfig:
 
     def test_no_nameserver(self) -> None:
         self.assert_raises_msg(
-            {"secret": "12345678"},  # type: ignore
+            {"secret": "12345678", "port": 53},  # type: ignore
             'Your configuration must have a "nameserver" key, '
             'for example: "nameserver: 127.0.0.1"',
         )
 
     def test_invalid_nameserver_ip(self) -> None:
         self.assert_raises_msg(
-            {"secret": "12345678", "nameserver": "test"},  # type: ignore
+            {"secret": "12345678", "nameserver": "test", "port": 53},  # type: ignore
             'The "nameserver" entry in your configuration is not a valid IP '
             'address: "test".',
         )
 
     def test_invalid_dyndns_domain(self) -> None:
         self.assert_raises_msg(
-            {"secret": "12345678", "nameserver": "127.0.0.1", "dyndns_domain": "l o l"},  # type: ignore
+            {
+                "secret": "12345678",
+                "nameserver": "127.0.0.1",
+                "port": 53,
+                "dyndns_domain": "l o l",
+            },  # type: ignore
             'The label "l o l" of the hostname "l o l" is invalid.',
         )
 
     def test_no_zones(self) -> None:
         self.assert_raises_msg(
-            {"secret": "12345678", "nameserver": "127.0.0.1"},  # type: ignore
+            {
+                "secret": "12345678",
+                "nameserver": "127.0.0.1",
+                "port": 53,
+            },  # type: ignore
             'Your configuration must have a "zones" key.',
         )
 
     def test_zones_string(self) -> None:
         self.assert_raises_msg(
-            {"secret": "12345678", "nameserver": "127.0.0.1", "zones": "test"},  # type: ignore
+            {
+                "secret": "12345678",
+                "nameserver": "127.0.0.1",
+                "port": 53,
+                "zones": "test",
+            },  # type: ignore
             'Your "zones" key must contain a list of zones.',
         )
 
     def test_zones_empty_list(self) -> None:
         self.assert_raises_msg(
-            {"secret": "12345678", "nameserver": "127.0.0.1", "zones": []},
+            {"secret": "12345678", "nameserver": "127.0.0.1", "port": 53, "zones": []},
             "You must have at least one zone configured, for example: "
             '"- name: example.com" and "tsig_key: tPyvZA=="',
         )
@@ -119,6 +133,7 @@ class TestFunctionValidateConfig:
         config: Config = {
             "secret": "12345678",
             "nameserver": "127.0.0.1",
+            "port": 53,
             "zones": [{"name": "l o l", "tsig_key": "xxx"}],
         }
         self.assert_raises_msg(
@@ -136,6 +151,7 @@ class TestFunctionValidateConfig:
         config: Config = {
             "secret": "12345678",
             "nameserver": "127.0.0.1",
+            "port": 53,
             "zones": [{"name": "A", "tsig_key": "xxx"}],
         }
         self.assert_raises_msg(

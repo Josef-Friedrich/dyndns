@@ -10,13 +10,6 @@ on:
   workflow_dispatch:
 
 jobs:
-  preconfigure:
-    runs-on: ubuntu-latest
-    steps:
-     - run: sudo netstat -tulpn | grep LISTEN
-     - run: sudo systemctl stop systemd-resolved.service
-     - run: sudo systemctl disable systemd-resolved.service
-     - run: sudo netstat -tulpn | grep LISTEN
 
   tests:
     name: Python ${{ matrix.python-version }}
@@ -29,8 +22,8 @@ jobs:
         # https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#jobsjob_idservicesservice_idimage
         image: ubuntu/bind9
         ports:
-          - 53:53/tcp
-          - 53:53/udp
+          - 55553:53/tcp
+          - 55553:53/udp
         volumes:
           - ../dev-dns-server/etc/named.conf:/etc/bind/named.conf
           - ../dev-dns-server/cache/dyndns1.dev.db:/var/cache/bind/dyndns1.dev.db

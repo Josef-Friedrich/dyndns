@@ -11,8 +11,8 @@ services:
     # https://code.launchpad.net/~ubuntu-docker-images/ubuntu-docker-images/+git/bind9
     image: ubuntu/bind9 # has logs enabled
     ports:
-      - 53:53/tcp
-      - 53:53/udp
+      - 55553:53/tcp
+      - 55553:53/udp
 
     volumes:
       - ./etc/named.conf:/etc/bind/named.conf

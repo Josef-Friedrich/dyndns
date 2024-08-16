@@ -1,6 +1,7 @@
 ---
 secret: 12345678
 nameserver: 127.0.0.1
+port: 55553
 dyndns_domain: dyndns1.dev.
 zones:
   - name: dyndns1.dev.

@@ -90,14 +90,17 @@ class DnsZone:
     _nameserver: str
     """The ip address of the nameserver, for example ``127.0.0.1``."""
 
+    _port: int
+
     _zone: "Zone"
 
     _keyring: dict[dns.name.Name, dns.tsig.Key]
 
     __resolver: dns.resolver.Resolver
 
-    def __init__(self, nameserver: str, zone: "Zone") -> None:
+    def __init__(self, nameserver: str, port: int, zone: "Zone") -> None:
         self._nameserver = nameserver
+        self._port = port
         self._zone = zone
         self._keyring = dns.tsigkeyring.from_text({zone.name: zone.tsig_key})
 
@@ -106,6 +109,7 @@ class DnsZone:
         if not hasattr(self, "__resolver"):
             self.__resolver = dns.resolver.Resolver()
             self.__resolver.nameservers = [self._nameserver]
+            self.__resolver.port = self._port
         return self.__resolver
 
     def _create_update_message(self) -> dns.update.UpdateMessage:
@@ -119,7 +123,9 @@ class DnsZone:
         """Catch some errors and convert this errors to dyndns specific
         errors."""
         try:
-            return dns.query.tcp(message, where=self._nameserver, timeout=5)
+            return dns.query.tcp(
+                message, where=self._nameserver, port=self._port, timeout=5
+            )
         except dns.tsig.PeerBadKey:
             raise DNSServerError(
                 f'The peer "{self._nameserver}" didn\'t know the tsig key '

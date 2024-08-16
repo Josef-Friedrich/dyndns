@@ -33,7 +33,9 @@ class ConfiguredEnvironment:
         self._dns_zones = {}
 
         for zone in self._zones:
-            self._dns_zones[zone.name] = DnsZone(self._config["nameserver"], zone)
+            self._dns_zones[zone.name] = DnsZone(
+                self._config["nameserver"], self._config["port"], zone
+            )
 
     def get_dns_for_zone(self, name: str) -> DnsZone:
         """:param name: A zone name or a fully qualifed domain name."""

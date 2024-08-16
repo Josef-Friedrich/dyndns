@@ -28,17 +28,19 @@ class ZoneConfig(TypedDict):
 class Config(TypedDict):
     secret: str
     """A password-like secret string. The secret string has to
-  be at least 8 characters long and only alphnumeric characters are
-  allowed."""
+    be at least 8 characters long and only alphnumeric characters are
+    allowed."""
 
     nameserver: str
     """The IP address of your nameserver. Version 4 or
-  version 6 are allowed. Use ``127.0.0.1`` to communicate with your
-  nameserver on the same machine."""
+    version 6 are allowed. Use ``127.0.0.1`` to communicate with your
+    nameserver on the same machine."""
+
+    port: int
 
     dyndns_domain: NotRequired[str]
     """The domain through which the ``dyndns`` HTTP API is
-  provided. This key is only used in the usage page and can be omitted."""
+    provided. This key is only used in the usage page and can be omitted."""
 
     zones: list[ZoneConfig]
     """At least one zone specified as a list."""
