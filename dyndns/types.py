@@ -1,13 +1,8 @@
 from __future__ import annotations
 
-import typing
 from typing import Literal
 
 from typing_extensions import NotRequired, TypedDict
-
-if typing.TYPE_CHECKING:
-    from dyndns.log import LogLevel
-
 
 RecordType = Literal["A", "AAAA", "TXT"]
 
@@ -44,10 +39,3 @@ class Config(TypedDict):
 
     zones: list[ZoneConfig]
     """At least one zone specified as a list."""
-
-
-class UpdateRecord(TypedDict):
-    ip_version: IpVersion
-    new_ip: str
-    old_ip: str
-    status: LogLevel

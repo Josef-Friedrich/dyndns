@@ -27,14 +27,6 @@ if typing.TYPE_CHECKING:
     from dyndns.zones import Zone
 
 
-@dataclass
-class DnsChangeMessage:
-    fqdn: str
-    old: str | None
-    new: str | None
-    record_type: RecordType
-
-
 def validate_dns_name(name: str) -> str:
     """
     Validate the given DNS name. A dot is appended to the end of the DNS name
@@ -87,6 +79,18 @@ def validate_tsig_key(tsig_key: str) -> str:
         return tsig_key
     except binascii.Error:
         raise DnsNameError(f'Invalid tsig key: "{tsig_key}".')
+
+
+@dataclass
+class DnsChangeMessage:
+    fqdn: str
+    old: str | None
+    new: str | None
+    record_type: RecordType
+
+    @property
+    def changed(self) -> bool:
+        return self.old != self.new
 
 
 class DnsZone:
