@@ -7,12 +7,12 @@ record and zone names)
 
 from __future__ import annotations
 
-import typing
+from typing import TYPE_CHECKING
 
 from dyndns.dns import validate_dns_name
 from dyndns.exceptions import DnsNameError
 
-if typing.TYPE_CHECKING:
+if TYPE_CHECKING:
     from dyndns.zones import ZonesCollection
 
 

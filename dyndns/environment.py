@@ -2,7 +2,7 @@
 
 import pprint
 from pathlib import Path
-from typing import Any, Generator
+from typing import TYPE_CHECKING, Any, Generator
 
 import flask
 
@@ -15,12 +15,14 @@ from dyndns.exceptions import (
 from dyndns.ipaddresses import IpAddressContainer
 from dyndns.log import LogLevel, logger
 from dyndns.names import FullyQualifiedDomainName
-from dyndns.types import Config
 from dyndns.zones import ZonesCollection
+
+if TYPE_CHECKING:
+    from dyndns.config import Config
 
 
 class ConfiguredEnvironment:
-    _config: Config
+    _config: "Config"
 
     _zones: ZonesCollection
 

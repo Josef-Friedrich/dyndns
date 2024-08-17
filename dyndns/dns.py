@@ -4,9 +4,8 @@ import binascii
 import random
 import re
 import string
-import typing
 from dataclasses import dataclass
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 import dns.exception
 import dns.message
@@ -23,7 +22,7 @@ from dyndns.exceptions import CheckError, DnsNameError, DNSServerError
 from dyndns.log import LogLevel, logger
 from dyndns.types import RecordType
 
-if typing.TYPE_CHECKING:
+if TYPE_CHECKING:
     from dyndns.zones import Zone
 
 

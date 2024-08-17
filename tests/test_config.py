@@ -4,9 +4,8 @@ from unittest import mock
 
 import pytest
 
-from dyndns.config import load_config, validate_config, validate_secret
+from dyndns.config import Config, load_config, validate_config, validate_secret
 from dyndns.exceptions import ConfigurationError
-from dyndns.types import Config
 from tests._helper import config_file, files_dir
 
 

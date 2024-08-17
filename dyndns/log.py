@@ -3,12 +3,10 @@
 from __future__ import annotations
 
 import logging
-import typing
 from enum import Enum
+from typing import TYPE_CHECKING, TypedDict
 
-from typing_extensions import TypedDict
-
-if typing.TYPE_CHECKING:
+if TYPE_CHECKING:
     from dyndns.dns import DnsChangeMessage
     from dyndns.types import RecordType
 
