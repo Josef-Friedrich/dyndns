@@ -139,6 +139,52 @@ class TestUpdateByQuery:
             == "PARAMETER_ERROR: extra_forbidden: Extra inputs are not permitted (unknown).\n"
         )
 
+    def test_ipv4_update(self, client: TestClient) -> None:
+        client.add_record("test", "A", "1.2.3.4")
+        assert (
+            client.get(self.url("ipv4=1.2.3.5"))
+            == "UPDATED: test.dyndns1.dev. A 1.2.3.4 -> 1.2.3.5\n"
+            + "UNCHANGED: test.dyndns1.dev. AAAA None\n"
+        )
+        assert client.read_record("test", "A") == "1.2.3.5"
+
+    def test_ipv6_update(self, client: TestClient) -> None:
+        client.add_record("test", "AAAA", "1::2")
+        assert (
+            client.get(self.url("ipv6=1::3"))
+            == "UNCHANGED: test.dyndns1.dev. A None\n"
+            + "UPDATED: test.dyndns1.dev. AAAA 1::2 -> 1::3\n"
+        )
+        assert client.read_record("test", "AAAA") == "1::3"
+
+    def test_ipv4_ipv6_update(self, client: TestClient) -> None:
+        client.add_record("test", "A", "1.2.3.4")
+        client.add_record("test", "AAAA", "1::2")
+        assert (
+            client.get(self.url("ipv4=1.2.3.5&ipv6=1::3"))
+            == "UPDATED: test.dyndns1.dev. A 1.2.3.4 -> 1.2.3.5\n"
+            + "UPDATED: test.dyndns1.dev. AAAA 1::2 -> 1::3\n"
+        )
+        assert client.read_record("test", "A") == "1.2.3.5"
+        assert client.read_record("test", "AAAA") == "1::3"
+
+    def test_ip_1_ip_2_update(self, client: TestClient) -> None:
+        client.add_record("test", "A", "1.2.3.4")
+        client.add_record("test", "AAAA", "1::2")
+        assert (
+            client.get(self.url("ip_1=1.2.3.5&ip_2=1::3"))
+            == "UPDATED: test.dyndns1.dev. A 1.2.3.4 -> 1.2.3.5\n"
+            + "UPDATED: test.dyndns1.dev. AAAA 1::2 -> 1::3\n"
+        )
+        assert client.read_record("test", "A") == "1.2.3.5"
+        assert client.read_record("test", "AAAA") == "1::3"
+
+    def test_invalid_ipv4(self, client: TestClient) -> None:
+        assert (
+            client.get(self.url("ipv4=1.2.3.4.5"))
+            == "IP_ADDRESS_ERROR: Invalid IP address '1.2.3.4.5'.\n"
+        )
+
 
 class TestUpdateByQueryOld(TestIntegration):
     """Test the path ``update-by-query`` of the Flask web app."""
@@ -149,65 +195,6 @@ class TestUpdateByQueryOld(TestIntegration):
             "/update-by-query?secret=12345678&record_name=www&zone_name="
             f"example.com&{query_string}"
         )
-
-    @pytest.mark.skip
-    def test_unkown_argument(self) -> None:
-        self.get("/update-by-query?unknown=unknown")
-        assert (
-            self.data
-            == "PARAMETER_ERROR: extra_forbidden: Extra inputs are not permitted (unknown).\n"
-        )
-
-    @pytest.mark.skip
-    def test_ipv4_update(self) -> None:
-        side_effect = [["1.2.3.4"], ["1.2.3.5"]]
-        self.get(self.url("ipv4=1.2.3.5"), side_effect)
-
-        self.mock_update.delete.assert_has_calls(
-            [
-                mock.call("www.example.com.", "A"),
-                mock.call("www.example.com.", "AAAA"),
-            ]
-        )
-        self.mock_update.add.assert_called_with("www.example.com.", 300, "A", "1.2.3.5")
-        assert (
-            self.data == "UPDATED: fqdn: www.example.com. old_ip: 1.2.3.4 new_ip: "
-            "1.2.3.5\n"
-        )
-
-    @pytest.mark.skip
-    def test_ipv6_update(self) -> None:
-        side_effect = [["1::2"], ["1::3"]]
-        self.get(self.url("ipv6=1::3"), side_effect)
-        self.mock_update.delete.assert_called_with("www.example.com.", "AAAA")
-        self.mock_update.add.assert_called_with("www.example.com.", 300, "AAAA", "1::3")
-        assert (
-            self.data == "UPDATED: fqdn: www.example.com. old_ip: 1::2 new_ip: 1::3\n"
-        )
-
-    @pytest.mark.skip
-    def test_ipv4_ipv6_update(self) -> None:
-        side_effect = [["1.2.3.4"], ["1.2.3.5"], ["1::2"], ["1::3"]]
-        self.get(self.url("ipv4=1.2.3.5&ipv6=1::3"), side_effect)
-        assert (
-            self.data
-            == "UPDATED: fqdn: www.example.com. old_ip: 1.2.3.4 new_ip: 1.2.3.5\n"
-            "UPDATED: fqdn: www.example.com. old_ip: 1::2 new_ip: 1::3\n"
-        )
-
-    @pytest.mark.skip
-    def test_ip_1_ip_2_update(self) -> None:
-        side_effect = [["1.2.3.4"], ["1.2.3.5"], ["1::2"], ["1::3"]]
-        self.get(self.url("ip_1=1.2.3.5&ip_2=1::3"), side_effect)
-        assert (
-            self.data
-            == "UPDATED: fqdn: www.example.com. old_ip: 1.2.3.4 new_ip: 1.2.3.5\n"
-            "UPDATED: fqdn: www.example.com. old_ip: 1::2 new_ip: 1::3\n"
-        )
-
-    def test_invalid_ipv4(self) -> None:
-        self.get(self.url("ipv4=1.2.3.4.5"))
-        assert self.data == "IP_ADDRESS_ERROR: Invalid IP address '1.2.3.4.5'.\n"
 
     @pytest.mark.skip
     def test_ttl(self) -> None:
