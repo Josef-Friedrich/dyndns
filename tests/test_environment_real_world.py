@@ -8,7 +8,7 @@ class TestClassZone:
         env.delete_dns_record("test.dyndns1.dev")
         assert (
             env.delete_dns_record("test.dyndns1.dev")
-            == 'UNCHANGED: The deletion of the domain name "test.dyndns1.dev." was not executed because there were no A or AAAA records.\n'
+            == "UNCHANGED: The deletion of the domain name 'test.dyndns1.dev.' was not executed because there were no A or AAAA records.\n"
         )
 
     @pytest.mark.skip
@@ -17,7 +17,7 @@ class TestClassZone:
 
         assert (
             env.delete_dns_record("test.dyndns1.dev")
-            == 'UPDATED: The A and AAAA records of the domain name "test.dyndns1.dev." were deleted.\n'
+            == "UPDATED: The A and AAAA records of the domain name 'test.dyndns1.dev.' were deleted.\n"
         )
 
     def test_add(self, env: ConfiguredEnvironment) -> None:

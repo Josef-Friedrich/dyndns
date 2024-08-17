@@ -68,7 +68,7 @@ class ConfiguredEnvironment:
         ip_2: str | None = None,
         ipv4: str | None = None,
         ipv6: str | None = None,
-        ttl: int | None = None,
+        ttl: int = 300,
     ) -> str:
         """
         Update a DNS record.
@@ -112,11 +112,11 @@ class ConfiguredEnvironment:
         if not ip:
             raise DyndnsError("No ip addresses set.")
         if ip.ipv4:
-            results.append(dns.add_record(name.record_name, "A", ip.ipv4))
+            results.append(dns.add_record(name.record_name, "A", ip.ipv4, ttl=ttl))
         else:
             results.append(dns.delete_record(name.record_name, "A"))
         if ip.ipv6:
-            results.append(dns.add_record(name.record_name, "AAAA", ip.ipv6))
+            results.append(dns.add_record(name.record_name, "AAAA", ip.ipv6, ttl=ttl))
         else:
             results.append(dns.delete_record(name.record_name, "AAAA"))
 
@@ -137,10 +137,10 @@ class ConfiguredEnvironment:
         if IS_A or IS_AAAA:
             dns.delete_records(name.record_name)
             return LogLevel.UPDATED.log(
-                f'The A and AAAA records of the domain name "{name.fqdn}" were deleted.'
+                f"The A and AAAA records of the domain name '{name.fqdn}' were deleted."
             )
         return LogLevel.UNCHANGED.log(
-            f'The deletion of the domain name "{name.fqdn}" was not executed because there were no A or AAAA records.'
+            f"The deletion of the domain name '{name.fqdn}' was not executed because there were no A or AAAA records."
         )
 
 

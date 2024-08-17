@@ -23,7 +23,7 @@ class UpdateQueryParams(BaseModel):
     ip_2: Optional[str] = None
     ipv4: Optional[str] = None
     ipv6: Optional[str] = None
-    ttl: Optional[int] = None
+    ttl: int = 300
 
 
 def create_app(env: ConfiguredEnvironment) -> flask.Flask:

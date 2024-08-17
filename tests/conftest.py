@@ -3,6 +3,7 @@ from pathlib import Path
 from typing import Any
 
 import pytest
+from dns.rrset import RRset
 from flask import Flask
 from flask.testing import FlaskClient
 from werkzeug.test import TestResponse
@@ -61,11 +62,16 @@ class TestClient:
     def add_record(self, name: str, record_type: RecordType, content: str) -> None:
         self.dns.add_record(name, record_type, content)
 
-    def delete_record(self, name: str, record_type: RecordType) -> None:
-        self.dns.delete_record(name, record_type)
+    def read_resource_record_set(
+        self, name: str, record_type: RecordType
+    ) -> RRset | None:
+        return self.dns.read_resource_record_set(name, record_type)
 
     def read_record(self, name: str, record_type: RecordType) -> str | None:
         return self.dns.read_record(name, record_type)
+
+    def delete_record(self, name: str, record_type: RecordType) -> None:
+        self.dns.delete_record(name, record_type)
 
 
 @pytest.fixture()

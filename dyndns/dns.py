@@ -142,47 +142,11 @@ class DnsZone:
     def _normalize_name(self, name: str) -> str:
         """
         :param name: A record name (e. g. ``dyndns``) or a fully qualified
-          domain name (e. g. ``dyndns.example.com``).
+            domain name (e. g. ``dyndns.example.com``).
 
         :return: A fully qualified domain name (e. g. ``dyndns.example.com.``).
         """
         return self._zone.get_fqdn(name)
-
-    def _delete_record(
-        self, name: str, record_type: RecordType = "A"
-    ) -> dns.message.Message:
-        """
-        Delete one record or multiple records of a specific record type.
-
-        :param name: A record name (e. g. ``dyndns``) or a fully qualified
-          domain name (e. g. ``dyndns.example.com``).
-        """
-        message: dns.update.UpdateMessage = self._create_update_message()
-        message.delete(self._normalize_name(name), record_type)
-        return self._query(message)
-
-    def delete_record(
-        self, name: str, record_type: RecordType = "A"
-    ) -> DnsChangeMessage:
-        """
-        Delete one record or multiple records of a specific record type.
-
-        :param name: A record name (e. g. ``dyndns``) or a fully qualified
-          domain name (e. g. ``dyndns.example.com``).
-        """
-        fqdn: str = self._normalize_name(name)
-        old = self.read_record(fqdn, record_type)
-        self._delete_record(fqdn, record_type)
-        return DnsChangeMessage(fqdn=fqdn, old=old, new=None, record_type=record_type)
-
-    def delete_records(self, name: str) -> None:
-        """Delete all A and the AAAA records.
-
-        :param name: A record name (e. g. ``dyndns``) or a fully qualified
-          domain name (e. g. ``dyndns.example.com``).
-        """
-        self._delete_record(name, "A")
-        self._delete_record(name, "AAAA")
 
     def add_record(
         self, name: str, record_type: RecordType, content: str, ttl: int = 300
@@ -192,7 +156,9 @@ class DnsZone:
         type are deleted before a new record is added.
 
         :param name: A record name (e. g. ``dyndns``) or a fully qualified
-          domain name (e. g. ``dyndns.example.com``).
+            domain name (e. g. ``dyndns.example.com``).
+        :param record_type: The type of the resource record. ``dyndns``
+            supports only ``A``, ``AAAA`` and ``TXT`` record types.
         """
         fqdn = self._normalize_name(name)
         old = self.read_record(fqdn, record_type)
@@ -203,20 +169,34 @@ class DnsZone:
         new = self.read_record(fqdn, record_type)
         return DnsChangeMessage(fqdn=fqdn, old=old, new=new, record_type=record_type)
 
+    def read_resource_record_set(
+        self, name: str, record_type: RecordType
+    ) -> dns.rrset.RRset | None:
+        """
+        :param name: A record name (e. g. ``dyndns``) or a fully qualified
+            domain name (e. g. ``dyndns.example.com``).
+        :param record_type: The type of the resource record. ``dyndns``
+            supports only ``A``, ``AAAA`` and ``TXT`` record types.
+        """
+        result: dns.resolver.Answer = self._resolver.resolve(
+            self._normalize_name(name), record_type
+        )
+        return result.rrset
+
     def read_record(self, name: str, record_type: RecordType) -> str | None:
         """
         Read one record.
 
         :param name: A record name (e. g. ``dyndns``) or a fully qualified
-          domain name (e. g. ``dyndns.example.com``).
+            domain name (e. g. ``dyndns.example.com``).
+        :param record_type: The type of the resource record. ``dyndns``
+            supports only ``A``, ``AAAA`` and ``TXT`` record types.
         """
         try:
-            result: Any = self._resolver.resolve(
-                self._normalize_name(name), record_type
-            )
+            result: Any = self.read_resource_record_set(name, record_type)
             if result and len(result) > 0:
                 if record_type == "TXT":
-                    element = result.rrset.pop()
+                    element = result.pop()
                     return element.strings[0].decode()
                 else:
                     return str(result[0])
@@ -229,7 +209,7 @@ class DnsZone:
         Read an IPv4 address record.
 
         :param name: A record name (e. g. ``dyndns``) or a fully qualified
-          domain name (e. g. ``dyndns.example.com``).
+            domain name (e. g. ``dyndns.example.com``).
 
         :return: An IPv4 address.
         """
@@ -240,7 +220,7 @@ class DnsZone:
         Read an IPv6 address record.
 
         :param name: A record name (e. g. ``dyndns``) or a fully qualified
-          domain name (e. g. ``dyndns.example.com``).
+            domain name (e. g. ``dyndns.example.com``).
 
         :return: An IPv6 address.
         """
@@ -251,7 +231,7 @@ class DnsZone:
         Return ``True`` if the specified name has an A record (IPv4).
 
         :param name: A record name (e. g. ``dyndns``) or a fully qualified
-          domain name (e. g. ``dyndns.example.com``).
+            domain name (e. g. ``dyndns.example.com``).
 
         :return: `True`` if the specified name has an A record (IPv4).
         """
@@ -262,11 +242,51 @@ class DnsZone:
         Return ``True`` if the specified name has an AAAA record (IPv6).
 
         :param name: A record name (e. g. ``dyndns``) or a fully qualified
-          domain name (e. g. ``dyndns.example.com``).
+            domain name (e. g. ``dyndns.example.com``).
 
         :return: `True`` if the specified name has an AAAA record (IPv6).
         """
         return self.read_aaaa_record(name) is not None
+
+    def _delete_record(
+        self, name: str, record_type: RecordType = "A"
+    ) -> dns.message.Message:
+        """
+        Delete one record or multiple records of a specific record type.
+
+        :param name: A record name (e. g. ``dyndns``) or a fully qualified
+            domain name (e. g. ``dyndns.example.com``).
+        :param record_type: The type of the resource record. ``dyndns``
+            supports only ``A``, ``AAAA`` and ``TXT`` record types.
+        """
+        message: dns.update.UpdateMessage = self._create_update_message()
+        message.delete(self._normalize_name(name), record_type)
+        return self._query(message)
+
+    def delete_record(
+        self, name: str, record_type: RecordType = "A"
+    ) -> DnsChangeMessage:
+        """
+        Delete one record or multiple records of a specific record type.
+
+        :param name: A record name (e. g. ``dyndns``) or a fully qualified
+            domain name (e. g. ``dyndns.example.com``).
+        :param record_type: The type of the resource record. ``dyndns``
+            supports only ``A``, ``AAAA`` and ``TXT`` record types.
+        """
+        fqdn: str = self._normalize_name(name)
+        old = self.read_record(fqdn, record_type)
+        self._delete_record(fqdn, record_type)
+        return DnsChangeMessage(fqdn=fqdn, old=old, new=None, record_type=record_type)
+
+    def delete_records(self, name: str) -> None:
+        """Delete all A and the AAAA records.
+
+        :param name: A record name (e. g. ``dyndns``) or a fully qualified
+            domain name (e. g. ``dyndns.example.com``).
+        """
+        self._delete_record(name, "A")
+        self._delete_record(name, "AAAA")
 
     def check(self) -> str:
         """Check the functionality of the DNS server by creating a temporary text record."""

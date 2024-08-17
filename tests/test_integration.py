@@ -1,59 +1,4 @@
-import os
-from typing import Any
-from unittest import mock
-
-import pytest
-from flask.testing import FlaskClient
-from werkzeug.test import TestResponse
-
-from dyndns.environment import ConfiguredEnvironment
-from dyndns.webapp import create_app
-from tests import _helper
 from tests.conftest import TestClient
-
-
-class TestIntegration:
-    app: FlaskClient
-
-    mock_tcp: mock.Mock
-    """Mocks ``dns.query.tcp``."""
-
-    mock_Update: mock.Mock
-    """Mocks ``dns.update.Update``."""
-
-    mock_Resolver: mock.Mock
-    """Mocks ``dns.resolver.Resolver``."""
-
-    mock_resolver: mock.Mock
-    """Mocks ``resolver = Resolver()``."""
-
-    response: TestResponse
-
-    data: str
-    """``response.data.decode("utf-8")``"""
-
-    mock_update: mock.Mock
-
-    def setup_method(self) -> None:
-        os.environ["dyndns_CONFIG_FILE"] = _helper.config_file
-        app = create_app(ConfiguredEnvironment())
-        app.config["TESTING"] = True
-        self.app = app.test_client()
-
-    def get(self, path: str, side_effect: Any = None) -> TestResponse:
-        with mock.patch("dns.query.tcp") as tcp, mock.patch(
-            "dns.update.Update"
-        ) as Update, mock.patch("dns.resolver.Resolver") as Resolver:
-            self.mock_tcp = tcp
-            self.mock_Update = Update
-            self.mock_Resolver = Resolver
-            self.mock_resolver = self.mock_Resolver.return_value
-            if side_effect:
-                self.mock_resolver.resolve.side_effect = side_effect
-            self.response = self.app.get(path)
-            self.data = self.response.data.decode("utf-8")
-            self.mock_update = Update.return_value
-            return self.response
 
 
 class TestUpdateByPath:
@@ -185,41 +130,23 @@ class TestUpdateByQuery:
             == "IP_ADDRESS_ERROR: Invalid IP address '1.2.3.4.5'.\n"
         )
 
-
-class TestUpdateByQueryOld(TestIntegration):
-    """Test the path ``update-by-query`` of the Flask web app."""
-
-    @staticmethod
-    def url(query_string: str) -> str:
-        return (
-            "/update-by-query?secret=12345678&record_name=www&zone_name="
-            f"example.com&{query_string}"
-        )
-
-    @pytest.mark.skip
-    def test_ttl(self) -> None:
-        side_effect = [["1.2.3.4"], ["1.2.3.5"]]
-        self.get(self.url("ipv4=1.2.3.5&ttl=123"), side_effect)
-        self.mock_update.add.assert_called_with("www.example.com.", 123, "A", "1.2.3.5")
+    def test_ttl(self, client: TestClient) -> None:
+        client.delete_record("test", "A")
+        client.get(self.url("ipv4=1.2.3.5&ttl=123"))
+        rrset = client.read_resource_record_set("test", "A")
+        assert rrset
+        assert rrset.ttl == 123
 
 
-class TestDeleteByPath(TestIntegration):
-    @staticmethod
-    def _url(fqdn: str) -> str:
-        return f"/delete-by-path/12345678/{fqdn}"
-
-    @pytest.mark.skip
-    def test_deletion(self) -> None:
-        self.get(self._url("www.example.com"))
-
-        self.mock_update.delete.assert_has_calls(
-            [
-                mock.call("www.example.com.", "A"),
-                mock.call("www.example.com.", "AAAA"),
-            ]
-        )
-        self.mock_update.add.assert_not_called()
-        assert self.data == 'UPDATED: Deleted "www.example.com.".\n'
+def test_delete_by_path(client: TestClient) -> None:
+    client.add_record("test", "A", "1.2.3.4")
+    client.add_record("test", "AAAA", "1::2")
+    assert (
+        client.get("/delete-by-path/12345678/test.dyndns1.dev.")
+        == "UPDATED: The A and AAAA records of the domain name 'test.dyndns1.dev.' were deleted.\n"
+    )
+    assert client.read_record("test", "A") is None
+    assert client.read_record("test", "AAAA") is None
 
 
 class TestMultiplePaths:
