@@ -121,11 +121,30 @@ class TestUpdateByPath:
         )
 
 
-class TestUpdateByQuery(TestIntegration):
+class TestUpdateByQuery:
     """Test the path ``update-by-query`` of the Flask web app."""
 
     @staticmethod
-    def _url(query_string: str) -> str:
+    def url(query_string: str) -> str:
+        return (
+            "/update-by-query?secret=12345678&record_name=test&zone_name="
+            f"dyndns1.dev&{query_string}"
+        )
+
+    def test_unkown_argument(self, client: TestClient) -> None:
+        response = client.get_response(self.url("unknown=unknown"))
+        assert response.status_code == 456
+        assert (
+            response.data.decode()
+            == "PARAMETER_ERROR: extra_forbidden: Extra inputs are not permitted (unknown).\n"
+        )
+
+
+class TestUpdateByQueryOld(TestIntegration):
+    """Test the path ``update-by-query`` of the Flask web app."""
+
+    @staticmethod
+    def url(query_string: str) -> str:
         return (
             "/update-by-query?secret=12345678&record_name=www&zone_name="
             f"example.com&{query_string}"
@@ -135,13 +154,14 @@ class TestUpdateByQuery(TestIntegration):
     def test_unkown_argument(self) -> None:
         self.get("/update-by-query?unknown=unknown")
         assert (
-            self.data == 'PARAMETER_ERROR: Unknown query string argument: "unknown"\n'
+            self.data
+            == "PARAMETER_ERROR: extra_forbidden: Extra inputs are not permitted (unknown).\n"
         )
 
     @pytest.mark.skip
     def test_ipv4_update(self) -> None:
         side_effect = [["1.2.3.4"], ["1.2.3.5"]]
-        self.get(self._url("ipv4=1.2.3.5"), side_effect)
+        self.get(self.url("ipv4=1.2.3.5"), side_effect)
 
         self.mock_update.delete.assert_has_calls(
             [
@@ -158,7 +178,7 @@ class TestUpdateByQuery(TestIntegration):
     @pytest.mark.skip
     def test_ipv6_update(self) -> None:
         side_effect = [["1::2"], ["1::3"]]
-        self.get(self._url("ipv6=1::3"), side_effect)
+        self.get(self.url("ipv6=1::3"), side_effect)
         self.mock_update.delete.assert_called_with("www.example.com.", "AAAA")
         self.mock_update.add.assert_called_with("www.example.com.", 300, "AAAA", "1::3")
         assert (
@@ -168,7 +188,7 @@ class TestUpdateByQuery(TestIntegration):
     @pytest.mark.skip
     def test_ipv4_ipv6_update(self) -> None:
         side_effect = [["1.2.3.4"], ["1.2.3.5"], ["1::2"], ["1::3"]]
-        self.get(self._url("ipv4=1.2.3.5&ipv6=1::3"), side_effect)
+        self.get(self.url("ipv4=1.2.3.5&ipv6=1::3"), side_effect)
         assert (
             self.data
             == "UPDATED: fqdn: www.example.com. old_ip: 1.2.3.4 new_ip: 1.2.3.5\n"
@@ -178,7 +198,7 @@ class TestUpdateByQuery(TestIntegration):
     @pytest.mark.skip
     def test_ip_1_ip_2_update(self) -> None:
         side_effect = [["1.2.3.4"], ["1.2.3.5"], ["1::2"], ["1::3"]]
-        self.get(self._url("ip_1=1.2.3.5&ip_2=1::3"), side_effect)
+        self.get(self.url("ip_1=1.2.3.5&ip_2=1::3"), side_effect)
         assert (
             self.data
             == "UPDATED: fqdn: www.example.com. old_ip: 1.2.3.4 new_ip: 1.2.3.5\n"
@@ -186,13 +206,13 @@ class TestUpdateByQuery(TestIntegration):
         )
 
     def test_invalid_ipv4(self) -> None:
-        self.get(self._url("ipv4=1.2.3.4.5"))
+        self.get(self.url("ipv4=1.2.3.4.5"))
         assert self.data == "IP_ADDRESS_ERROR: Invalid IP address '1.2.3.4.5'.\n"
 
     @pytest.mark.skip
     def test_ttl(self) -> None:
         side_effect = [["1.2.3.4"], ["1.2.3.5"]]
-        self.get(self._url("ipv4=1.2.3.5&ttl=123"), side_effect)
+        self.get(self.url("ipv4=1.2.3.5&ttl=123"), side_effect)
         self.mock_update.add.assert_called_with("www.example.com.", 123, "A", "1.2.3.5")
 
 

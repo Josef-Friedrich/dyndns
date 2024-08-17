@@ -6,12 +6,15 @@ import logging
 from typing import Any, Optional
 
 import flask
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict, ValidationError
+from pydantic_core import ErrorDetails
 
 from dyndns.environment import ConfiguredEnvironment
+from dyndns.exceptions import ParameterError
 
 
 class UpdateQueryParams(BaseModel):
+    model_config = ConfigDict(extra="forbid")
     secret: str
     fqdn: Optional[str] = None
     zone_name: Optional[str] = None
@@ -68,7 +71,13 @@ def create_app(env: ConfiguredEnvironment) -> flask.Flask:
     def update_by_query_string() -> str:
         args: Any = flask.request.args.to_dict()
 
-        params = UpdateQueryParams(**args)
+        try:
+            params = UpdateQueryParams(**args)
+        except ValidationError as e:
+            error: ErrorDetails = e.errors(include_url=False)[0]
+            raise ParameterError(
+                "{}: {} ({}).".format(error["type"], error["msg"], error["input"])
+            )
 
         env.authenticate(params.secret)
         return env.update_dns_record(
