@@ -9,6 +9,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Any, TypedDict
 
 import yaml
+from pydantic import BaseModel, ConfigDict
 from typing_extensions import NotRequired
 
 from dyndns.exceptions import ConfigurationError, DnsNameError, IpAddressesError
@@ -20,11 +21,30 @@ if TYPE_CHECKING:
     from dyndns.zones import ZoneConfig
 
 
+class ConfigNg(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    secret: str
+    """A password-like secret string. The secret string must be at least
+    8 characters long and only alphanumeric characters are permitted."""
+
+    nameserver: str
+    """The IP address of your nameserver. Version 4 or
+    version 6 are allowed. Use ``127.0.0.1`` to communicate with your
+    nameserver on the same machine."""
+
+    port: int
+    """The port to which the DNS server listens. If the DNS server listens to
+    port 53 by default, the value does not need to be specified."""
+
+    zones: list["ZoneConfig"]
+    """At least one zone specified as a list."""
+
+
 class Config(TypedDict):
     secret: str
-    """A password-like secret string. The secret string has to
-    be at least 8 characters long and only alphnumeric characters are
-    allowed."""
+    """A password-like secret string. The secret string must be at least
+    8 characters long and only alphanumeric characters are permitted."""
 
     nameserver: str
     """The IP address of your nameserver. Version 4 or
