@@ -6,6 +6,7 @@ from typing import Any
 from unittest import mock
 
 import pytest
+from dns.name import EmptyLabel, LabelTooLong, NameTooLong
 from pydantic import ValidationError
 
 from dyndns.config import (
@@ -13,6 +14,7 @@ from dyndns.config import (
     ConfigNg,
     load_config,
     validate_config,
+    validate_name,
     validate_secret,
 )
 from dyndns.exceptions import ConfigurationError
@@ -34,6 +36,28 @@ def get_config(**kwargs: Any) -> ConfigNg:
     config_copy = copy.deepcopy(config)
     config_copy.update(kwargs)
     return ConfigNg(**config_copy)
+
+
+class TestValidateName:
+    def test_dot_is_appended(self) -> None:
+        assert validate_name("www.example.com") == "www.example.com."
+
+    def test_numbers(self) -> None:
+        assert validate_name("123.123.123") == "123.123.123."
+
+    def test_spaces(self) -> None:
+        with pytest.raises(EmptyLabel, match="A DNS label is empty."):
+            validate_name("www..com")
+
+    def test_label_to_long(self) -> None:
+        with pytest.raises(LabelTooLong, match="A DNS label is > 63 octets long."):
+            validate_name(
+                "to.looooooooooooooooooooooooooooooooooooooooooooooooooooooooooooong.com"
+            )
+
+    def test_to_long(self) -> None:
+        with pytest.raises(NameTooLong):
+            validate_name("abcdefghij." * 24)
 
 
 class TestConfig:

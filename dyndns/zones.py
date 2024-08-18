@@ -1,25 +1,7 @@
-from typing import Annotated, Iterator, TypedDict
-
-from pydantic import BaseModel, ConfigDict
-from pydantic.functional_validators import AfterValidator
+from typing import Iterator, TypedDict
 
 from dyndns.dns import validate_dns_name, validate_tsig_key
 from dyndns.exceptions import DnsNameError
-
-TsigKey = Annotated[str, AfterValidator(validate_tsig_key)]
-
-
-class ZoneConfigNg(BaseModel):
-    model_config = ConfigDict(extra="forbid")
-
-    name: str
-    """The domain name of the zone, for example
-      ``dyndns.example.com``."""
-
-    tsig_key: TsigKey
-    """The tsig-key. Use the ``hmac-sha512`` algorithm to
-      generate the key:
-      ``tsig-keygen -a hmac-sha512 dyndns.example.com``"""
 
 
 class ZoneConfig(TypedDict):

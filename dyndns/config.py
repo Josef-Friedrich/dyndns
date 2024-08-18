@@ -10,14 +10,16 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Annotated, Any, TypedDict
 
 import yaml
+from dns.name import from_text
 from pydantic import BaseModel, ConfigDict
 from pydantic.functional_validators import AfterValidator
 from typing_extensions import NotRequired
 
+from dyndns.dns import validate_tsig_key
 from dyndns.exceptions import ConfigurationError, DnsNameError, IpAddressesError
 from dyndns.ipaddresses import validate as validate_ip
 from dyndns.names import validate_dns_name
-from dyndns.zones import ZoneConfigNg, ZonesCollection
+from dyndns.zones import ZonesCollection
 
 if TYPE_CHECKING:
     from dyndns.zones import ZoneConfig
@@ -47,6 +49,26 @@ def validate_port(port: int) -> int:
 
 
 Port = Annotated[int, AfterValidator(validate_port)]
+
+
+def validate_name(name: str) -> str:
+    return str(from_text(name))
+
+
+TsigKey = Annotated[str, AfterValidator(validate_tsig_key)]
+
+
+class ZoneConfigNg(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    name: str
+    """The domain name of the zone, for example
+      ``dyndns.example.com``."""
+
+    tsig_key: TsigKey
+    """The tsig-key. Use the ``hmac-sha512`` algorithm to
+      generate the key:
+      ``tsig-keygen -a hmac-sha512 dyndns.example.com``"""
 
 
 class ConfigNg(BaseModel):
