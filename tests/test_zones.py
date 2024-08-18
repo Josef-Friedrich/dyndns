@@ -1,8 +1,8 @@
 import pytest
 
+from dyndns.config import ZoneConfig
 from dyndns.exceptions import DnsNameError
 from dyndns.zones import Zone, ZonesCollection
-from tests._helper import zones
 
 
 @pytest.fixture
@@ -39,46 +39,56 @@ class TestClassZone:
 
 
 class TestClassZonesCollection:
-    def test_init(self) -> None:
-        zone = zones.zones["example.org."]
-        assert zone.name == "example.org."
-        assert zone.tsig_key == "tPyvZA=="
+    def test_init(self, zones: ZonesCollection) -> None:
+        zone = zones.zones["dyndns1.dev."]
+        assert zone.name == "dyndns1.dev."
+        assert (
+            zone.tsig_key
+            == "aaZI/Ssod3/yqhknm85T3IPKScEU4Q/CbQ2J+QQW9IXeLwkLkxFprkYDoHqre4ECqTfgeu/34DCjHJO8peQc/g=="
+        )
 
-    def test_method_get_zone(self) -> None:
-        zone = zones.get_zone("example.org")
-        assert zone.name == "example.org."
-        assert zone.tsig_key == "tPyvZA=="
+    def test_method_get_zone(self, zones: ZonesCollection) -> None:
+        zone = zones.get_zone("dyndns1.dev.")
+        assert zone.name == "dyndns1.dev."
+        assert (
+            zone.tsig_key
+            == "aaZI/Ssod3/yqhknm85T3IPKScEU4Q/CbQ2J+QQW9IXeLwkLkxFprkYDoHqre4ECqTfgeu/34DCjHJO8peQc/g=="
+        )
 
-    def test_method_get_zone_raises(self) -> None:
+    def test_method_get_zone_raises(self, zones: ZonesCollection) -> None:
         with pytest.raises(DnsNameError, match='Unknown zone "test.org".'):
             zones.get_zone("test.org")
 
     class TestMethodSplitNames:
-        def test_zone_name_itself_given_without_dot(self) -> None:
-            result = zones.split_fqdn("example.com")
-            assert result == ("", "example.com.")
+        def test_zone_name_itself_given_without_dot(
+            self, zones: ZonesCollection
+        ) -> None:
+            result = zones.split_fqdn("dyndns1.dev")
+            assert result == ("", "dyndns1.dev.")
 
-        def test_zone_name_itself_given_with_dot(self) -> None:
-            result = zones.split_fqdn("example.com.")
-            assert result == ("", "example.com.")
+        def test_zone_name_itself_given_with_dot(self, zones: ZonesCollection) -> None:
+            result = zones.split_fqdn("dyndns1.dev.")
+            assert result == ("", "dyndns1.dev.")
 
-        def test_with_dot(self) -> None:
-            result = zones.split_fqdn("www.example.com")
-            assert result == ("www.", "example.com.")
+        def test_with_dot(self, zones: ZonesCollection) -> None:
+            result = zones.split_fqdn("www.dyndns1.dev.")
+            assert result == ("www.", "dyndns1.dev.")
 
-        def test_with_org(self) -> None:
-            result = zones.split_fqdn("www.example.org")
-            assert result == ("www.", "example.org.")
+        def test_with_second_zone(self, zones: ZonesCollection) -> None:
+            result = zones.split_fqdn("www.dyndns2.dev.")
+            assert result == ("www.", "dyndns2.dev.")
 
-        def test_unkown_zone(self) -> None:
+        def test_unkown_zone(self, zones: ZonesCollection) -> None:
             result = zones.split_fqdn("www.xx.org")
             assert result is None
 
         def test_subzones(self) -> None:
             zones = ZonesCollection(
                 [
-                    {"name": "example.com.", "tsig_key": "tPyvZA=="},
-                    {"name": "dyndns.example.com", "tsig_key": "tPyvZA=="},
+                    ZoneConfig(**{"name": "example.com.", "tsig_key": "tPyvZA=="}),
+                    ZoneConfig(
+                        **{"name": "dyndns.example.com", "tsig_key": "tPyvZA=="}
+                    ),
                 ]
             )
             result = zones.split_fqdn("test.dyndns.example.com")

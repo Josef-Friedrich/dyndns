@@ -8,10 +8,13 @@ from flask import Flask
 from flask.testing import FlaskClient
 from werkzeug.test import TestResponse
 
+from dyndns.config import Config
 from dyndns.dns import DnsZone
 from dyndns.environment import ConfiguredEnvironment
+from dyndns.names import FullyQualifiedDomainName
 from dyndns.types import RecordType
 from dyndns.webapp import create_app
+from dyndns.zones import Zone, ZonesCollection
 
 
 @pytest.fixture
@@ -20,8 +23,28 @@ def env() -> ConfiguredEnvironment:
 
 
 @pytest.fixture
+def config(env: ConfiguredEnvironment) -> Config:
+    return env.config
+
+
+@pytest.fixture
+def zones(env: ConfiguredEnvironment) -> ZonesCollection:
+    return env.zones
+
+
+@pytest.fixture
+def zone(zones: ZonesCollection) -> Zone:
+    return zones.get_zone("dyndns1.dev")
+
+
+@pytest.fixture
 def dns(env: ConfiguredEnvironment) -> DnsZone:
     return env.get_dns_for_zone("dyndns1.dev")
+
+
+@pytest.fixture
+def fqdn(zones: ZonesCollection) -> FullyQualifiedDomainName:
+    return FullyQualifiedDomainName(zones=zones, fqdn="test.dyndns1.dev")
 
 
 @pytest.fixture()

@@ -1,18 +1,7 @@
-from typing import Iterator, TypedDict
+from typing import Iterator
 
-from dyndns.config import validate_name, validate_tsig_key
+from dyndns.config import ZoneConfig, validate_name, validate_tsig_key
 from dyndns.exceptions import DnsNameError
-
-
-class ZoneConfig(TypedDict):
-    name: str
-    """The domain name of the zone, for example
-      ``dyndns.example.com``."""
-
-    tsig_key: str
-    """The tsig-key. Use the ``hmac-sha512`` algorithm to
-      generate the key:
-      ``tsig-keygen -a hmac-sha512 dyndns.example.com``"""
 
 
 class Zone:
@@ -79,7 +68,7 @@ class ZonesCollection:
     def __init__(self, zones_config: list[ZoneConfig]) -> None:
         self.zones = {}
         for zone_config in zones_config:
-            zone = Zone(name=zone_config["name"], tsig_key=zone_config["tsig_key"])
+            zone = Zone(name=zone_config.name, tsig_key=zone_config.tsig_key)
             self.zones[zone.name] = zone
         self._iter_index = 0
         self._zone_keys = list(self.zones.keys())

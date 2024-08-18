@@ -8,7 +8,7 @@ import os
 import re
 from io import TextIOWrapper
 from pathlib import Path
-from typing import TYPE_CHECKING, Annotated, Any, TypedDict
+from typing import Annotated, Any
 
 import dns
 import dns.name
@@ -17,7 +17,6 @@ import yaml
 from dns.name import from_text as create_name_from_text
 from pydantic import BaseModel, ConfigDict
 from pydantic.functional_validators import AfterValidator
-from typing_extensions import NotRequired
 
 from dyndns.exceptions import ConfigurationError, DnsNameError, IpAddressesError
 from dyndns.types import IpVersion
@@ -41,10 +40,6 @@ def check_ip_address(address: str) -> str:
 
 
 IpAddress = Annotated[str, AfterValidator(check_ip_address)]
-
-
-if TYPE_CHECKING:
-    from dyndns.zones import ZoneConfig
 
 
 def validate_secret(secret: str) -> str:
@@ -131,7 +126,7 @@ def validate_tsig_key(tsig_key: str) -> str:
 TsigKey = Annotated[str, AfterValidator(validate_tsig_key)]
 
 
-class ZoneConfigNg(BaseModel):
+class ZoneConfig(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     name: Name
@@ -144,7 +139,7 @@ class ZoneConfigNg(BaseModel):
       ``tsig-keygen -a hmac-sha512 dyndns.example.com``"""
 
 
-class ConfigNg(BaseModel):
+class Config(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     secret: Secret
@@ -159,26 +154,6 @@ class ConfigNg(BaseModel):
     port: Port = 53
     """The port to which the DNS server listens. If the DNS server listens to
     port 53 by default, the value does not need to be specified."""
-
-    zones: list["ZoneConfigNg"]
-    """At least one zone specified as a list."""
-
-
-class Config(TypedDict):
-    secret: str
-    """A password-like secret string. The secret string must be at least
-    8 characters long and only alphanumeric characters are permitted."""
-
-    nameserver: str
-    """The IP address of your nameserver. Version 4 or
-    version 6 are allowed. Use ``127.0.0.1`` to communicate with your
-    nameserver on the same machine."""
-
-    port: int
-
-    dyndns_domain: NotRequired[str]
-    """The domain through which the ``dyndns`` HTTP API is
-    provided. This key is only used in the usage page and can be omitted."""
 
     zones: list["ZoneConfig"]
     """At least one zone specified as a list."""
@@ -202,100 +177,15 @@ def load_config(config_file: str | Path | None = None) -> Config:
     config_files.append(os.path.join(os.getcwd(), ".dyndns.yml"))
     config_files.append("/etc/dyndns.yml")
 
-    for _config_file in config_files:
-        if os.path.exists(_config_file):
-            config_file = _config_file
+    for path in config_files:
+        if os.path.exists(path):
+            config_file = path
             break
 
     if not config_file:
         raise ConfigurationError("The configuration file could not be found.")
 
     stream: TextIOWrapper = open(config_file, "r")
-    config: Config = yaml.safe_load(stream)
+    config_raw = yaml.safe_load(stream)
     stream.close()
-    return config
-
-
-def validate_config(config: Any = None) -> Config:
-    if not config:
-        try:
-            config = load_config()
-        except IOError:
-            raise ConfigurationError("The configuration file could not be found.")
-        except yaml.error.YAMLError:
-            raise ConfigurationError(
-                "The configuration file is in a invalid YAML format."
-            )
-
-    if not config:
-        raise ConfigurationError("The configuration file could not be " "found.")
-
-    if "secret" not in config:
-        raise ConfigurationError(
-            'Your configuration must have a "secret" '
-            'key, for example: "secret: VDEdxeTKH"'
-        )
-
-    config["secret"] = validate_secret(config["secret"])
-
-    if "nameserver" not in config:
-        raise ConfigurationError(
-            'Your configuration must have a "nameserver" '
-            'key, for example: "nameserver: 127.0.0.1"'
-        )
-
-    try:
-        validate_ip(config["nameserver"])
-    except IpAddressesError:
-        msg: str = (
-            'The "nameserver" entry in your configuration is not a valid '
-            f'IP address: "{config["nameserver"]}".'
-        )
-        raise ConfigurationError(msg)
-
-    if "port" in config:
-        if not isinstance(config["port"], int):
-            raise ConfigurationError("Port has to be an int.")
-    else:
-        config["port"] = 53
-
-    if "dyndns_domain" in config:
-        try:
-            validate_name(config["dyndns_domain"])
-        except DnsNameError as error:
-            raise ConfigurationError(str(error))
-
-    if "zones" not in config:
-        raise ConfigurationError('Your configuration must have a "zones" key.')
-
-    if not isinstance(config["zones"], (list,)):
-        raise ConfigurationError('Your "zones" key must contain a list of ' "zones.")
-
-    if not config["zones"]:
-        raise ConfigurationError(
-            "You must have at least one zone configured, "
-            'for example: "- name: example.com" and '
-            '"tsig_key: tPyvZA=="'
-        )
-
-    for zone in config["zones"]:
-        if "name" not in zone:
-            raise ConfigurationError(
-                "Your zone dictionary must contain a key " '"name"'
-            )
-
-        if "tsig_key" not in zone:
-            raise ConfigurationError(
-                "Your zone dictionary must contain a key " '"tsig_key"'
-            )
-
-    try:
-        config["zones"] = config["zones"]
-    except DnsNameError as error:
-        raise ConfigurationError(str(error))
-
-    return config
-
-
-def get_config(config_file: str | None = None) -> Config:
-    return validate_config(load_config(config_file))
+    return Config(**config_raw)

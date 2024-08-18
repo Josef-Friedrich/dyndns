@@ -22,26 +22,26 @@ if TYPE_CHECKING:
 
 
 class ConfiguredEnvironment:
-    _config: "Config"
+    config: "Config"
 
-    _zones: ZonesCollection
+    zones: ZonesCollection
 
     _dns_zones: dict[str, DnsZone]
 
     def __init__(self, config_file: str | Path | None = None) -> None:
-        self._config = load_config(config_file)
-        self._zones = ZonesCollection(self._config["zones"])
+        self.config = load_config(config_file)
+        self.zones = ZonesCollection(self.config.zones)
 
         self._dns_zones = {}
 
-        for zone in self._zones:
+        for zone in self.zones:
             self._dns_zones[zone.name] = DnsZone(
-                self._config["nameserver"], self._config["port"], zone
+                str(self.config.nameserver), self.config.port, zone
             )
 
     def get_dns_for_zone(self, name: str) -> DnsZone:
         """:param name: A zone name or a fully qualifed domain name."""
-        return self._dns_zones[self._zones.get_zone(name).name]
+        return self._dns_zones[self.zones.get_zone(name).name]
 
     @property
     def dns_zones(self) -> Generator[DnsZone, Any, Any]:
@@ -49,7 +49,7 @@ class ConfiguredEnvironment:
             yield dns_zone
 
     def print_config(self) -> None:
-        pprint.pprint(self._config, indent=2)
+        pprint.pprint(self.config, indent=2)
 
     def check(self) -> str:
         outputs: list[str] = []
@@ -58,7 +58,7 @@ class ConfiguredEnvironment:
         return "\n".join(outputs)
 
     def authenticate(self, secret: Any) -> None:
-        if str(secret) != str(self._config["secret"]):
+        if str(secret) != str(self.config.secret):
             raise ParameterError("You specified a wrong secret key.")
 
     def update_dns_record(
@@ -95,7 +95,7 @@ class ConfiguredEnvironment:
         :return: A log message.
         """
         name = FullyQualifiedDomainName(
-            self._zones,
+            self.zones,
             fqdn=fqdn,
             zone_name=zone_name,
             record_name=record_name,
@@ -132,7 +132,7 @@ class ConfiguredEnvironment:
         """
         :return: A log message.
         """
-        name = FullyQualifiedDomainName(self._zones, fqdn=fqdn)
+        name = FullyQualifiedDomainName(self.zones, fqdn=fqdn)
         dns: DnsZone = self.get_dns_for_zone(name.zone_name)
         IS_A: bool = dns.is_a_record(name.record_name)
         IS_AAAA: bool = dns.is_aaaa_record(name.record_name)

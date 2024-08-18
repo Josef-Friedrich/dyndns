@@ -2,8 +2,6 @@ import os
 import socket
 from pathlib import Path
 
-from dyndns.zones import ZonesCollection
-
 
 def check_internet_connectifity(
     host: str = "8.8.8.8", port: int = 53, timeout: int = 3
@@ -31,10 +29,3 @@ IS_REAL_WORLD: bool = Path("/etc/dyndns.yml").exists()
 
 NOT_REAL_WORLD: bool = not IS_REAL_WORLD
 """True if a real DNS server is not configured."""
-
-zones = ZonesCollection(
-    [
-        {"name": "example.com.", "tsig_key": "tPyvZA=="},
-        {"name": "example.org", "tsig_key": "tPyvZA=="},
-    ]
-)
