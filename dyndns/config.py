@@ -7,10 +7,11 @@ import os
 import re
 from io import TextIOWrapper
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, TypedDict
+from typing import TYPE_CHECKING, Annotated, Any, TypedDict
 
 import yaml
 from pydantic import BaseModel, ConfigDict
+from pydantic.functional_validators import AfterValidator
 from typing_extensions import NotRequired
 
 from dyndns.exceptions import ConfigurationError, DnsNameError, IpAddressesError
@@ -22,10 +23,36 @@ if TYPE_CHECKING:
     from dyndns.zones import ZoneConfig
 
 
+def validate_secret(secret: str) -> str:
+    assert (
+        len(secret) >= 8
+    ), f"The secret must be at least 8 characters long. Currently the string is {len(secret)} characters long."
+
+    non_alphanumeric: str = re.sub(r"[a-zA-Z0-9]", "", secret)
+
+    assert (
+        len(non_alphanumeric) == 0
+    ), f"The secret must not contain any non-alphanumeric characters. These characters are permitted: [a-zA-Z0-9]. The following characters are not alphanumeric '{non_alphanumeric}'."
+    return secret
+
+
+Secret = Annotated[str, AfterValidator(validate_secret)]
+
+
+def validate_port(port: int) -> int:
+    assert (
+        port > -1 and port < 65536
+    ), f"The port number has to be between '0' and '65535', not '{port}'."
+    return port
+
+
+Port = Annotated[int, AfterValidator(validate_port)]
+
+
 class ConfigNg(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
-    secret: str
+    secret: Secret
     """A password-like secret string. The secret string must be at least
     8 characters long and only alphanumeric characters are permitted."""
 
@@ -34,7 +61,7 @@ class ConfigNg(BaseModel):
     version 6 are allowed. Use ``127.0.0.1`` to communicate with your
     nameserver on the same machine."""
 
-    port: int
+    port: Port = 53
     """The port to which the DNS server listens. If the DNS server listens to
     port 53 by default, the value does not need to be specified."""
 
@@ -92,17 +119,6 @@ def load_config(config_file: str | Path | None = None) -> Config:
     config: Config = yaml.safe_load(stream)
     stream.close()
     return config
-
-
-def validate_secret(secret: Any) -> str:
-    secret = str(secret)
-    if re.match("^[a-zA-Z0-9]+$", secret) and len(secret) >= 8:
-        return secret
-    raise ConfigurationError(
-        "The secret must be at least 8 characters "
-        "long and may not contain any "
-        "non-alpha-numeric characters."
-    )
 
 
 def validate_config(config: Any = None) -> Config:

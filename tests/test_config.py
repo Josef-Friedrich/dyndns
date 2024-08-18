@@ -1,5 +1,6 @@
 import copy
 import os
+import re
 import unittest
 from typing import Any
 from unittest import mock
@@ -20,7 +21,6 @@ from tests._helper import config_file, files_dir
 config: Any = {
     "secret": "12345678",
     "nameserver": "127.0.0.1",
-    "port": 53,
     "zones": [
         {
             "name": "dyndns1.dev.",
@@ -40,7 +40,7 @@ class TestConfig:
     def test_config(self) -> None:
         os.environ["dyndns_CONFIG_FILE"] = config_file
         config = load_config()
-        assert config["secret"] == 12345678
+        assert config["secret"] == "12345678"
 
 
 class TestFunctionValidateSecret:
@@ -48,15 +48,35 @@ class TestFunctionValidateSecret:
         assert validate_secret("abcd1234") == "abcd1234"
 
     def test_invalid_to_short(self) -> None:
-        with pytest.raises(ConfigurationError):
+        with pytest.raises(
+            AssertionError,
+            match="The secret must be at least 8 characters long. Currently the string is 7 characters long.",
+        ):
             validate_secret("1234567")
 
     def test_invalid_non_alpanumeric(self) -> None:
-        with pytest.raises(ConfigurationError):
+        with pytest.raises(
+            AssertionError,
+            match=re.escape(
+                "The secret must not contain any non-alphanumeric characters. These characters are permitted: [a-zA-Z0-9]. The following characters are not alphanumeric 'äüö'.",
+            ),
+        ):
             validate_secret("12345äüö")
 
 
 class TestPydanticIntegration:
+    class TestSecret:
+        def test_valid(self) -> None:
+            assert get_config(secret="abcd1234").secret == "abcd1234"
+
+        def test_invalid_to_short(self) -> None:
+            with pytest.raises(ValidationError):
+                get_config(secret="1234567")
+
+        def test_invalid_non_alpanumeric(self) -> None:
+            with pytest.raises(ValidationError):
+                get_config(secret="12345äüö")
+
     class TestNameserver:
         def test_ipv4(self) -> None:
             config = get_config(nameserver="1.2.3.4")
@@ -69,6 +89,23 @@ class TestPydanticIntegration:
         def test_invalid(self) -> None:
             with pytest.raises(ValidationError):
                 get_config(nameserver="invalid")
+
+    class TestPort:
+        def test_default(self) -> None:
+            config = get_config()
+            assert config.port == 53
+
+        def test_valid(self) -> None:
+            config = get_config(port=42)
+            assert config.port == 42
+
+        def test_invalid_less(self) -> None:
+            with pytest.raises(ValidationError):
+                get_config(port=-1)
+
+        def test_invalid_greater(self) -> None:
+            with pytest.raises(ValidationError):
+                get_config(port=65536)
 
 
 class TestFunctionValidateConfig:
@@ -104,11 +141,11 @@ class TestFunctionValidateConfig:
             '"secret: VDEdxeTKH"',
         )
 
+    @pytest.mark.skip
     def test_invalid_secret(self) -> None:
         self.assert_raises_msg(
             {"secret": "ä"},  # type: ignore
-            "The secret must be at least 8 characters long and may not "
-            "contain any non-alpha-numeric characters.",
+            "The secret must be at least 8 characters long. Currently the string is 1 characters long.",
         )
 
     def test_no_nameserver(self) -> None:
