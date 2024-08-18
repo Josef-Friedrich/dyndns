@@ -1,12 +1,39 @@
+import copy
 import os
 import unittest
+from typing import Any
 from unittest import mock
 
 import pytest
+from pydantic import ValidationError
 
-from dyndns.config import Config, load_config, validate_config, validate_secret
+from dyndns.config import (
+    Config,
+    ConfigNg,
+    load_config,
+    validate_config,
+    validate_secret,
+)
 from dyndns.exceptions import ConfigurationError
 from tests._helper import config_file, files_dir
+
+config: Any = {
+    "secret": "12345678",
+    "nameserver": "127.0.0.1",
+    "port": 53,
+    "zones": [
+        {
+            "name": "dyndns1.dev.",
+            "tsig_key": "aaZI/Ssod3/yqhknm85T3IPKScEU4Q/CbQ2J+QQW9IXeLwkLkxFprkYDoHqre4ECqTfgeu/34DCjHJO8peQc/g==",
+        }
+    ],
+}
+
+
+def get_config(**kwargs: Any) -> ConfigNg:
+    config_copy = copy.deepcopy(config)
+    config_copy.update(kwargs)
+    return ConfigNg(**config_copy)
 
 
 class TestConfig:
@@ -27,6 +54,21 @@ class TestFunctionValidateSecret:
     def test_invalid_non_alpanumeric(self) -> None:
         with pytest.raises(ConfigurationError):
             validate_secret("12345äüö")
+
+
+class TestPydanticIntegration:
+    class TestNameserver:
+        def test_ipv4(self) -> None:
+            config = get_config(nameserver="1.2.3.4")
+            assert str(config.nameserver) == "1.2.3.4"
+
+        def test_ipv6(self) -> None:
+            config = get_config(nameserver="1::2")
+            assert str(config.nameserver) == "1::2"
+
+        def test_invalid(self) -> None:
+            with pytest.raises(ValidationError):
+                get_config(nameserver="invalid")
 
 
 class TestFunctionValidateConfig:

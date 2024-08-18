@@ -6,6 +6,8 @@ import ipaddress
 from typing import Any
 
 from flask import Request
+from pydantic.functional_validators import AfterValidator
+from typing_extensions import Annotated
 
 from dyndns.exceptions import IpAddressesError
 from dyndns.types import IpVersion
@@ -25,6 +27,14 @@ def validate(
 
 def format_attr(ip_version: IpVersion) -> str:
     return f"ipv{ip_version}"
+
+
+def check_ip_address(address: str) -> str:
+    ipaddress.ip_address(address)
+    return address
+
+
+IpAddress = Annotated[str, AfterValidator(check_ip_address)]
 
 
 class IpAddressContainer:

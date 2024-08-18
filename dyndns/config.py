@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import ipaddress
 import os
 import re
 from io import TextIOWrapper
@@ -15,7 +16,7 @@ from typing_extensions import NotRequired
 from dyndns.exceptions import ConfigurationError, DnsNameError, IpAddressesError
 from dyndns.ipaddresses import validate as validate_ip
 from dyndns.names import validate_dns_name
-from dyndns.zones import ZonesCollection
+from dyndns.zones import ZoneConfigNg, ZonesCollection
 
 if TYPE_CHECKING:
     from dyndns.zones import ZoneConfig
@@ -28,7 +29,7 @@ class ConfigNg(BaseModel):
     """A password-like secret string. The secret string must be at least
     8 characters long and only alphanumeric characters are permitted."""
 
-    nameserver: str
+    nameserver: ipaddress.IPv4Address | ipaddress.IPv6Address
     """The IP address of your nameserver. Version 4 or
     version 6 are allowed. Use ``127.0.0.1`` to communicate with your
     nameserver on the same machine."""
@@ -37,7 +38,7 @@ class ConfigNg(BaseModel):
     """The port to which the DNS server listens. If the DNS server listens to
     port 53 by default, the value does not need to be specified."""
 
-    zones: list["ZoneConfig"]
+    zones: list["ZoneConfigNg"]
     """At least one zone specified as a list."""
 
 
