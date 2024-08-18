@@ -9,11 +9,17 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+from dns.name import from_text
+
 from dyndns.dns import validate_dns_name
 from dyndns.exceptions import DnsNameError
 
 if TYPE_CHECKING:
     from dyndns.zones import ZonesCollection
+
+
+def validate_name(name: str) -> str:
+    return str(from_text(name))
 
 
 class FullyQualifiedDomainName:

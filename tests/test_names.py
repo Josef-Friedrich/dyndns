@@ -1,7 +1,30 @@
-from dyndns.names import (
-    FullyQualifiedDomainName,
-)
+import pytest
+from dns.name import EmptyLabel, LabelTooLong, NameTooLong
+
+from dyndns.names import FullyQualifiedDomainName, validate_name
 from tests._helper import zones
+
+
+class TestValidateName:
+    def test_dot_is_appended(self) -> None:
+        assert validate_name("www.example.com") == "www.example.com."
+
+    def test_numbers(self) -> None:
+        assert validate_name("123.123.123") == "123.123.123."
+
+    def test_spaces(self) -> None:
+        with pytest.raises(EmptyLabel, match="A DNS label is empty."):
+            validate_name("www..com")
+
+    def test_label_to_long(self) -> None:
+        with pytest.raises(LabelTooLong, match="A DNS label is > 63 octets long."):
+            validate_name(
+                "to.looooooooooooooooooooooooooooooooooooooooooooooooooooooooooooong.com"
+            )
+
+    def test_to_long(self) -> None:
+        with pytest.raises(NameTooLong):
+            validate_name("abcdefghij." * 24)
 
 
 class TestClassFullyQualifiedDomainName:
