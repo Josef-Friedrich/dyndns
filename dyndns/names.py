@@ -9,7 +9,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from dyndns.dns import validate_dns_name
+from dyndns.config import validate_dns_name
 from dyndns.exceptions import DnsNameError
 
 if TYPE_CHECKING:

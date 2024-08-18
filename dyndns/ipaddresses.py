@@ -2,39 +2,15 @@
 
 from __future__ import annotations
 
-import ipaddress
-from typing import Any
-
 from flask import Request
-from pydantic.functional_validators import AfterValidator
-from typing_extensions import Annotated
 
+from dyndns.config import validate_ip
 from dyndns.exceptions import IpAddressesError
 from dyndns.types import IpVersion
 
 
-def validate(
-    address: Any, ip_version: IpVersion | None = None
-) -> tuple[str, IpVersion]:
-    try:
-        address = ipaddress.ip_address(address)
-        if ip_version and ip_version != address.version:
-            raise IpAddressesError(f'IP version "{ip_version}" does not match.')
-        return str(address), address.version
-    except ValueError:
-        raise IpAddressesError(f"Invalid IP address '{address}'.")
-
-
 def format_attr(ip_version: IpVersion) -> str:
     return f"ipv{ip_version}"
-
-
-def check_ip_address(address: str) -> str:
-    ipaddress.ip_address(address)
-    return address
-
-
-IpAddress = Annotated[str, AfterValidator(check_ip_address)]
 
 
 class IpAddressContainer:
@@ -69,11 +45,11 @@ class IpAddressContainer:
 
         self.ipv4 = None
         if ipv4:
-            self.ipv4, _ = validate(ipv4, 4)
+            self.ipv4, _ = validate_ip(ipv4, 4)
 
         self.ipv6 = None
         if ipv6:
-            self.ipv6, _ = validate(ipv6, 6)
+            self.ipv6, _ = validate_ip(ipv6, 6)
 
         if ip_1:
             self._set_ip(ip_1)
@@ -103,7 +79,7 @@ class IpAddressContainer:
         return None
 
     def _set_ip(self, address: str) -> None:
-        ip, ip_version = validate(address)
+        ip, ip_version = validate_ip(address)
         old_ip: str = self._get_ip(ip_version)
         if old_ip:
             msg: str = f'The attribute "{format_attr(ip_version)}" is already set and has the value "{old_ip}".'

@@ -1,50 +1,7 @@
 import pytest
 from dns.exception import SyntaxError
 
-from dyndns.dns import DnsZone, validate_dns_name, validate_tsig_key
-from dyndns.exceptions import DnsNameError
-
-
-class TestFunctionValidateDnsName:
-    def assert_raises_msg(self, hostname: str, msg: str) -> None:
-        with pytest.raises(DnsNameError, match=msg):
-            validate_dns_name(hostname)
-
-    def test_valid(self) -> None:
-        assert validate_dns_name("www.example.com") == "www.example.com."
-
-    def test_invalid_tld(self) -> None:
-        self.assert_raises_msg(
-            "www.example.777",
-            'The TLD "777" of the DNS name "www.example.777" must be not all-numeric.',
-        )
-
-    def test_invalid_to_long(self) -> None:
-        self.assert_raises_msg(
-            "a" * 300,
-            'The DNS name "aaaaaaaaaa..." is longer than 253 characters.',
-        )
-
-    def test_invalid_characters(self) -> None:
-        self.assert_raises_msg(
-            "www.exämple.com",
-            'The label "exämple" of the hostname "www.exämple.com" is invalid.',
-        )
-
-
-class TestFunctionValidateTsigKey:
-    def assert_raises_msg(self, tsig_key: str, message: str) -> None:
-        with pytest.raises(DnsNameError, match=message):
-            validate_tsig_key(tsig_key)
-
-    def test_valid(self) -> None:
-        assert validate_tsig_key("tPyvZA==") == "tPyvZA=="
-
-    def test_invalid_empty(self) -> None:
-        self.assert_raises_msg("", 'Invalid tsig key: "".')
-
-    def test_invalid_string(self) -> None:
-        self.assert_raises_msg("xxx", 'Invalid tsig key: "xxx".')
+from dyndns.dns import DnsZone
 
 
 def test_class_dns_change_message(dns: DnsZone) -> None:

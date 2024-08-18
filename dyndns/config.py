@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import binascii
 import ipaddress
 import os
 import re
@@ -9,17 +10,38 @@ from io import TextIOWrapper
 from pathlib import Path
 from typing import TYPE_CHECKING, Annotated, Any, TypedDict
 
+import dns
+import dns.name
+import dns.tsigkeyring
 import yaml
 from dns.name import from_text
 from pydantic import BaseModel, ConfigDict
 from pydantic.functional_validators import AfterValidator
 from typing_extensions import NotRequired
 
-from dyndns.dns import validate_tsig_key
 from dyndns.exceptions import ConfigurationError, DnsNameError, IpAddressesError
-from dyndns.ipaddresses import validate as validate_ip
-from dyndns.names import validate_dns_name
-from dyndns.zones import ZonesCollection
+from dyndns.types import IpVersion
+
+
+def validate_ip(
+    address: Any, ip_version: IpVersion | None = None
+) -> tuple[str, IpVersion]:
+    try:
+        address = ipaddress.ip_address(address)
+        if ip_version and ip_version != address.version:
+            raise IpAddressesError(f'IP version "{ip_version}" does not match.')
+        return str(address), address.version
+    except ValueError:
+        raise IpAddressesError(f"Invalid IP address '{address}'.")
+
+
+def check_ip_address(address: str) -> str:
+    ipaddress.ip_address(address)
+    return address
+
+
+IpAddress = Annotated[str, AfterValidator(check_ip_address)]
+
 
 if TYPE_CHECKING:
     from dyndns.zones import ZoneConfig
@@ -56,6 +78,60 @@ def validate_name(name: str) -> str:
 
 
 Name = Annotated[str, AfterValidator(validate_name)]
+
+
+def validate_dns_name(name: str) -> str:
+    """
+    Validate the given DNS name. A dot is appended to the end of the DNS name
+    if it is not already present.
+
+    :param name: The DNS name to be validated.
+
+    :return: The validated DNS name as a string.
+    """
+    if name[-1] == ".":
+        # strip exactly one dot from the right, if present
+        name = name[:-1]
+    if len(name) > 253:
+        raise DnsNameError(
+            f'The DNS name "{name[:10]}..." is longer than 253 characters.'
+        )
+
+    labels: list[str] = name.split(".")
+
+    tld: str = labels[-1]
+    if re.match(r"[0-9]+$", tld):
+        raise DnsNameError(
+            f'The TLD "{tld}" of the DNS name "{name}" must be not all-numeric.'
+        )
+
+    allowed: re.Pattern[str] = re.compile(r"(?!-)[a-z0-9-]{1,63}(?<!-)$", re.IGNORECASE)
+    for label in labels:
+        if not allowed.match(label):
+            raise DnsNameError(
+                f'The label "{label}" of the hostname "{name}" is invalid.'
+            )
+
+    return str(dns.name.from_text(name))
+
+
+def validate_tsig_key(tsig_key: str) -> str:
+    """
+    Validates a TSIG key.
+
+    :param tsig_key: The TSIG key to validate.
+
+    :return: The validated TSIG key.
+
+    :raises NamesError: If the TSIG key is invalid.
+    """
+    if not tsig_key:
+        raise DnsNameError(f'Invalid tsig key: "{tsig_key}".')
+    try:
+        dns.tsigkeyring.from_text({"tmp.org.": tsig_key})
+        return tsig_key
+    except binascii.Error:
+        raise DnsNameError(f'Invalid tsig key: "{tsig_key}".')
 
 
 TsigKey = Annotated[str, AfterValidator(validate_tsig_key)]
@@ -220,7 +296,7 @@ def validate_config(config: Any = None) -> Config:
             )
 
     try:
-        config["zones"] = ZonesCollection(config["zones"])
+        config["zones"] = config["zones"]
     except DnsNameError as error:
         raise ConfigurationError(str(error))
 

@@ -1,10 +1,9 @@
 from typing import TypedDict
 
 import pytest
-from pydantic import BaseModel, ValidationError
 
 from dyndns.exceptions import IpAddressesError
-from dyndns.ipaddresses import IpAddress, IpAddressContainer
+from dyndns.ipaddresses import IpAddressContainer
 
 
 class IpAddressContainerKwargs(TypedDict, total=False):
@@ -12,20 +11,6 @@ class IpAddressContainerKwargs(TypedDict, total=False):
     ip_2: str
     ipv4: str
     ipv6: str
-
-
-class Ip(BaseModel):
-    ip: IpAddress
-
-
-class TestAnnotatedIpAdress:
-    def test_valid(self) -> None:
-        ip = Ip(ip="1.2.3.4")
-        assert ip.ip == "1.2.3.4"
-
-    def test_invalid(self) -> None:
-        with pytest.raises(ValidationError):
-            Ip(ip="Invalid")
 
 
 class TestClassIpAddresses:

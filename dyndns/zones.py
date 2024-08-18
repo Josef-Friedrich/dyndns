@@ -1,6 +1,6 @@
 from typing import Iterator, TypedDict
 
-from dyndns.dns import validate_dns_name, validate_tsig_key
+from dyndns.config import validate_dns_name, validate_tsig_key
 from dyndns.exceptions import DnsNameError
 
 

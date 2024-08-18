@@ -1,8 +1,6 @@
 """Query the DSN server using the package “dnspython”."""
 
-import binascii
 import random
-import re
 import string
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Any
@@ -18,66 +16,12 @@ import dns.tsig
 import dns.tsigkeyring
 import dns.update
 
-from dyndns.exceptions import CheckError, DnsNameError, DNSServerError
+from dyndns.exceptions import CheckError, DNSServerError
 from dyndns.log import LogLevel, logger
 from dyndns.types import RecordType
 
 if TYPE_CHECKING:
     from dyndns.zones import Zone
-
-
-def validate_dns_name(name: str) -> str:
-    """
-    Validate the given DNS name. A dot is appended to the end of the DNS name
-    if it is not already present.
-
-    :param name: The DNS name to be validated.
-
-    :return: The validated DNS name as a string.
-    """
-    if name[-1] == ".":
-        # strip exactly one dot from the right, if present
-        name = name[:-1]
-    if len(name) > 253:
-        raise DnsNameError(
-            f'The DNS name "{name[:10]}..." is longer than 253 characters.'
-        )
-
-    labels: list[str] = name.split(".")
-
-    tld: str = labels[-1]
-    if re.match(r"[0-9]+$", tld):
-        raise DnsNameError(
-            f'The TLD "{tld}" of the DNS name "{name}" must be not all-numeric.'
-        )
-
-    allowed: re.Pattern[str] = re.compile(r"(?!-)[a-z0-9-]{1,63}(?<!-)$", re.IGNORECASE)
-    for label in labels:
-        if not allowed.match(label):
-            raise DnsNameError(
-                f'The label "{label}" of the hostname "{name}" is invalid.'
-            )
-
-    return str(dns.name.from_text(name))
-
-
-def validate_tsig_key(tsig_key: str) -> str:
-    """
-    Validates a TSIG key.
-
-    :param tsig_key: The TSIG key to validate.
-
-    :return: The validated TSIG key.
-
-    :raises NamesError: If the TSIG key is invalid.
-    """
-    if not tsig_key:
-        raise DnsNameError(f'Invalid tsig key: "{tsig_key}".')
-    try:
-        dns.tsigkeyring.from_text({"tmp.org.": tsig_key})
-        return tsig_key
-    except binascii.Error:
-        raise DnsNameError(f'Invalid tsig key: "{tsig_key}".')
 
 
 @dataclass
