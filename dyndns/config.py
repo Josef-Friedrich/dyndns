@@ -55,13 +55,16 @@ def validate_name(name: str) -> str:
     return str(from_text(name))
 
 
+Name = Annotated[str, AfterValidator(validate_name)]
+
+
 TsigKey = Annotated[str, AfterValidator(validate_tsig_key)]
 
 
 class ZoneConfigNg(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
-    name: str
+    name: Name
     """The domain name of the zone, for example
       ``dyndns.example.com``."""
 
