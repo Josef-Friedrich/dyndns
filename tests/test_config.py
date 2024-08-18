@@ -15,7 +15,6 @@ from dyndns.config import (
     IpAddress,
     load_config,
     validate_config,
-    validate_dns_name,
     validate_name,
     validate_secret,
     validate_tsig_key,
@@ -60,7 +59,7 @@ class TestValidateName:
         assert validate_name("www.example.com") == "www.example.com."
 
     def test_numbers(self) -> None:
-        assert validate_name("123.123.123") == "123.123.123."
+        assert validate_name("123.123.de") == "123.123.de."
 
     def test_spaces(self) -> None:
         with pytest.raises(EmptyLabel, match="A DNS label is empty."):
@@ -76,32 +75,19 @@ class TestValidateName:
         with pytest.raises(NameTooLong):
             validate_name("abcdefghij." * 24)
 
-
-class TestFunctionValidateDnsName:
-    def assert_raises_msg(self, hostname: str, msg: str) -> None:
-        with pytest.raises(DnsNameError, match=msg):
-            validate_dns_name(hostname)
-
-    def test_valid(self) -> None:
-        assert validate_dns_name("www.example.com") == "www.example.com."
-
     def test_invalid_tld(self) -> None:
-        self.assert_raises_msg(
-            "www.example.777",
-            'The TLD "777" of the DNS name "www.example.777" must be not all-numeric.',
-        )
-
-    def test_invalid_to_long(self) -> None:
-        self.assert_raises_msg(
-            "a" * 300,
-            'The DNS name "aaaaaaaaaa..." is longer than 253 characters.',
-        )
+        with pytest.raises(
+            DnsNameError,
+            match="The TLD '777' of the DNS name 'www.example.777' must be not purely numeric.",
+        ):
+            validate_name("www.example.777")
 
     def test_invalid_characters(self) -> None:
-        self.assert_raises_msg(
-            "www.exämple.com",
-            'The label "exämple" of the hostname "www.exämple.com" is invalid.',
-        )
+        with pytest.raises(
+            DnsNameError,
+            match="The label 'exämple' of the DNS name 'www.exämple.com' is invalid.",
+        ):
+            validate_name("www.exämple.com")
 
 
 class TestFunctionValidateTsigKey:
@@ -253,7 +239,7 @@ class TestFunctionValidateConfig:
                 "port": 53,
                 "dyndns_domain": "l o l",
             },  # type: ignore
-            'The label "l o l" of the hostname "l o l" is invalid.',
+            "The label 'l o l' of the DNS name 'l o l' is invalid.",
         )
 
     def test_no_zones(self) -> None:

@@ -14,7 +14,7 @@ import dns
 import dns.name
 import dns.tsigkeyring
 import yaml
-from dns.name import from_text
+from dns.name import from_text as create_name_from_text
 from pydantic import BaseModel, ConfigDict
 from pydantic.functional_validators import AfterValidator
 from typing_extensions import NotRequired
@@ -74,13 +74,6 @@ Port = Annotated[int, AfterValidator(validate_port)]
 
 
 def validate_name(name: str) -> str:
-    return str(from_text(name))
-
-
-Name = Annotated[str, AfterValidator(validate_name)]
-
-
-def validate_dns_name(name: str) -> str:
     """
     Validate the given DNS name. A dot is appended to the end of the DNS name
     if it is not already present.
@@ -89,30 +82,31 @@ def validate_dns_name(name: str) -> str:
 
     :return: The validated DNS name as a string.
     """
+    dns_name = create_name_from_text(name)
+
     if name[-1] == ".":
         # strip exactly one dot from the right, if present
         name = name[:-1]
-    if len(name) > 253:
-        raise DnsNameError(
-            f'The DNS name "{name[:10]}..." is longer than 253 characters.'
-        )
 
     labels: list[str] = name.split(".")
 
-    tld: str = labels[-1]
-    if re.match(r"[0-9]+$", tld):
+    # https://stackoverflow.com/a/53875771
+    top_level_domain: str = labels[-1]
+    if re.match(r"[0-9]+$", top_level_domain):
         raise DnsNameError(
-            f'The TLD "{tld}" of the DNS name "{name}" must be not all-numeric.'
+            f"The TLD '{top_level_domain}' of the DNS name '{name}' must be not purely numeric."
         )
 
     allowed: re.Pattern[str] = re.compile(r"(?!-)[a-z0-9-]{1,63}(?<!-)$", re.IGNORECASE)
     for label in labels:
         if not allowed.match(label):
             raise DnsNameError(
-                f'The label "{label}" of the hostname "{name}" is invalid.'
+                f"The label '{label}' of the DNS name '{name}' is invalid."
             )
+    return str(dns_name)
 
-    return str(dns.name.from_text(name))
+
+Name = Annotated[str, AfterValidator(validate_name)]
 
 
 def validate_tsig_key(tsig_key: str) -> str:
@@ -267,7 +261,7 @@ def validate_config(config: Any = None) -> Config:
 
     if "dyndns_domain" in config:
         try:
-            validate_dns_name(config["dyndns_domain"])
+            validate_name(config["dyndns_domain"])
         except DnsNameError as error:
             raise ConfigurationError(str(error))
 

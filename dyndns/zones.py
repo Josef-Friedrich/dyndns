@@ -1,6 +1,6 @@
 from typing import Iterator, TypedDict
 
-from dyndns.config import validate_dns_name, validate_tsig_key
+from dyndns.config import validate_name, validate_tsig_key
 from dyndns.exceptions import DnsNameError
 
 
@@ -36,7 +36,7 @@ class Zone:
         :param name: The zone name (e. g. ``example.com.``).
         :param tsig_key: The TSIG (Transaction SIGnature) key (e. g. ``tPyvZA==``).
         """
-        self.name = validate_dns_name(name)
+        self.name = validate_name(name)
         self.tsig_key = validate_tsig_key(tsig_key)
 
     def get_record_name(self, name: str) -> str:
@@ -48,7 +48,7 @@ class Zone:
 
         :return: The record name (e. g. ``dyndns.``).
         """
-        return validate_dns_name(name).replace(self.name, "")
+        return validate_name(name).replace(self.name, "")
 
     def get_fqdn(self, name: str) -> str:
         """
@@ -121,7 +121,7 @@ class ZonesCollection:
 
         :return: A tuple containing two entries: The first is the record name and the second is the zone name.
         """
-        fqdn = validate_dns_name(fqdn)
+        fqdn = validate_name(fqdn)
         # To handle subzones (example.com and dyndns.example.com)
         results: dict[int, tuple[str, str]] = {}
         for _, zone in self.zones.items():
