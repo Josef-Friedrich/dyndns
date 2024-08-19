@@ -26,7 +26,7 @@ RecordType = Literal["A", "AAAA", "TXT"]
 IpVersion = Literal[4, 6]
 
 
-def validate_ip(
+def validate_ip_address_by_version(
     address: Any, ip_version: IpVersion | None = None
 ) -> tuple[str, IpVersion]:
     try:
@@ -38,12 +38,12 @@ def validate_ip(
         raise IpAddressesError(f"Invalid IP address '{address}'.")
 
 
-def check_ip_address(address: str) -> str:
+def validate_ip_address(address: str) -> str:
     ipaddress.ip_address(address)
     return address
 
 
-IpAddress = Annotated[str, AfterValidator(check_ip_address)]
+IpAddress = Annotated[str, AfterValidator(validate_ip_address)]
 
 
 def validate_secret(secret: str) -> str:
@@ -170,7 +170,8 @@ def load_config(config_file: str | Path | None = None) -> Config:
     """
     Load the configuration from the specified file or from the default locations.
 
-    :param config_file: The path to the configuration file. If not provided, the function will search for the configuration file in the default locations.
+    :param config_file: The path to the configuration file. If not provided, the
+        function will search for the configuration file in the default locations.
 
     :return: The loaded configuration as a dictionary.
 

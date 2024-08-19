@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from flask import Request
 
-from dyndns.config import IpVersion, validate_ip
+from dyndns.config import IpVersion, validate_ip_address_by_version
 from dyndns.exceptions import IpAddressesError
 
 
@@ -44,11 +44,11 @@ class IpAddressContainer:
 
         self.ipv4 = None
         if ipv4:
-            self.ipv4, _ = validate_ip(ipv4, 4)
+            self.ipv4, _ = validate_ip_address_by_version(ipv4, 4)
 
         self.ipv6 = None
         if ipv6:
-            self.ipv6, _ = validate_ip(ipv6, 6)
+            self.ipv6, _ = validate_ip_address_by_version(ipv6, 6)
 
         if ip_1:
             self._set_ip(ip_1)
@@ -78,7 +78,7 @@ class IpAddressContainer:
         return None
 
     def _set_ip(self, address: str) -> None:
-        ip, ip_version = validate_ip(address)
+        ip, ip_version = validate_ip_address_by_version(address)
         old_ip: str = self._get_ip(ip_version)
         if old_ip:
             msg: str = f'The attribute "{format_attr(ip_version)}" is already set and has the value "{old_ip}".'
