@@ -1,7 +1,6 @@
 import copy
 import os
 import re
-import unittest
 from typing import Any
 from unittest import mock
 
@@ -34,7 +33,11 @@ config: Any = {
 
 def get_config(**kwargs: Any) -> Config:
     config_copy = copy.deepcopy(config)
-    config_copy.update(kwargs)
+    for key, value in kwargs.items():
+        if value is None:
+            del config_copy[key]
+        else:
+            config_copy[key] = value
     return Config(**config_copy)
 
 
@@ -103,13 +106,6 @@ class TestFunctionValidateTsigKey:
         self.assert_raises_msg("xxx", 'Invalid tsig key: "xxx".')
 
 
-class TestConfig:
-    def test_config(self) -> None:
-        os.environ["dyndns_CONFIG_FILE"] = config_file
-        config = load_config()
-        assert config.secret == "12345678"
-
-
 class TestFunctionValidateSecret:
     def test_valid(self) -> None:
         assert validate_secret("abcd1234") == "abcd1234"
@@ -131,7 +127,23 @@ class TestFunctionValidateSecret:
             validate_secret("12345äüö")
 
 
-class TestPydanticIntegration:
+class TestConfig:
+    def test_load_from_enviroment_valiable(self) -> None:
+        os.environ["dyndns_CONFIG_FILE"] = config_file
+        config: Config = load_config()
+        assert config.secret == "12345678"
+
+    def test_valid(self) -> None:
+        config: Config = get_config()
+        assert config.secret == "12345678"
+        assert str(config.nameserver) == "127.0.0.1"
+        assert config.port == 53
+        assert config.zones[0].name == "dyndns1.dev."
+        assert (
+            config.zones[0].tsig_key
+            == "aaZI/Ssod3/yqhknm85T3IPKScEU4Q/CbQ2J+QQW9IXeLwkLkxFprkYDoHqre4ECqTfgeu/34DCjHJO8peQc/g=="
+        )
+
     class TestSecret:
         def test_valid(self) -> None:
             assert get_config(secret="abcd1234").secret == "abcd1234"
@@ -143,6 +155,10 @@ class TestPydanticIntegration:
         def test_invalid_non_alpanumeric(self) -> None:
             with pytest.raises(ValidationError):
                 get_config(secret="12345äüö")
+
+        def test_none(self) -> None:
+            with pytest.raises(ValidationError):
+                get_config(secret=None)
 
     class TestNameserver:
         def test_ipv4(self) -> None:
@@ -156,6 +172,10 @@ class TestPydanticIntegration:
         def test_invalid(self) -> None:
             with pytest.raises(ValidationError):
                 get_config(nameserver="invalid")
+
+        def test_none(self) -> None:
+            with pytest.raises(ValidationError):
+                get_config(nameserver=None)
 
     class TestPort:
         def test_default(self) -> None:
@@ -173,6 +193,42 @@ class TestPydanticIntegration:
         def test_invalid_greater(self) -> None:
             with pytest.raises(ValidationError):
                 get_config(port=65536)
+
+    class TestZones:
+        def test_none(self) -> None:
+            with pytest.raises(ValidationError):
+                get_config(zones=None)
+
+        def test_string(self) -> None:
+            with pytest.raises(ValidationError):
+                get_config(zones="zones")
+
+        def test_empty_list(self) -> None:
+            with pytest.raises(ValidationError):
+                get_config(zones=[])
+
+        def test_no_name(self) -> None:
+            with pytest.raises(ValidationError):
+                get_config(zones=[{"no_name": "-"}])
+
+        def test_invalid_zone_name(self) -> None:
+            with pytest.raises(DnsNameError):
+                get_config(
+                    zones=[
+                        {
+                            "name": "in valid.dev.",
+                            "tsig_key": "aaZI/Ssod3/yqhknm85T3IPKScEU4Q/CbQ2J+QQW9IXeLwkLkxFprkYDoHqre4ECqTfgeu/34DCjHJO8peQc/g==",
+                        }
+                    ]
+                )
+
+        def test_no_tsig_key(self) -> None:
+            with pytest.raises(ValidationError):
+                get_config(zones=[{"name": "dyndns1.dev."}])
+
+        def test_invalid_tsig_key(self) -> None:
+            with pytest.raises(DnsNameError):
+                get_config(zones=[{"name": "dyndns1.dev.", "tsig_key": "xxx"}])
 
 
 class TestFunctionLoadConfig:
@@ -201,105 +257,3 @@ class TestFunctionLoadConfig:
             None,  # type: ignore
             "The configuration file is in a invalid YAML format.",
         )
-
-    @pytest.mark.skip
-    def test_no_secret(self) -> None:
-        self.assert_raises_msg(
-            {"test": "test"},  # type: ignore
-            'Your configuration must have a "secret" key, for example: '
-            '"secret: VDEdxeTKH"',
-        )
-
-    @pytest.mark.skip
-    def test_invalid_secret(self) -> None:
-        self.assert_raises_msg(
-            {"secret": "ä"},  # type: ignore
-            "The secret must be at least 8 characters long. Currently the string is 1 characters long.",
-        )
-
-    @pytest.mark.skip
-    def test_no_nameserver(self) -> None:
-        self.assert_raises_msg(
-            {"secret": "12345678", "port": 53},  # type: ignore
-            'Your configuration must have a "nameserver" key, '
-            'for example: "nameserver: 127.0.0.1"',
-        )
-
-    @pytest.mark.skip
-    def test_no_zones(self) -> None:
-        self.assert_raises_msg(
-            {
-                "secret": "12345678",
-                "nameserver": "127.0.0.1",
-                "port": 53,
-            },  # type: ignore
-            'Your configuration must have a "zones" key.',
-        )
-
-    @pytest.mark.skip
-    def test_zones_string(self) -> None:
-        self.assert_raises_msg(
-            {
-                "secret": "12345678",
-                "nameserver": "127.0.0.1",
-                "port": 53,
-                "zones": "test",  # type: ignore
-            },
-            'Your "zones" key must contain a list of zones.',
-        )
-
-    @pytest.mark.skip
-    def test_zones_empty_list(self) -> None:
-        self.assert_raises_msg(
-            {"secret": "12345678", "nameserver": "127.0.0.1", "port": 53, "zones": []},
-            "You must have at least one zone configured, for example: "
-            '"- name: example.com" and "tsig_key: tPyvZA=="',
-        )
-
-    @pytest.mark.skip
-    def test_zone_no_name(self) -> None:
-        self.assert_raises_msg(
-            {"secret": "12345678", "nameserver": "127.0.0.1", "zones": [{"test": "-"}]},  # type: ignore
-            'Your zone dictionary must contain a key "name"',
-        )
-
-    @pytest.mark.skip
-    def test_zone_invalid_zone_name(self) -> None:
-        config: Config = {
-            "secret": "12345678",
-            "nameserver": "127.0.0.1",
-            "port": 53,
-            "zones": [{"name": "l o l", "tsig_key": "xxx"}],
-        }
-        self.assert_raises_msg(
-            config,
-            'The label "l o l" of the hostname "l o l" is invalid.',
-        )
-
-    @pytest.mark.skip
-    def test_zone_no_tsig_key(self) -> None:
-        self.assert_raises_msg(
-            {"secret": "12345678", "nameserver": "127.0.0.1", "zones": [{"name": "A"}]},  # type: ignore
-            'Your zone dictionary must contain a key "tsig_key"',
-        )
-
-    @pytest.mark.skip
-    def test_zone_invalid_tsig_key(self) -> None:
-        config: Config = {
-            "secret": "12345678",
-            "nameserver": "127.0.0.1",
-            "port": 53,
-            "zones": [{"name": "A", "tsig_key": "xxx"}],
-        }
-        self.assert_raises_msg(
-            config,
-            'Invalid tsig key: "xxx".',
-        )
-
-    def test_valid(self) -> None:
-        config: Config = load_config()
-        assert config.secret == "12345678"
-
-
-if __name__ == "__main__":
-    unittest.main()

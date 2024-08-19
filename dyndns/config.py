@@ -14,6 +14,7 @@ import dns
 import dns.name
 import dns.tsigkeyring
 import yaml
+from annotated_types import Len
 from dns.name import from_text as create_name_from_text
 from pydantic import BaseModel, ConfigDict
 from pydantic.functional_validators import AfterValidator
@@ -139,6 +140,9 @@ class ZoneConfig(BaseModel):
       ``tsig-keygen -a hmac-sha512 dyndns.example.com``"""
 
 
+ZonesList = Annotated[list["ZoneConfig"], Len(min_length=1)]
+
+
 class Config(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
@@ -155,7 +159,7 @@ class Config(BaseModel):
     """The port to which the DNS server listens. If the DNS server listens to
     port 53 by default, the value does not need to be specified."""
 
-    zones: list["ZoneConfig"]
+    zones: ZonesList
     """At least one zone specified as a list."""
 
 
