@@ -62,8 +62,11 @@ class IpAddressContainer:
         if not self.ipv4 and not self.ipv6:
             raise IpAddressesError("No ip address set.")
 
-    def _get_ip(self, ip_version: IpVersion) -> str:
-        return getattr(self, format_attr(ip_version))
+    def _get_ip(self, ip_version: IpVersion) -> str | None:
+        result = getattr(self, format_attr(ip_version))
+        if isinstance(result, str):
+            return result
+        return None
 
     def _setattr(self, ip_version: IpVersion, value: str) -> None:
         return setattr(self, format_attr(ip_version), value)
@@ -79,7 +82,7 @@ class IpAddressContainer:
 
     def _set_ip(self, address: str) -> None:
         ip, ip_version = validate_ip_address_by_version(address)
-        old_ip: str = self._get_ip(ip_version)
+        old_ip: str | None = self._get_ip(ip_version)
         if old_ip:
             msg: str = f'The attribute "{format_attr(ip_version)}" is already set and has the value "{old_ip}".'
             raise IpAddressesError(msg)

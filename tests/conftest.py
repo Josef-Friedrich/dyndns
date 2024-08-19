@@ -49,7 +49,7 @@ def fqdn(zones: ZonesCollection) -> FullyQualifiedDomainName:
 @pytest.fixture
 def app(env: ConfiguredEnvironment) -> Generator[Flask, Any, None]:
     app: Flask = create_app(env)
-    app.config.update(  # type: ignore
+    app.config.update(
         {
             "TESTING": True,
         }
@@ -74,9 +74,12 @@ class TestClient:
         self.dns = dns
         self.dns.delete_records("test")
 
-    def get(self, path: str) -> str:
+    def get(self, path: str) -> str | None:
         response: TestResponse = self.client.get(path)
-        return response.data.decode()
+        result = response.data.decode()
+        if isinstance(result, str):
+            return result
+        return None
 
     def get_response(self, path: str) -> TestResponse:
         return self.client.get(path)

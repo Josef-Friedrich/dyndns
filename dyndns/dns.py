@@ -144,7 +144,10 @@ class DnsZone:
             if result and len(result) > 0:
                 if record_type == "TXT":
                     element = result.pop()
-                    return element.strings[0].decode()
+                    result = element.strings[0].decode()
+                    if isinstance(result, str):
+                        return result
+                    raise ValueError("The record could not be read.")
                 else:
                     return str(result[0])
         except (dns.resolver.NoAnswer, dns.resolver.NXDOMAIN):

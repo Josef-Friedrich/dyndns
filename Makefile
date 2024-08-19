@@ -44,6 +44,9 @@ docs:
 lint:
 	poetry run tox -e lint
 
+type_check:
+	poetry run tox -e type-check
+
 pin_docs_requirements:
 	pip-compile --output-file=docs/requirements.txt docs/requirements.in pyproject.toml
 

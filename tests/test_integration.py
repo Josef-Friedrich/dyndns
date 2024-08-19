@@ -154,6 +154,7 @@ class TestMultiplePaths:
         assert client.get("/") == "dyndns\n"
 
     def test_check(self, client: TestClient) -> None:
-        content: str = client.get("/check")
+        content = client.get("/check")
+        assert content
         assert "could be updated on the zone 'dyndns1.dev.'" in content
         assert "could be updated on the zone 'dyndns2.dev.'" in content
