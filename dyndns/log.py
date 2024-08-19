@@ -20,39 +20,67 @@ class Update(TypedDict):
 
 
 class LogLevel(Enum):
-    CONFIGURATION_ERROR = 53
+    """
+    Define more log levels than the default Pythons levels in order to control
+    more precisely what is logged and what is not.
 
-    DNS_SERVER_ERROR = 52
-
-    IP_ADDRESS_ERROR = 51
+    https://docs.python.org/3/library/logging.html#logging-levels"""
 
     CRITICAL = 50
-    """Python default"""
+    """The Python default log level value for an critical message."""
+
+    CONFIGURATION_ERROR = 49
+    """
+    If ``dyndns`` has been configured incorrectly.
+    This mainly affects the configuration file in YAML format
+    (``/etc/dyndns.yml`` oder ``~/.dyndns.yml``).
+
+    :see: :exc:`dyndns.exceptions.ConfigurationError`
+    """
+
+    DNS_SERVER_ERROR = 48
+    """
+    :see: :exc:`dyndns.exceptions.DNSServerError`
+    """
+
+    IP_ADDRESS_ERROR = 47
+    """
+    :see: :exc:`dyndns.exceptions.IpAddressesError`
+    """
 
     DNS_NAME_ERROR = 43
+    """
+    :see: :exc:`dyndns.exceptions.DnsNameError`
+    """
 
     PARAMETER_ERROR = 42
+    """
+    :see: :exc:`dyndns.exceptions.ParameterError`
+    """
 
     CHECK_ERROR = 41
+    """
+    :see: :exc:`dyndns.exceptions.CheckError`
+    """
 
     ERROR = 40
-    """Python default"""
+    """The Python default log level value for an error."""
 
     WARNING = 30
-    """Python default"""
+    """The Python default log level value for an warning."""
 
     UPDATED = 21
 
     INFO = 20
-    """Python default"""
+    """The Python default log level value for an information message."""
 
     UNCHANGED = 11
 
     DEBUG = 10
-    """Python default"""
+    """The Python default log level value for a debug message."""
 
     NOTSET = 0
-    """Python default"""
+    """The Python default log level value for an not set log level."""
 
     @classmethod
     def get_name(cls, value: int) -> str:

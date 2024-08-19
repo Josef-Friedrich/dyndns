@@ -33,7 +33,9 @@ class IpAddressesError(DyndnsError):
 
 
 class ConfigurationError(DyndnsError):
-    """dyndns configuration error."""
+    """An error if ``dyndns`` has been configured incorrectly.
+    This mainly affects the configuration file in YAML format
+    (``/etc/dyndns.yml`` oder ``~/.dyndns.yml``)."""
 
     log_level = LogLevel.CONFIGURATION_ERROR
 
