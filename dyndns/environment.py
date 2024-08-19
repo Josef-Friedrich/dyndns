@@ -75,9 +75,8 @@ class ConfiguredEnvironment:
         """
         Update a DNS record.
 
-        :param secret: A password like secret string. The secret string has to
-            be at least 8 characters long and only alphnumeric characters are
-            allowed.
+        :param secret: A password-like secret string. The secret string must be
+            at least 8 characters long and only alphanumeric characters are permitted.
         :param fqdn: The Fully-Qualified Domain Name
             (e. g. ``www.example.com``). If you specify the argument ``fqdn``, you
             don’t have to specify the arguments ``zone_name`` and ``record_name``.

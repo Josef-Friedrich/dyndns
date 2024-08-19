@@ -191,21 +191,20 @@ first existing configuration file and ignores the later in this order:
 .. code-block:: yaml
 
     ---
-    secret: 12345678
+    secret: '12345678'
     nameserver: 127.0.0.1
-    dyndns_domain: dyndns.example.com
+    port: 53
     zones:
       - name: dyndns.example.com
         tsig_key: tPyvZA==
 
-* ``secret``: A password-like secret string. The secret string has to
-  be at least 8 characters long and only alphnumeric characters are
-  allowed.
+* ``secret``: A password-like secret string. The secret string must be at least
+  8 characters long and only alphanumeric characters are permitted.
 * ``nameserver``: The IP address of your nameserver. Version 4 or
   version 6 are allowed. Use ``127.0.0.1`` to communicate with your
   nameserver on the same machine.
-* ``dyndns_domain``: The domain through which the ``dyndns`` HTTP API is
-  provided. This key is only used in the usage page and can be omitted.
+* ``port``: The port to which the DNS server listens. If the DNS server listens
+  to port 53 by default, the value does not need to be specified.
 * ``zones``: At least one zone specified as a list.
     * ``name``: The domain name of the zone, for example
       ``dyndns.example.com``.
