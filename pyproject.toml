@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "dyndns"
-version = "1.1.1"
+version = "2.0.0"
 description = "A simple dynamic DNS HTTP based update API using Python and the Flask web framework."
 authors = ["Josef Friedrich <josef@friedrich.rocks>"]
 license = "MIT"
