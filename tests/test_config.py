@@ -5,6 +5,8 @@ from typing import Any
 from unittest import mock
 
 import pytest
+import yaml
+import yaml.scanner
 from dns.name import EmptyLabel, LabelTooLong, NameTooLong
 from pydantic import BaseModel, ValidationError
 
@@ -16,7 +18,7 @@ from dyndns.config import (
     validate_secret,
     validate_tsig_key,
 )
-from dyndns.exceptions import ConfigurationError, DnsNameError
+from dyndns.exceptions import DnsNameError
 from tests._helper import config_file, files_dir
 
 config: Any = {
@@ -127,12 +129,24 @@ class TestFunctionValidateSecret:
             validate_secret("12345äüö")
 
 
-class TestConfig:
+class TestFunctionLoadConfig:
     def test_load_from_enviroment_valiable(self) -> None:
         os.environ["dyndns_CONFIG_FILE"] = config_file
         config: Config = load_config()
         assert config.secret == "12345678"
 
+    @mock.patch("os.path.exists")
+    def test_no_config_file(self, exists: mock.Mock) -> None:
+        exists.return_value = False
+        with pytest.raises(FileNotFoundError):
+            load_config("/tmp/dyndns-xxx.yml")
+
+    def test_invalid_yaml_format(self) -> None:
+        with pytest.raises(yaml.scanner.ScannerError):
+            load_config(os.path.join(files_dir, "invalid-yaml.yml"))
+
+
+class TestConfig:
     def test_valid(self) -> None:
         config: Config = get_config()
         assert config.secret == "12345678"
@@ -229,31 +243,3 @@ class TestConfig:
         def test_invalid_tsig_key(self) -> None:
             with pytest.raises(DnsNameError):
                 get_config(zones=[{"name": "dyndns1.dev.", "tsig_key": "xxx"}])
-
-
-class TestFunctionLoadConfig:
-    def setup_method(self) -> None:
-        os.environ["dyndns_CONFIG_FILE"] = config_file
-
-    def assert_raises_msg(self, config: Config, msg: str) -> None:
-        with pytest.raises(ConfigurationError) as e:
-            load_config(config)
-        assert e.value.args[0] == msg
-
-    @mock.patch("os.path.exists")
-    def test_no_config_file(self, exists: mock.Mock) -> None:
-        exists.return_value = False
-        os.environ["dyndns_CONFIG_FILE"] = "/tmp/dyndns-xxx.yml"
-        self.assert_raises_msg(
-            None,  # type: ignore
-            "The configuration file could not be found.",
-        )
-
-    @pytest.mark.skip
-    def test_invalid_yaml_format(self) -> None:
-        config_file = os.path.join(files_dir, "invalid-yaml.yml")
-        os.environ["dyndns_CONFIG_FILE"] = config_file
-        self.assert_raises_msg(
-            None,  # type: ignore
-            "The configuration file is in a invalid YAML format.",
-        )
