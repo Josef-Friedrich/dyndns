@@ -47,7 +47,7 @@ def fqdn(zones: ZonesCollection) -> FullyQualifiedDomainName:
     return FullyQualifiedDomainName(zones=zones, fqdn="test.dyndns1.dev")
 
 
-@pytest.fixture()
+@pytest.fixture
 def app(env: ConfiguredEnvironment) -> Generator[Flask, Any, None]:
     app: Flask = create_app(env)
     app.config.update(  # type: ignore
@@ -58,7 +58,7 @@ def app(env: ConfiguredEnvironment) -> Generator[Flask, Any, None]:
     yield app
 
 
-@pytest.fixture()
+@pytest.fixture
 def flask_client(app: Flask) -> FlaskClient:
     return app.test_client()
 
@@ -97,6 +97,6 @@ class TestClient:
         self.dns.delete_record(name, record_type)
 
 
-@pytest.fixture()
+@pytest.fixture
 def client(flask_client: FlaskClient, dns: DnsZone) -> TestClient:
     return TestClient(flask_client, dns)
