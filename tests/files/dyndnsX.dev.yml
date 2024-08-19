@@ -2,6 +2,7 @@
 secret: '12345678'
 nameserver: 127.0.0.1
 port: 55553
+log_level: 10
 zones:
   - name: dyndns1.dev.
     tsig_key: aaZI/Ssod3/yqhknm85T3IPKScEU4Q/CbQ2J+QQW9IXeLwkLkxFprkYDoHqre4ECqTfgeu/34DCjHJO8peQc/g==

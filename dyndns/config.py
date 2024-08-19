@@ -16,7 +16,7 @@ import dns.tsigkeyring
 import yaml
 from annotated_types import Len
 from dns.name import from_text as create_name_from_text
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
 from pydantic.functional_validators import AfterValidator
 
 from dyndns.exceptions import ConfigurationError, DnsNameError, IpAddressesError
@@ -161,6 +161,14 @@ class Config(BaseModel):
     port: Port = 53
     """The port to which the DNS server listens. If the DNS server listens to
     port 53 by default, the value does not need to be specified."""
+
+    log_level: Annotated[int, Field(ge=0, le=50)] = 20
+    """
+    Values from 0 (everything is logged) to 50 (only critical message are logged) are allowed.
+    The default value is ``20``.
+
+    :see: :class:`dyndns.log.LogLevel`
+    """
 
     zones: ZonesList
     """At least one zone specified as a list."""

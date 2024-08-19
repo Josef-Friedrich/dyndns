@@ -30,10 +30,9 @@ class ConfiguredEnvironment:
 
     def __init__(self, config_file: str | Path | None = None) -> None:
         self.config = load_config(config_file)
+        logger.set_level(self.config.log_level)
         self.zones = ZonesCollection(self.config.zones)
-
         self._dns_zones = {}
-
         for zone in self.zones:
             self._dns_zones[zone.name] = DnsZone(
                 str(self.config.nameserver), self.config.port, zone

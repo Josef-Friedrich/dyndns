@@ -24,6 +24,7 @@ from tests._helper import config_file, files_dir
 config: Any = {
     "secret": "12345678",
     "nameserver": "127.0.0.1",
+    "log_level": "42",
     "zones": [
         {
             "name": "dyndns1.dev.",
@@ -134,6 +135,19 @@ class TestFunctionLoadConfig:
         os.environ["dyndns_CONFIG_FILE"] = config_file
         config: Config = load_config()
         assert config.secret == "12345678"
+        assert str(config.nameserver) == "127.0.0.1"
+        assert config.port == 55553
+        assert config.log_level == 10
+        assert config.zones[0].name == "dyndns1.dev."
+        assert (
+            config.zones[0].tsig_key
+            == "aaZI/Ssod3/yqhknm85T3IPKScEU4Q/CbQ2J+QQW9IXeLwkLkxFprkYDoHqre4ECqTfgeu/34DCjHJO8peQc/g=="
+        )
+        assert config.zones[1].name == "dyndns2.dev."
+        assert (
+            config.zones[1].tsig_key
+            == "KdSYRjm4zaz+rBWtJN5Q0r0slhJE9VmJR3EMi+1CMDh4GdNrj8KHuI5iYDIUcLYadGMVx3RFNBCPiceGnWH04w=="
+        )
 
     @mock.patch("os.path.exists")
     def test_no_config_file(self, exists: mock.Mock) -> None:
@@ -152,6 +166,7 @@ class TestConfig:
         assert config.secret == "12345678"
         assert str(config.nameserver) == "127.0.0.1"
         assert config.port == 53
+        assert config.log_level == 42
         assert config.zones[0].name == "dyndns1.dev."
         assert (
             config.zones[0].tsig_key
