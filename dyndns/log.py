@@ -7,7 +7,6 @@ from enum import Enum
 from typing import TYPE_CHECKING, TypedDict
 
 if TYPE_CHECKING:
-    from dyndns.config import RecordType
     from dyndns.dns import DnsChangeMessage
 
 
@@ -130,16 +129,6 @@ class Logger:
                 LogLevel.UPDATED,
                 f"{message.fqdn} {message.record_type} {message.old} -> {message.new}",
             )
-
-    def log_update(
-        self, updated: bool, fqdn: str, record_type: "RecordType", ip: str
-    ) -> str:
-        level: LogLevel
-        if updated:
-            level = LogLevel.UPDATED
-        else:
-            level = LogLevel.UNCHANGED
-        return self.log(level, f"{fqdn} {record_type} {ip}")
 
     def set_level(self, level: int | LogLevel) -> None:
         if isinstance(level, LogLevel):
