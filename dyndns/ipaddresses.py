@@ -4,9 +4,8 @@ from __future__ import annotations
 
 from flask import Request
 
-from dyndns.config import validate_ip
+from dyndns.config import IpVersion, validate_ip
 from dyndns.exceptions import IpAddressesError
-from dyndns.types import IpVersion
 
 
 def format_attr(ip_version: IpVersion) -> str:

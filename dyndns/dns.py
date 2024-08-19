@@ -16,9 +16,9 @@ import dns.tsig
 import dns.tsigkeyring
 import dns.update
 
+from dyndns.config import RecordType
 from dyndns.exceptions import CheckError, DNSServerError
 from dyndns.log import LogLevel, logger
-from dyndns.types import RecordType
 
 if TYPE_CHECKING:
     from dyndns.zones import Zone

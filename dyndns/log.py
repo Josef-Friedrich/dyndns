@@ -7,8 +7,8 @@ from enum import Enum
 from typing import TYPE_CHECKING, TypedDict
 
 if TYPE_CHECKING:
+    from dyndns.config import RecordType
     from dyndns.dns import DnsChangeMessage
-    from dyndns.types import RecordType
 
 
 class Update(TypedDict):

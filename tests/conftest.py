@@ -8,11 +8,10 @@ from flask import Flask
 from flask.testing import FlaskClient
 from werkzeug.test import TestResponse
 
-from dyndns.config import Config
+from dyndns.config import Config, RecordType
 from dyndns.dns import DnsZone
 from dyndns.environment import ConfiguredEnvironment
 from dyndns.names import FullyQualifiedDomainName
-from dyndns.types import RecordType
 from dyndns.webapp import create_app
 from dyndns.zones import Zone, ZonesCollection
 

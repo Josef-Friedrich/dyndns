@@ -8,7 +8,7 @@ import os
 import re
 from io import TextIOWrapper
 from pathlib import Path
-from typing import Annotated, Any
+from typing import Annotated, Any, Literal
 
 import dns
 import dns.name
@@ -20,7 +20,10 @@ from pydantic import BaseModel, ConfigDict
 from pydantic.functional_validators import AfterValidator
 
 from dyndns.exceptions import ConfigurationError, DnsNameError, IpAddressesError
-from dyndns.types import IpVersion
+
+RecordType = Literal["A", "AAAA", "TXT"]
+
+IpVersion = Literal[4, 6]
 
 
 def validate_ip(

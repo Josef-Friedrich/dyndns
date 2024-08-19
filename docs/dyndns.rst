@@ -45,11 +45,6 @@ dyndns.names module
 
 .. automodule:: dyndns.names
 
-dyndns.types module
-^^^^^^^^^^^^^^^^^^^
-
-.. automodule:: dyndns.types
-
 dyndns.webapp module
 ^^^^^^^^^^^^^^^^^^^^
 
