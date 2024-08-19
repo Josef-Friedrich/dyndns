@@ -6,55 +6,19 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 <!-- insertion marker -->
-## Unreleased
+## [2.0.0](https://github.com/Josef-Friedrich/dyndns/releases/tag/2.0.0) - 2024-08-19
 
-<small>[Compare with latest](https://github.com/Josef-Friedrich/dyndns/compare/1.1.1...HEAD)</small>
+<small>[Compare with 1.1.1](https://github.com/Josef-Friedrich/dyndns/compare/1.1.1...2.0.0)</small>
 
-### Added
+### Changed
 
-- add bind9 dev config ([8141d02](https://github.com/Josef-Friedrich/dyndns/commit/8141d02494a7b932234e6dd53c154794c087c45a) by Josef Friedrich).
-- Add compose file ([8d1ce8c](https://github.com/Josef-Friedrich/dyndns/commit/8d1ce8ca4055d1c8bb274a2c1d2bc44502db3f65) by Josef Friedrich).
-- Add record ([2fc7960](https://github.com/Josef-Friedrich/dyndns/commit/2fc796014cc6f20079435428c3e3a2be0672ded6) by Josef Friedrich).
-- Add log method to LogLevel enum ([dbc9c7b](https://github.com/Josef-Friedrich/dyndns/commit/dbc9c7b50d0ae55502deafef2522e484854b6561) by Josef Friedrich).
-- Add some tests ([84236fb](https://github.com/Josef-Friedrich/dyndns/commit/84236fb14c27b8b6add438b6e8c8e4cbc9c170bf) by Josef Friedrich).
-- Add stream logger ([48d414b](https://github.com/Josef-Friedrich/dyndns/commit/48d414b02dbf036fcc4d85126477fa4d75afc7d3) by Josef Friedrich).
-- Add debug script ([c81b02b](https://github.com/Josef-Friedrich/dyndns/commit/c81b02be1efac7fdbdd68c772a89bc6b473a8bac) by Josef Friedrich).
-- Add some type hints ([9d89af6](https://github.com/Josef-Friedrich/dyndns/commit/9d89af6f954fa9b8125a3ea5c9b7cb4cd21e9e1a) by Josef Friedrich).
-- Add more type hints ([bc10e19](https://github.com/Josef-Friedrich/dyndns/commit/bc10e1947d97c9224f2505cb4ff4f3be83f4d535) by Josef Friedrich).
-- Add type for config ([53694fc](https://github.com/Josef-Friedrich/dyndns/commit/53694fca4347eb1544e08afeb7eebdf08712a79d) by Josef Friedrich).
-- Add some types ([2f7a376](https://github.com/Josef-Friedrich/dyndns/commit/2f7a376cc606aeced48299da263ef41ec2924ef8) by Josef Friedrich).
-- Add README_template.rst ([58cea6d](https://github.com/Josef-Friedrich/dyndns/commit/58cea6dd5b96ae766f684561ed4b09d9b8a2aea9) by Josef Friedrich).
-- Add license classifiers in pyproject.toml ([3d18f9a](https://github.com/Josef-Friedrich/dyndns/commit/3d18f9a988d700049293932e86698fb3cb422b39) by Josef Friedrich).
-- Add pyproject.toml ([2e11962](https://github.com/Josef-Friedrich/dyndns/commit/2e11962dc7a4aa3a22cc809b86441e30c65b25b7) by Josef Friedrich).
-
-### Fixed
-
-- Fix path ([6654781](https://github.com/Josef-Friedrich/dyndns/commit/6654781390ae961c4b61c85664b9bf706efc2ac0) by Josef Friedrich).
-- Fix tests ([f0b5c98](https://github.com/Josef-Friedrich/dyndns/commit/f0b5c9876b196afc5f767f50729a512d27b61fa2) by Josef Friedrich).
-- Fix dns ng ([017c2dc](https://github.com/Josef-Friedrich/dyndns/commit/017c2dc051d25bfcb86f2d2b0c5134ccd1722f39) by Josef Friedrich).
-- Fix the tests ([980e765](https://github.com/Josef-Friedrich/dyndns/commit/980e765a017af022682667a9aa3aabd7c59d785f) by Josef Friedrich).
-- Fix test ([3f48491](https://github.com/Josef-Friedrich/dyndns/commit/3f4849188358bcaf3af1fd0a219bc80cbf15a53d) by Josef Friedrich).
-- Fix some tests ([0da9c39](https://github.com/Josef-Friedrich/dyndns/commit/0da9c3974923a471506b0e3a2b0b8c866ab8f3b6) by Josef Friedrich).
-- Fix issues in constructor of the class FullyQualifiedDomainName ([a6e4abf](https://github.com/Josef-Friedrich/dyndns/commit/a6e4abf133f6633296ebef77a5589dbdd4527ce9) by Josef Friedrich).
-- Fix all type hints ([fcea143](https://github.com/Josef-Friedrich/dyndns/commit/fcea14323785e9b6cf0f3456d9cf14e8d3c3049d) by Josef Friedrich).
-- Fix some type hints ([995b75a](https://github.com/Josef-Friedrich/dyndns/commit/995b75ac83bccccb2ee9899fb072c8b9be499919) by Josef Friedrich).
-- Fix some typing issues ([75df1c4](https://github.com/Josef-Friedrich/dyndns/commit/75df1c489dce9630eb2df41327154884c24e74d8) by Josef Friedrich).
-- Fix some type issues ([7efb47f](https://github.com/Josef-Friedrich/dyndns/commit/7efb47f7047a54a0ff0a8e4a1d6fd4834d236c1d) by Josef Friedrich).
-- Fix TypeError object is not subscriptable ([f81b968](https://github.com/Josef-Friedrich/dyndns/commit/f81b968334866525bb8ee926ed6ca09c40fa124a) by Josef Friedrich).
-- Fix tests for py38 ([17188e6](https://github.com/Josef-Friedrich/dyndns/commit/17188e6ec3513d2385ad17d4ffcc3224ceafa2ff) by Josef Friedrich).
-- Fixed version for readme-patcher ([edbb82d](https://github.com/Josef-Friedrich/dyndns/commit/edbb82de42e843af0107554b89cd56ad43086f68) by Josef Friedrich).
-- Fix flake8 and docs tests ([dc763a0](https://github.com/Josef-Friedrich/dyndns/commit/dc763a067a5d16f03d9c0156d8212efcf2005a6b) by Josef Friedrich).
+- The configuration file is now checked using pydantic
 
 ### Removed
 
-- Remove sqlite database ([7e55aea](https://github.com/Josef-Friedrich/dyndns/commit/7e55aeaec603361f679a965940ed4ef1a75175c6) by Josef Friedrich).
-- Remove dnspython depecreation warining ([a6537f0](https://github.com/Josef-Friedrich/dyndns/commit/a6537f00968ec291a74fb3e017da4044b3f011d6) by Josef Friedrich).
-- Remove html_template module ([7086239](https://github.com/Josef-Friedrich/dyndns/commit/70862393b12196ecc8a0fdfddd0f32a75fc75932) by Josef Friedrich).
+- Static HTML pages that displayed the documentation
 - Remove statistics support ([451870e](https://github.com/Josef-Friedrich/dyndns/commit/451870e96e31e926c37692dda87a93f09d6bacc3) by Josef Friedrich).
-- Remove the u prefix of same strings ([ee2165f](https://github.com/Josef-Friedrich/dyndns/commit/ee2165fdd9b2738393d6b605070192c629c64369) by Josef Friedrich).
-- Remove versioneer ([63af0c9](https://github.com/Josef-Friedrich/dyndns/commit/63af0c9ed29d31dff4116bc64ec3f0c31936e2b7) by Josef Friedrich).
 
-<!-- insertion marker -->
 ## [1.1.1](https://github.com/Josef-Friedrich/dyndns/releases/tag/1.1.1) - 2021-02-19
 
 <small>[Compare with 1.1.0](https://github.com/Josef-Friedrich/dyndns/compare/1.1.0...1.1.1)</small>
@@ -355,4 +319,3 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Removed
 
 - Remove ([bde5714](https://github.com/Josef-Friedrich/dyndns/commit/bde57143e6e07990220370fa9ebe226afc6b199d) by Josef Friedrich).
-
