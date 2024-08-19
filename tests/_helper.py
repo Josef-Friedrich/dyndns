@@ -21,7 +21,7 @@ def check_internet_connectifity(
 
 
 files_dir: str = os.path.join(os.path.dirname(__file__), "files")
-config_file: str = os.path.join(files_dir, "config.yml")
+config_file: str = os.path.join(files_dir, "dyndnsX.dev.yml")
 
 
 IS_REAL_WORLD: bool = Path("/etc/dyndns.yml").exists()

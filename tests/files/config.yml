@@ -1,9 +1,0 @@
----
-secret: "12345678"
-nameserver: 127.0.0.1
-port: 53
-zones:
-  - name: example.com
-    tsig_key: tPyvZA==
-  - name: dyndns.de
-    tsig_key: tPyvZA==
