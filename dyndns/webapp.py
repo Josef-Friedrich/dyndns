@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import logging
+from importlib.metadata import version as get_version
 from typing import Any, Optional
 
 import flask
@@ -52,7 +53,7 @@ def create_app(env: ConfiguredEnvironment) -> flask.Flask:
 
     @app.route("/")
     def home() -> str:
-        return "dyndns\n"
+        return f"dyndns v{get_version('dyndns')}\n"
 
     @app.route("/check")
     def check() -> str:

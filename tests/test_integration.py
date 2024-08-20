@@ -1,3 +1,5 @@
+from importlib.metadata import version as get_version
+
 from tests.conftest import TestClient
 
 
@@ -151,7 +153,7 @@ def test_delete_by_path(client: TestClient) -> None:
 
 class TestMultiplePaths:
     def test_home(self, client: TestClient) -> None:
-        assert client.get("/") == "dyndns\n"
+        assert client.get("/") == f"dyndns v{get_version('dyndns')}\n"
 
     def test_check(self, client: TestClient) -> None:
         content = client.get("/check")
