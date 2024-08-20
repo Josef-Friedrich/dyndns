@@ -50,11 +50,6 @@ dyndns.webapp module
 
 .. automodule:: dyndns.webapp
 
-dyndns.wsgi module
-^^^^^^^^^^^^^^^^^^
-
-.. automodule:: dyndns.wsgi
-
 dyndns.zones module
 ^^^^^^^^^^^^^^^^^^^
 
