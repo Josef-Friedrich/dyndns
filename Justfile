@@ -74,7 +74,7 @@ docs_sphinx:
 # Pin the requirements for readthedocs
 pin_docs_requirements:
 	rm -rf docs/requirements.txt
-	uv run pip-compile --strip-extras --output-file=docs/requirements.txt docs/requirements.in pyproject.toml
+	uv tool run --from pip-tools pip-compile --strip-extras --output-file=docs/requirements.txt docs/requirements.in pyproject.toml
 
 # Run ruff check
 lint:
